@@ -10,6 +10,9 @@ through 22 beats, driven by an operator's keyboard.
 The Pages deploy is the **backup**, not the plan. On presentation day, run the
 built deck from the operator's own machine — see "Running it" below.
 
+- **[`docs/RUNSHEET.md`](docs/RUNSHEET.md)** — every beat: what is said, where to
+  click, what the deck does, what the audience reads. Start here to review the
+  deck or point at a beat that needs changes.
 - **`CONTEXT.md`** — why every decision is what it is. Read this first.
 - **`src/beats.js`** — the script, the captions, the staging cues. The manifest.
   Rewriting the speech means editing this file and nothing else.
@@ -81,8 +84,22 @@ presented in, and comes back when you exit. `H` overrides either way. So
 reviewing shows it, presenting never does, and nobody has to remember.
 
 Feedback that lands directly: *"`roots-02` — the shard lights too fast"* or
-*"`eff-01` — hold the empty seat longer."* Every beat's id, caption, script and
-staging cue live together in `src/beats.js`; the visual summary is CONTEXT.md §6.
+*"`eff-01` — hold the empty seat longer."*
+
+**[`docs/RUNSHEET.md`](docs/RUNSHEET.md)** has every beat written out — speaker,
+script, click cue, on-screen text, and what the deck does — with an anchor per
+id, so `docs/RUNSHEET.md#roots-02` links straight to the one you mean.
+
+### After rewriting the speech
+
+The run sheet is **generated**, never hand-edited. Edit `src/beats.js`, then:
+
+```bash
+npm run runsheet     # regenerates docs/RUNSHEET.md
+```
+
+CI fails if you forget. That is deliberate: a run sheet that quietly disagrees
+with the deck is worse than no run sheet, because people trust it.
 
 ---
 

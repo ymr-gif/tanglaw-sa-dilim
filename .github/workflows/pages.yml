@@ -23,6 +23,29 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  # The run sheet is generated from beats.js. This job fails if someone edits
+  # the speech without regenerating it, because a run sheet that disagrees with
+  # the deck is worse than none at all — people trust it.
+  #
+  # It deliberately does NOT gate the deploy. A stale doc is a real problem, but
+  # it is not a reason to stop shipping the deck the day before a presentation.
+  runsheet:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm run runsheet
+      - name: Check docs/RUNSHEET.md is up to date
+        run: |
+          if ! git diff --quiet -- docs/RUNSHEET.md; then
+            echo "::error::docs/RUNSHEET.md is stale. Run 'npm run runsheet' and commit."
+            git diff -- docs/RUNSHEET.md
+            exit 1
+          fi
+          echo "Run sheet matches src/beats.js."
+
   build:
     runs-on: ubuntu-latest
     steps:
