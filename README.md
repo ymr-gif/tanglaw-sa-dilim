@@ -5,6 +5,11 @@
 A live-presented advocacy deck. One MassKara mask of 7,000 points, morphing
 through 22 beats, driven by an operator's keyboard.
 
+**Live:** <https://ymr-gif.github.io/tanglaw-sa-dilim/>
+
+The Pages deploy is the **backup**, not the plan. On presentation day, run the
+built deck from the operator's own machine — see "Running it" below.
+
 - **`CONTEXT.md`** — why every decision is what it is. Read this first.
 - **`src/beats.js`** — the script, the captions, the staging cues. The manifest.
   Rewriting the speech means editing this file and nothing else.
