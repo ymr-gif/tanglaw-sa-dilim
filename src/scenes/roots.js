@@ -18,14 +18,14 @@
 import { COLOR, DIM, TIME } from '../theme.js';
 import { byShard, clearDelays } from './_base.js';
 
-const UNLIT = [COLOR.ash, 5.0];
+const UNLIT = [COLOR.ash, 7.2];
 
 /** The four dim tints, in shard order. Same order as prevention.js. */
 const LIT = [
   [DIM.violet, 9.5], // 0 cracked cheek — bullying / discrimination
   [DIM.blue, 9.5], // 1 hollow eye — untreated mental health
   [DIM.gold, 8.5], // 2 mouth, too wide — craving to be seen
-  [DIM.intruder, 3.2], // 3 foreign fragment — NVE online
+  [DIM.intruder, 2.5], // 3 foreign fragment — NVE online
 ];
 
 const cache = new Map();

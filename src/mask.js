@@ -49,6 +49,12 @@ const ANCHORS_ART = [
   [590, 210], // 3 the crown's crest         — weaponized    -> EMPOWER
 ];
 
+/**
+ * Where the mask breaks from, in the artwork's pixel coordinates. Sits on the
+ * face between the eyes — cracks radiate from here.
+ */
+const CRACK_ORIGIN_ART = [590, 690];
+
 /** Resolution the artwork is rasterised at before sampling. */
 const RASTER = 620;
 
@@ -66,13 +72,13 @@ const WHITE_CUT = 247;
  * the Prevention mirror has nothing to put back together.
  */
 const FRACTURE = [
-  { mag: 0.085, rot: 0.05, sx: 1.0, sy: 1.0 },
-  { mag: 0.085, rot: -0.05, sx: 1.0, sy: 1.0 },
-  { mag: 0.075, rot: 0.04, sx: 1.0, sy: 1.0 },
+  { mag: 0.022, rot: 0.034, sx: 1.0, sy: 1.0 },
+  { mag: 0.022, rot: -0.034, sx: 1.0, sy: 1.0 },
+  { mag: 0.018, rot: 0.028, sx: 1.0, sy: 1.0 },
   // Shard 3 is the intruder. It travels further, turns much further, and is
   // scaled non-uniformly, so it visibly does not belong to the same face
   // before a word is said about it (§6).
-  { mag: 0.165, rot: 0.20, sx: 1.10, sy: 0.90 },
+  { mag: 0.080, rot: 0.150, sx: 1.06, sy: 0.95 },
 ];
 
 /** Classroom grid used by Effects. 30 desks, ~233 points each. */
@@ -93,11 +99,20 @@ export async function loadMask() {
     )
   );
 
-  const shardOf = assignShards(positions, anchors);
+  // The break starts on the face, not at the image's centre — the crown sits
+  // high, so the bounding-box centre is above the face and cracks radiating
+  // from it would miss the features they are supposed to split.
+  const crackOrigin = new Vector3(
+    (CRACK_ORIGIN_ART[0] - sampled.bounds.cx) / sampled.bounds.scale,
+    -(CRACK_ORIGIN_ART[1] - sampled.bounds.cy) / sampled.bounds.scale,
+    0
+  );
+
+  const shardOf = assignShards(positions, crackOrigin);
   const deskOf = new Uint8Array(POINTS);
   for (let i = 0; i < POINTS; i++) deskOf[i] = i % DESKS;
 
-  const states = buildStates(positions, shardOf, anchors);
+  const states = buildStates(positions, shardOf, crackOrigin);
 
   return {
     base: positions,
@@ -286,81 +301,116 @@ function normalize(positions, bounds) {
   return { positions, radius, halfW, halfH };
 }
 
-/** Nearest anchor wins, so all POINTS belong to exactly one of four shards. */
-function assignShards(positions, anchors) {
+/**
+ * Split the mask into four shards along CRACKS, not along a Voronoi diagram.
+ *
+ * Nearest-anchor assignment is the obvious way to do this and it is the reason
+ * the break used to read as four parallel bands: the boundary between two
+ * nearest-anchor regions is a perpendicular bisector, which is perfectly
+ * straight, and four sites laid out top/left/right/bottom produce four straight
+ * cuts. That is a sliced image, not a cracked one.
+ *
+ * Real breakage radiates from a point and wanders. So: sectors by ANGLE around
+ * a single origin sitting on the face, with the sector boundaries perturbed by
+ * radius so each crack zig-zags outward instead of running true. The four
+ * sectors still land on the four meanings — left cheek, right eye, mouth,
+ * crown — because those features sit in those directions from the face.
+ */
+function assignShards(positions, origin) {
   const shardOf = new Uint8Array(POINTS);
+  const QUARTER = Math.PI / 2;
 
   for (let i = 0; i < POINTS; i++) {
     const i3 = i * 3;
-    const x = positions[i3];
-    const y = positions[i3 + 1];
+    const dx = positions[i3] - origin.x;
+    const dy = positions[i3 + 1] - origin.y;
 
-    let best = 0;
-    let bestD = Infinity;
-    for (let s = 0; s < anchors.length; s++) {
-      const dx = x - anchors[s].x;
-      const dy = y - anchors[s].y;
-      const d = dx * dx + dy * dy;
-      if (d < bestD) {
-        bestD = d;
-        best = s;
-      }
-    }
-    shardOf[i] = best;
+    const r = Math.hypot(dx, dy);
+
+    // Two frequencies so the crack has both a long wander and a finer jag, plus
+    // a positional term so the four cracks are not mirror images of each other.
+    // Mostly ONE low frequency. The earlier version stacked a strong high
+    // frequency on top, which does not draw a jagged line — it dithers the
+    // boundary, so points of two shards interleave in a speckled band and the
+    // crack reads as noise. A crack has to stay a line while it wanders.
+    const wobble =
+      0.26 * Math.sin(r * 6.0 + 2.1) +
+      0.06 * Math.sin(r * 15.0 + 0.6) +
+      0.05 * Math.sin(positions[i3] * 7.0 + positions[i3 + 1] * 5.0);
+
+    let a = Math.atan2(dy, dx) + wobble;
+
+    // Fold to 0..2pi.
+    a = ((a % TAU) + TAU) % TAU;
+
+    // Deliberately UNEQUAL sectors. Equal quarters look right on paper and are
+    // wrong here: the crown occupies an enormous area straight up from the
+    // face, so an even "up" quarter hands half the artwork to shard 3 — and
+    // shard 3 is meant to be a foreign *fragment*, not the largest piece on
+    // screen. A narrow wedge for the crest, and the crown's wings fall to the
+    // left and right shards instead, so every crack runs through both the
+    // crown and the face like a break through one object.
+    if (a >= SECTOR[3] || a < SECTOR[0]) shardOf[i] = 1; // right — eye
+    else if (a < SECTOR[1]) shardOf[i] = 3; // narrow wedge up — crest
+    else if (a < SECTOR[2]) shardOf[i] = 0; // left — cheek
+    else shardOf[i] = 2; // down — mouth
   }
 
   return shardOf;
 }
 
+const TAU = Math.PI * 2;
+const DEG = Math.PI / 180;
+
+/** Sector boundaries, CCW from +x. See the note in assignShards. */
+const SECTOR = [65 * DEG, 115 * DEG, 205 * DEG, 335 * DEG];
+
+/** Unit direction each shard drifts along when the mask breaks. */
+const SHARD_DIR = [
+  [-1, 0], // 0 left cheek
+  [1, 0], // 1 right eye
+  [0, -1], // 2 mouth
+  [0, 1], // 3 crown crest
+];
+
 /* ── States ─────────────────────────────────────────────────────────────── */
 
-function buildStates(base, shardOf, anchors) {
+function buildStates(base, shardOf, origin) {
   const rand = seededRandom(0x7a9f2026);
   const buf = () => new Float32Array(POINTS * 3);
-
-  // Per-shard centroid — the pivot a shard rotates about when it breaks away.
-  const centroids = anchors.map(() => ({ x: 0, y: 0, n: 0 }));
-  for (let i = 0; i < POINTS; i++) {
-    const c = centroids[shardOf[i]];
-    c.x += base[i * 3];
-    c.y += base[i * 3 + 1];
-    c.n++;
-  }
-  for (const c of centroids) {
-    if (c.n) {
-      c.x /= c.n;
-      c.y /= c.n;
-    }
-  }
 
   /** Shared shard displacement, scaled — 1 is fully broken, 0 is seated. */
   function shardState(amount, only3 = null) {
     const out = buf();
+
     for (let i = 0; i < POINTS; i++) {
       const i3 = i * 3;
-      const s = shardOf[i];
-      const f = FRACTURE[s];
-      const c = centroids[s];
+      const shard = shardOf[i];
+      const f = FRACTURE[shard];
+      const dir = SHARD_DIR[shard];
 
       // How much of the break this particular shard keeps. Prevention pulls
       // shards 0-2 nearly home while the intruder stays out of place.
-      const k = only3 !== null && s === 3 ? only3 : amount;
+      const k = only3 !== null && shard === 3 ? only3 : amount;
 
-      const len = Math.hypot(c.x, c.y) || 1;
-      const dx = (c.x / len) * f.mag * k;
-      const dy = (c.y / len) * f.mag * k;
+      // Everything pivots about the ONE point the mask broke from, not about
+      // each piece's own middle. Pieces that rotate about a shared origin stay
+      // hinged to each other and open into wedges — the gap is hairline at the
+      // centre and widest at the rim, which is what a crack looks like. Pieces
+      // that rotate about their own centroids just slide past one another.
+      const px = base[i3] - origin.x;
+      const py = base[i3 + 1] - origin.y;
 
       const a = f.rot * k;
       const cos = Math.cos(a);
       const sin = Math.sin(a);
 
-      // Rotate and scale about the shard's own centroid, then displace.
-      const px = (base[i3] - c.x) * (1 + (f.sx - 1) * k);
-      const py = (base[i3 + 1] - c.y) * (1 + (f.sy - 1) * k);
+      const sx = 1 + (f.sx - 1) * k;
+      const sy = 1 + (f.sy - 1) * k;
 
-      out[i3] = c.x + (px * cos - py * sin) + dx;
-      out[i3 + 1] = c.y + (px * sin + py * cos) + dy;
-      out[i3 + 2] = base[i3 + 2] + (Math.abs(k) > 0.001 ? (rand() - 0.5) * 0.05 * k : 0);
+      out[i3] = origin.x + (px * sx * cos - py * sy * sin) + dir[0] * f.mag * k;
+      out[i3 + 1] = origin.y + (px * sx * sin + py * sy * cos) + dir[1] * f.mag * k;
+      out[i3 + 2] = base[i3 + 2] + (Math.abs(k) > 0.001 ? (rand() - 0.5) * 0.04 * k : 0);
     }
     return out;
   }
