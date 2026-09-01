@@ -1,0 +1,182 @@
+/*
+ * Tanglaw sa Dilim — presentation styles.
+ *
+ * Two rules here are load-bearing and must not be "tidied":
+ *
+ *   1. There is no `text-transform` anywhere in this file. Caption case comes
+ *      from beats.js verbatim — lowercase in the darkness, uppercase in the
+ *      light. Case carries meaning, so it cannot also be a default (CONTEXT.md §4).
+ *
+ *   2. Every size is relative. The deck has to fit any monitor at any aspect
+ *      ratio with no manual adjustment (§8).
+ */
+
+/* Self-hosted. No CDN — the deck must run with no network (§10). */
+@font-face {
+  font-family: 'Bebas Neue';
+  src: url('/fonts/bebas-neue-400.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: block;
+}
+
+/* Mulish ships as a variable font, so one file serves the whole weight range. */
+@font-face {
+  font-family: 'Mulish';
+  src: url('/fonts/mulish-var.woff2') format('woff2-variations');
+  font-weight: 300 700;
+  font-style: normal;
+  font-display: block;
+}
+
+:root {
+  --void: #0b0d1a;
+  --ash: #2a2d3d;
+  --paper: #e8e6ef;
+
+  --display: 'Bebas Neue', 'Haettenschweiler', 'Arial Narrow Bold', Impact, sans-serif;
+  --body: 'Mulish', system-ui, -apple-system, 'Segoe UI', sans-serif;
+
+  /* Safe area. Nothing sits against a bezel or gets clipped by projector
+     overscan (§8). */
+  --pad-y: max(4vh, 2rem);
+  --pad-x: max(6vw, 2rem);
+
+  --caption-in: 400ms;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overflow: hidden; /* the deck never scrolls */
+  background: var(--void);
+  color: var(--paper);
+  font-family: var(--body);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Hidden after ~2s idle (§10 failsafe 3). */
+body.idle {
+  cursor: none;
+}
+
+#stage {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+}
+
+#stage canvas {
+  display: block;
+}
+
+#overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none; /* clicks fall through to the deck, which advances */
+}
+
+/* ── Centre caption ─────────────────────────────────────────────────────── */
+
+.caption {
+  position: absolute;
+  left: 50%;
+  bottom: var(--pad-y);
+  transform: translateX(-50%) translateY(0.6rem);
+  width: min(90vw, 60ch); /* the refusal sentence wraps cleanly at 16:9 */
+  padding-inline: var(--pad-x);
+  margin: 0;
+  text-align: center;
+  text-wrap: balance;
+
+  opacity: 0;
+  transition:
+    opacity var(--caption-in) ease-out,
+    transform var(--caption-in) ease-out;
+}
+
+.caption.is-visible {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* Body captions: warm humanist sans, generous spacing (§4). */
+.caption[data-variant='body'] {
+  font-family: var(--body);
+  font-weight: 400;
+  font-size: clamp(1.75rem, 4.5vw, 5rem);
+  line-height: 1.35;
+  letter-spacing: 0.06em;
+  color: var(--paper);
+}
+
+/* Display: title and the refusal line only. Type as an active element,
+   not a delivery vehicle (§4). */
+.caption[data-variant='display'] {
+  font-family: var(--display);
+  font-weight: 400;
+  /* Sized so the refusal sentence takes two lines and still leaves the
+     near-whole mask visible behind it — the gap in the mask is the argument
+     the sentence is making, so it cannot be covered up. */
+  font-size: clamp(2.5rem, 6.4vw, 7rem);
+  line-height: 1.04;
+  letter-spacing: 0.02em;
+  color: #f4f2f8;
+}
+
+/* ── Shard labels ───────────────────────────────────────────────────────── */
+
+/* Anchored to a projected 3D position every frame, then clamped into the safe
+   area by shardlabel.js. Never a fixed pixel offset from the shard (§8). */
+.shard-label {
+  position: absolute;
+  left: 0;
+  top: 0;
+  margin: 0;
+  white-space: nowrap;
+  font-family: var(--body);
+  font-size: clamp(1.15rem, 2.6vw, 2.9rem);
+  letter-spacing: 0.16em;
+  line-height: 1;
+
+  opacity: 0;
+  transition: opacity var(--caption-in) ease-out;
+  will-change: transform;
+}
+
+.shard-label.is-visible {
+  opacity: 1;
+}
+
+/* Roots: said under the breath. Prevention: declarative. The weight difference
+   reinforces the case rule already carried by the text itself. */
+.shard-label[data-tone='dark'] {
+  font-weight: 400;
+  color: #9c9ab0;
+}
+
+.shard-label[data-tone='light'] {
+  font-weight: 600;
+  color: var(--paper);
+}
+
+/* ── Black veil (B key) ─────────────────────────────────────────────────── */
+
+#veil {
+  position: fixed;
+  inset: 0;
+  z-index: 2;
+  background: #000;
+  pointer-events: none;
+}
+
+#veil[hidden] {
+  display: none;
+}

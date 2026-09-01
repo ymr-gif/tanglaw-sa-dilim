@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  mask.svg — the one object the entire deck runs on.
+
+  PLACEHOLDER ART. Geometric line-art, deliberately not photographic: a photo of
+  a real MassKara mask pulls attention toward the festival itself, while a
+  stylised outline stays a symbol (CONTEXT.md §4). Swap this file for final art
+  and nothing in the code needs to change — mask.js samples whatever is here.
+
+  Authoring rules, if you replace it:
+    - Keep the viewBox at 0 0 1000 1200 and the face roughly centred on (500,600),
+      or update ANCHORS_SVG in src/mask.js to match the new feature positions.
+    - Stroked paths must carry fill="none". mask.js converts strokes to ribbon
+      geometry and fills to shape geometry; a path with both is drawn twice.
+    - The eyes must stay hollow (outline only, no fill). The mask is unlit and
+      hollow-eyed at the title beat, and the eye is shard 1's home.
+    - Keep the smile too wide. It is the performance of okay-ness, and it is
+      doing the most narrative work of any feature here.
+-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1200" width="1000" height="1200">
+
+  <!-- ── Crown / headdress ────────────────────────────────────────────────
+       MassKara masks are topped with an elaborate headdress. Kept sparse here
+       so it reads as structure rather than ornament at point density. -->
+  <g fill="none" stroke="#ffffff" stroke-width="9" stroke-linecap="round">
+    <path d="M 500 150 C 500 90 500 60 500 30" />
+    <path d="M 420 168 C 400 110 380 84 356 52" />
+    <path d="M 580 168 C 600 110 620 84 644 52" />
+    <path d="M 342 205 C 300 158 268 138 232 112" />
+    <path d="M 658 205 C 700 158 732 138 768 112" />
+    <path d="M 268 262 C 216 232 180 218 140 204" />
+    <path d="M 732 262 C 784 232 820 218 860 204" />
+  </g>
+  <g fill="#ffffff" stroke="none">
+    <circle cx="500" cy="26" r="13" />
+    <circle cx="352" cy="48" r="11" />
+    <circle cx="648" cy="48" r="11" />
+    <circle cx="228" cy="108" r="10" />
+    <circle cx="772" cy="108" r="10" />
+    <circle cx="136" cy="200" r="9" />
+    <circle cx="864" cy="200" r="9" />
+  </g>
+
+  <!-- ── Face outline ─────────────────────────────────────────────────────
+       A rounded shield. This is the silhouette the audience learns to read,
+       so it stays simple. -->
+  <g fill="none" stroke="#ffffff" stroke-width="14" stroke-linecap="round">
+    <path d="M 500 148
+             C 690 148 872 300 872 528
+             C 872 792 716 1046 500 1104
+             C 284 1046 128 792 128 528
+             C 128 300 310 148 500 148 Z" />
+  </g>
+
+  <!-- ── Brows ────────────────────────────────────────────────────────────
+       Angled slightly downward toward the centre. Enough to read as a face
+       under strain without tipping into a cartoon scowl. -->
+  <g fill="none" stroke="#ffffff" stroke-width="15" stroke-linecap="round">
+    <path d="M 218 424 C 282 366 384 356 448 398" />
+    <path d="M 552 398 C 616 356 718 366 782 424" />
+  </g>
+
+  <!-- ── Eyes ─────────────────────────────────────────────────────────────
+       Hollow. Outline only — no fill, ever. Shard 1 lives in the right eye. -->
+  <g fill="none" stroke="#ffffff" stroke-width="12" stroke-linecap="round">
+    <path d="M 248 492 C 306 428 408 428 462 492 C 408 550 306 550 248 492 Z" />
+    <path d="M 538 492 C 592 428 694 428 752 492 C 694 550 592 550 538 492 Z" />
+  </g>
+
+  <!-- ── Nose ─────────────────────────────────────────────────────────────
+       A narrow geometric wedge. Deliberately understated so it does not
+       compete with the mouth. -->
+  <g fill="none" stroke="#ffffff" stroke-width="11" stroke-linecap="round">
+    <path d="M 500 556 L 556 700 L 500 732 L 444 700 Z" />
+  </g>
+
+  <!-- ── Mouth ────────────────────────────────────────────────────────────
+       The smile, too wide. Two curves plus five teeth. This is the MassKara
+       grin doing its actual job: the performance of okay-ness worn over the
+       thing underneath. Shard 2 lives here. -->
+  <g fill="none" stroke="#ffffff" stroke-width="13" stroke-linecap="round">
+    <path d="M 250 810 C 380 870 620 870 750 810" />
+    <path d="M 250 810 C 350 990 650 990 750 810" />
+  </g>
+  <g fill="none" stroke="#ffffff" stroke-width="7" stroke-linecap="round">
+    <path d="M 365 852 L 365 903" />
+    <path d="M 434 860 L 434 929" />
+    <path d="M 500 864 L 500 937" />
+    <path d="M 566 860 L 566 929" />
+    <path d="M 635 852 L 635 903" />
+  </g>
+
+  <!-- ── Cheek ornaments ──────────────────────────────────────────────────
+       Festival flourish. The left cluster is shard 0's home — the cracked
+       cheek — so it carries a little more weight than the right. -->
+  <g fill="#ffffff" stroke="none">
+    <circle cx="222" cy="648" r="17" />
+    <circle cx="186" cy="596" r="11" />
+    <circle cx="196" cy="706" r="11" />
+    <circle cx="272" cy="592" r="9" />
+    <circle cx="264" cy="710" r="9" />
+
+    <circle cx="778" cy="648" r="15" />
+    <circle cx="814" cy="596" r="10" />
+    <circle cx="804" cy="706" r="10" />
+    <circle cx="728" cy="592" r="8" />
+    <circle cx="736" cy="710" r="8" />
+  </g>
+
+  <!-- ── Chin ─────────────────────────────────────────────────────────────
+       Closes the lower face so the mouth does not float. -->
+  <g fill="none" stroke="#ffffff" stroke-width="10" stroke-linecap="round">
+    <path d="M 404 1006 C 452 1042 548 1042 596 1006" />
+  </g>
+
+</svg>
