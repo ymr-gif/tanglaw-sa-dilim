@@ -16,10 +16,26 @@ import { Color } from 'three';
 export const COLOR = {
   void: 0x0b0d1a, // background. deep indigo-charcoal, NOT pure black
   ash: 0x2a2d3d, // unlit mask points
-  magenta: 0xd4256b, // Prevention: guidance counselors
-  marigold: 0xe8a020, // Prevention: teacher training
-  cyan: 0x2bb8c9, // Prevention: classroom redesign
-  jade: 0x2e9e6b, // Prevention: peer networks / CPCs
+
+  /*
+   * The festival palette is taken from assets/mask-art.png itself — these are
+   * the artwork's own dominant hues, pulled out and punched up for emission:
+   *
+   *   #f05aa5 hot pink   #f164c7 fuchsia
+   *   #f3ad67 orange     #f8e85d yellow-gold
+   *
+   * Warm all the way through. `Tanglaw` means illumination, and the light half
+   * of this deck should look like it — the colours the mask is actually painted
+   * in, not an approximation of them.
+   */
+  rose: 0xff3d94, // Prevention: guidance counselors
+  ember: 0xff7a3d, // Prevention: teacher training
+  gold: 0xffc93c, // Prevention: classroom redesign
+  fuchsia: 0xf45ad0, // Prevention: peer networks / CPCs
+
+  /** The close blooms past the four hues into plain light. */
+  radiance: 0xfff0c2,
+
   intruder: 0x6b8f3a, // NVE shard. deliberately off-palette, sickly
 };
 
@@ -67,8 +83,12 @@ export const EASE = {
 /**
  * Fixed for the life of the deck. Every state is a POINTS-long buffer, which is
  * what makes every transition a plain lerp (§7).
+ *
+ * Raised from 7000 when the placeholder line-art was replaced by the real
+ * MassKara artwork — the crown's petals and the face's swirl carry far more
+ * detail than an outline did, and at 7000 the mask read as a sparse smudge.
  */
-export const POINTS = 7000;
+export const POINTS = 12000;
 
 /** Camera breathing room around the mask's bounding sphere (§8). */
 export const FIT_MARGIN = 1.35;

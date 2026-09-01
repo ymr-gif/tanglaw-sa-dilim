@@ -14,19 +14,23 @@
  * this one. The operator presses Q when Q&A begins.
  */
 
+import { Color } from 'three';
+
 import { COLOR, TIME } from '../theme.js';
 import { POINTS } from '../theme.js';
-import { byShard, clearDelays } from './_base.js';
+import { clearDelays, createFlare } from './_base.js';
 
-/** Full. The deck has been saving this since the cold open. */
-const FULL = 1.75;
-
-const FULL_FESTIVAL = [
-  [COLOR.magenta, FULL],
-  [COLOR.marigold, FULL],
-  [COLOR.cyan, FULL],
-  [COLOR.jade, FULL],
-];
+/**
+ * The close does not light the mask in four assigned hues. It lights the mask in
+ * ITS OWN colours, sampled from the artwork pixel by pixel.
+ *
+ * Every section before this has been the deck's reading of the mask — ash for
+ * the unlit face, one hue per root cause, one hue per solution. Here the mask
+ * stops being a diagram of the argument and goes back to being the object it
+ * actually is: pink, gold, and the white face underneath. That is what
+ * "Tanglaw" is for, and it is the brightest frame in the presentation.
+ */
+const FULL = 2.4;
 
 /** How far a point rises before it re-seeds at the mask. */
 const RISE_SPAN = 1.5;
@@ -40,13 +44,62 @@ const RISE_SPAN = 1.5;
  * points cross the frame edge at full brightness and the dissolve gets a hard
  * horizontal cut. Fading on where a point actually *is* has no edge.
  */
-const FADE_TOP = 1.34;
-const FADE_LEN = 0.8;
+const FADE_TOP = 0.92;
+const FADE_LEN = 0.66;
+
+/** How hard the artwork's own saturation is pushed for emission. */
+const SATURATE = 2.1;
+
+/** Below this saturation a pixel is "the white face", not a colour. */
+const NEUTRAL = 0.14;
+
+/** The bloom as the mask completes. The brightest instant in the deck. */
+const bloom = createFlare({ peak: 2.3, ms: 1100 });
 
 let colorCache = null;
 
-function fullColors(shardOf) {
-  if (!colorCache) colorCache = byShard(shardOf, FULL_FESTIVAL);
+/**
+ * The artwork's own colours, lifted to emission brightness.
+ *
+ * Two corrections, both learned from looking at it on screen rather than
+ * reasoning about it:
+ *
+ *   Saturation is pushed hard. Paint reflects light; these points EMIT it
+ *   against a near-black field, and colour read straight off the artwork comes
+ *   out looking washed and grey once it is glowing.
+ *
+ *   The near-white pixels — the mask's own face, a large part of the image —
+ *   are tinted toward `radiance` rather than left neutral. Left alone they
+ *   render as grey and drain the warmth out of the brightest moment in the
+ *   deck. Warm white reads as light; neutral white reads as an unlit screen.
+ */
+function fullColors(mask) {
+  if (colorCache) return colorCache;
+
+  const src = mask.artColor;
+  const out = new Float32Array(src.length);
+
+  const c = new Color();
+  const warm = new Color(COLOR.radiance);
+  const hsl = { h: 0, s: 0, l: 0 };
+
+  for (let i = 0; i < src.length; i += 3) {
+    c.setRGB(src[i], src[i + 1], src[i + 2]);
+    c.getHSL(hsl);
+
+    if (hsl.s < NEUTRAL) {
+      // The face. Keep its value, take the warmth from the festival cream.
+      c.copy(warm).multiplyScalar(0.34 + hsl.l * 0.46);
+    } else {
+      c.setHSL(hsl.h, Math.min(1, hsl.s * SATURATE), hsl.l);
+    }
+
+    out[i] = c.r * FULL;
+    out[i + 1] = c.g * FULL;
+    out[i + 2] = c.b * FULL;
+  }
+
+  colorCache = out;
   return colorCache;
 }
 
@@ -57,7 +110,13 @@ function fullColors(shardOf) {
  */
 function stream(field, mask, dt) {
   const { sceneOffset, brightness, noise } = field;
-  const base = mask.states.lantern;
+
+  // Where the points ACTUALLY are, from the last composed frame — not where the
+  // morph is taking them. Fading against the destination looks correct once the
+  // morph has settled and is wrong for every frame before that: a point still
+  // travelling gets the brightness of somewhere it has not arrived, so some
+  // cross the top of the frame lit and the dissolve grows a hard edge.
+  const live = field.points.geometry.attributes.position.array;
 
   for (let i = 0; i < POINTS; i++) {
     const i3 = i * 3;
@@ -72,8 +131,7 @@ function stream(field, mask, dt) {
     sceneOffset[i3] = Math.sin(y * 2.1 + roll * 6.28) * 0.06 * (y / RISE_SPAN);
 
     // Gone before it reaches the top of the frame, wherever it started.
-    const worldY = base[i3 + 1] + y;
-    brightness[i] = Math.min(1, Math.max(0, (FADE_TOP - worldY) / FADE_LEN));
+    brightness[i] = Math.min(1, Math.max(0, (FADE_TOP - live[i3 + 1]) / FADE_LEN));
   }
 }
 
@@ -98,14 +156,21 @@ export default {
       }
 
       field.morph(mask.states.complete, { duration: 1500, ease: 'outExpo' });
-      field.morphColor(fullColors(mask.shardOf), { duration: 1500, ease: 'outCubic' });
+      field.morphColor(fullColors(mask), { duration: 1500, ease: 'outCubic' });
+
+      // Everything blooms together. This is the only moment in the deck that
+      // does — every other light arrives one shard at a time.
+      bloom.trigger(null);
+      field.setUpdate((dt) => {
+        if (!bloom.step(field, dt)) field.setUpdate(null);
+      });
       return;
     }
 
     // lantern
     field.setDrift(0.01);
     field.morph(mask.states.lantern, { duration: TIME.lantern, ease: 'inOutQuad' });
-    field.morphColor(fullColors(mask.shardOf), { duration: TIME.lantern });
+    field.morphColor(fullColors(mask), { duration: TIME.lantern });
     field.setUpdate((dt) => stream(field, mask, dt));
   },
 
@@ -116,11 +181,12 @@ export default {
 
     if (state.mode === 'complete') {
       field.setUpdate(null);
+      bloom.reset(field);
       field.setDrift(0.007);
-      field.snap(mask.states.complete, fullColors(mask.shardOf));
+      field.snap(mask.states.complete, fullColors(mask));
     } else {
       field.setDrift(0.01);
-      field.snap(mask.states.lantern, fullColors(mask.shardOf));
+      field.snap(mask.states.lantern, fullColors(mask));
       field.setUpdate((dt) => stream(field, mask, dt));
     }
   },

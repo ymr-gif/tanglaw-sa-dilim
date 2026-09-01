@@ -2,7 +2,7 @@
 
 *Illuminating Campus Extremism and Aggression*
 
-A live-presented advocacy deck. One MassKara mask of 7,000 points, morphing
+A live-presented advocacy deck. One MassKara mask of 12,000 points, morphing
 through 22 beats, driven by an operator's keyboard.
 
 **Live:** <https://ymr-gif.github.io/tanglaw-sa-dilim/>
@@ -169,15 +169,22 @@ Three rules the code enforces, and any change has to keep:
 
 ---
 
-## Swapping in the real mask art
+## The mask art
 
-`assets/mask.svg` is placeholder line-art. To replace it:
+`assets/mask-art.png` is the actual MassKara mask for the curriculum. It is
+sampled directly as a bitmap rather than traced into vectors, so the crown, the
+pink swirl and the painted face are the real artwork — and every point carries
+the colour it was sampled from, which is what the Close lights the mask with.
 
-- Keep the viewBox at `0 0 1000 1200` with the face roughly centred on
-  (500, 600), or update `ANCHORS_SVG` in `src/mask.js` so the four shard anchors
-  still land on the cheek, the eye, the mouth, and the foreign fragment.
-- Stroked paths need `fill="none"`. Strokes become ribbon geometry and fills
-  become shape geometry; a path with both is sampled twice.
-- Keep the eyes hollow and the smile too wide. They are doing narrative work.
+To replace it:
+
+- Keep it roughly square with the face centred, or update `ANCHORS_ART` in
+  `src/mask.js` so the four shard anchors still land on the left cheek, the
+  right eye, the mouth, and the crown's crest.
+- **The background must be pure white** (255,255,255) and the mask must not be.
+  That is how the sampler separates them — and it is why the eye holes come out
+  hollow for free, since they are white in the artwork too.
+- Colourful areas attract more points than flat ones by design. If a replacement
+  reads too sparse, the weights are one line in `samplePoints`.
 
 Nothing else changes — `mask.js` samples whatever is in the file.

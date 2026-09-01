@@ -22,7 +22,7 @@ import { POINTS } from '../theme.js';
 import { rgbOf, clearDelays } from './_base.js';
 
 /** Present, but low. The room should be looking at the speaker. */
-const LOW = 1.5;
+const LOW = 1.9;
 
 /** Vertical extent a point travels before re-seeding at the bottom. */
 const SPAN = 2.0;
@@ -51,10 +51,10 @@ function colors() {
   if (emberColors) return emberColors;
 
   const hues = [
-    rgbOf(COLOR.magenta, LOW),
-    rgbOf(COLOR.marigold, LOW),
-    rgbOf(COLOR.cyan, LOW),
-    rgbOf(COLOR.jade, LOW),
+    rgbOf(COLOR.rose, LOW),
+    rgbOf(COLOR.ember, LOW),
+    rgbOf(COLOR.gold, LOW),
+    rgbOf(COLOR.fuchsia, LOW),
   ];
 
   emberColors = new Float32Array(POINTS * 3);

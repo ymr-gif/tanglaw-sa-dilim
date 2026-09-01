@@ -23,7 +23,7 @@
 import { COLOR, TIME } from '../theme.js';
 import { POINTS } from '../theme.js';
 import { DESKS } from '../mask.js';
-import { solid, clearDelays } from './_base.js';
+import { solid, clearDelays, swirl } from './_base.js';
 
 const GRID_COLS = 6;
 
@@ -83,6 +83,10 @@ export default {
         }
         field.morph(mask.states.shattered, { duration: TIME.shatter, ease: 'outExpo' });
         field.morphColor(SHATTER_ASH, { duration: TIME.shatter });
+
+        // The break twists as it goes. A purely radial burst reads as an
+        // explosion diagram; a twisting one reads as something coming apart.
+        field.setUpdate(() => swirl(field, 0.22));
         break;
       }
 
@@ -123,6 +127,8 @@ export default {
     switch (state.mode) {
       case 'shatter':
         field.setDrift(0.02);
+        field.setUpdate(null);
+        field.sceneOffset.fill(0);
         field.snap(mask.states.shattered, SHATTER_ASH);
         break;
       case 'seat':

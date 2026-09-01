@@ -93,6 +93,16 @@ export function createPointField() {
   const sceneOffset = new Float32Array(POINTS * 3);
   const brightness = new Float32Array(POINTS).fill(1);
 
+  /**
+   * Per-point tone from the artwork, set once at boot and never by a scene.
+   *
+   * `brightness` belongs to whichever scene is running and gets overwritten
+   * constantly; this is the mask's own value structure, which is true for the
+   * whole presentation. Keeping them separate is what lets the artwork's detail
+   * survive a scene that is busy dimming half the field for its own reasons.
+   */
+  const tone = new Float32Array(POINTS).fill(1);
+
   const geometry = new BufferGeometry();
   geometry.setAttribute('position', new BufferAttribute(position, 3));
   geometry.setAttribute('color', new BufferAttribute(color, 3));
@@ -177,6 +187,24 @@ export function createPointField() {
 
     get isAnimating() {
       return Boolean(track.pos.anim || track.col.anim);
+    },
+
+    /**
+     * Raw 0..1 progress of the geometry track.
+     *
+     * Exposed so a scene can bend the path points travel along. A morph is a
+     * straight lerp between two states, which is honest but lifeless; a scene
+     * that knows how far through it is can add a tangential offset shaped like
+     * sin(pi*t) and turn that straight line into an arc that still lands
+     * exactly where it was going to.
+     */
+    get posProgress() {
+      return track.pos.t;
+    },
+
+    /** Set once at boot from the artwork. Never call this from a scene. */
+    setTone(values) {
+      tone.set(values);
     },
 
     /** Amplitude of the always-on wobble. Scenes raise it for loose fields. */
@@ -292,7 +320,7 @@ export function createPointField() {
         colorBase[i3 + 1] = colorFrom[i3 + 1] + (colorTo[i3 + 1] - colorFrom[i3 + 1]) * ec;
         colorBase[i3 + 2] = colorFrom[i3 + 2] + (colorTo[i3 + 2] - colorFrom[i3 + 2]) * ec;
 
-        const b = brightness[i];
+        const b = brightness[i] * tone[i];
         color[i3] = colorBase[i3] * b;
         color[i3 + 1] = colorBase[i3 + 1] * b;
         color[i3 + 2] = colorBase[i3 + 2] * b;

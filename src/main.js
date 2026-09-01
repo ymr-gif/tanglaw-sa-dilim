@@ -23,16 +23,22 @@ import { createDeck } from './deck.js';
 const FOV = 50;
 
 /**
- * Dolly the camera so the mask's bounding sphere fits with margin.
+ * Dolly the camera so the mask's bounding BOX fits with margin.
  *
- * On a wide monitor the vertical FOV binds; on a narrow or portrait one the
- * horizontal does. Taking the minimum handles both without a branch — which is
- * the whole reason the mask never crops and never floats in a sea of space.
+ * Fitting the bounding sphere instead is the obvious version and it is wrong for
+ * this shape: the mask plus crown very nearly fills its own bounding box, so the
+ * circumscribed radius overshoots the real extent by up to √2 and the deck sits
+ * in a sea of empty space. Fitting width and height independently and taking
+ * whichever binds frames it properly at any aspect ratio.
  */
-function fitDistance(radius, fovDeg, aspect) {
+function fitDistance(halfW, halfH, fovDeg, aspect) {
   const vFov = (fovDeg * Math.PI) / 180;
   const hFov = 2 * Math.atan(Math.tan(vFov / 2) * aspect);
-  return (radius * FIT_MARGIN) / Math.sin(Math.min(vFov, hFov) / 2);
+
+  const forHeight = (halfH * FIT_MARGIN) / Math.tan(vFov / 2);
+  const forWidth = (halfW * FIT_MARGIN) / Math.tan(hFov / 2);
+
+  return Math.max(forHeight, forWidth);
 }
 
 async function boot() {
@@ -54,6 +60,7 @@ async function boot() {
 
   const mask = await loadMask();
   const field = createPointField();
+  field.setTone(mask.artLuma);
   scene.add(field.points);
 
   /**
@@ -75,7 +82,7 @@ async function boot() {
 
     renderer.setSize(w, h, false);
     camera.aspect = w / h;
-    camera.position.set(0, 0, fitDistance(mask.radius, FOV, camera.aspect));
+    camera.position.set(0, 0, fitDistance(mask.halfW, mask.halfH, FOV, camera.aspect));
     camera.updateProjectionMatrix();
   }
 

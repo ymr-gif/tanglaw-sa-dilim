@@ -25,23 +25,32 @@
 
 import { COLOR, TIME } from '../theme.js';
 import { POINTS } from '../theme.js';
-import { byShard, clearDelays } from './_base.js';
+import { byShard, clearDelays, createFlare, swirl } from './_base.js';
 
 const UNLIT = [COLOR.ash, 5.0];
 
-/** Partial, not full. The deck saves full brightness for the close. */
-export const PARTIAL = 0.95;
+/**
+ * Partial, not full — the deck still saves its brightest frame for the close.
+ * But "partial" here is a long way above where the darkness sat: this is the
+ * first light in the piece and it has to feel like it.
+ */
+export const PARTIAL = 1.5;
 
 /** The four festival hues, in shard order. Same order as roots.js. */
 export const FESTIVAL = [
-  [COLOR.magenta, PARTIAL], // 0 CAPACITATE — was bullying
-  [COLOR.marigold, PARTIAL], // 1 TRAIN — was untreated
-  [COLOR.cyan, PARTIAL], // 2 REDESIGN — was to be seen
-  [COLOR.jade, PARTIAL], // 3 EMPOWER — was weaponized
+  [COLOR.rose, PARTIAL], // 0 CAPACITATE — was bullying
+  [COLOR.ember, PARTIAL], // 1 TRAIN — was untreated
+  [COLOR.gold, PARTIAL], // 2 REDESIGN — was to be seen
+  [COLOR.fuchsia, PARTIAL], // 3 EMPOWER — was weaponized
 ];
 
 const colorCache = new Map();
 const geoCache = new Map();
+
+/** How far the fragments sweep as they come home. Radians at mid-morph. */
+const CONVERGE_ARC = 0.16;
+
+const flare = createFlare({ peak: 2.05, ms: 700 });
 
 /** Exported so refusal.js can hold *exactly* the state Prevention ended on. */
 export function colorsFor(shardOf, lit) {
@@ -94,6 +103,18 @@ export default {
       ease: 'outExpo',
     });
 
+    // The fragments come home along an arc rather than a straight line, and the
+    // shard that just lit overshoots before settling. Both exist because this is
+    // the turn of the whole piece — it should look like something happening,
+    // not like a value being assigned.
+    if (lit >= 0) flare.trigger((i) => mask.shardOf[i] === lit);
+    else flare.reset(field);
+
+    field.setUpdate((dt) => {
+      swirl(field, CONVERGE_ARC);
+      flare.step(field, dt);
+    });
+
     // The light returning one shard at a time IS the early-intervention beat.
     // The newest shard leads; the ones already lit are already at their target,
     // so the stagger only ever reads on the shard that is actually changing.
@@ -114,10 +135,14 @@ export default {
 
     clearDelays(field);
     field.setDrift(0.009);
+    field.setUpdate(null);
+    flare.reset(field);
+    field.sceneOffset.fill(0);
     field.snap(geometryFor(mask, lit), colorsFor(mask.shardOf, lit));
   },
 
   unmount(ctx) {
+    flare.reset(ctx.field);
     ctx.field.resetSceneMods();
   },
 };

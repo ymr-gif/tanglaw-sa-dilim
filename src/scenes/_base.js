@@ -94,3 +94,76 @@ export function delayFraction(ms, totalMs) {
   if (totalMs <= 0) return 0;
   return Math.min(0.92, Math.max(0, ms / totalMs));
 }
+
+/**
+ * Bend a morph into an arc.
+ *
+ * Writes a tangential offset shaped like sin(pi*t), so it is zero at both ends
+ * and largest in the middle: the points sweep around the mask's centre and
+ * still arrive exactly where the morph was taking them. Nothing about the
+ * destination changes, only the route.
+ *
+ * Call it from a per-frame hook while a morph is running.
+ */
+export function swirl(field, amount) {
+  const t = field.posProgress;
+  const arc = Math.sin(Math.PI * Math.min(1, Math.max(0, t))) * amount;
+
+  if (arc < 0.0005) {
+    field.sceneOffset.fill(0);
+    return;
+  }
+
+  const cos = Math.cos(arc);
+  const sin = Math.sin(arc);
+  const { sceneOffset, points } = field;
+  const pos = points.geometry.attributes.position.array;
+
+  for (let i = 0; i < POINTS; i++) {
+    const i3 = i * 3;
+    // Rotate about the centre, and offset by the difference so the underlying
+    // morph target is untouched.
+    const x = pos[i3] - sceneOffset[i3];
+    const y = pos[i3 + 1] - sceneOffset[i3 + 1];
+
+    sceneOffset[i3] = x * cos - y * sin - x;
+    sceneOffset[i3 + 1] = x * sin + y * cos - y;
+  }
+}
+
+/**
+ * A brief overshoot in brightness that decays back to rest.
+ *
+ * Light arriving instantly at its final value reads as a value change. Light
+ * that overshoots and settles reads as something igniting — which is the whole
+ * subject of this deck.
+ *
+ * Returns a per-frame step function; call it until it reports done.
+ */
+export function createFlare({ peak = 1.9, ms = 620 } = {}) {
+  let t = 0;
+  let mask = null;
+
+  return {
+    trigger(selector) {
+      t = 1;
+      mask = selector;
+    },
+    /** @returns {boolean} true while still flaring */
+    step(field, dt) {
+      if (t <= 0) return false;
+
+      t = Math.max(0, t - (dt * 1000) / ms);
+      const lift = 1 + (peak - 1) * t * t;
+
+      for (let i = 0; i < POINTS; i++) {
+        field.brightness[i] = mask && !mask(i) ? 1 : lift;
+      }
+      return t > 0;
+    },
+    reset(field) {
+      t = 0;
+      field.brightness.fill(1);
+    },
+  };
+}

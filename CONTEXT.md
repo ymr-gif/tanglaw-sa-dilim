@@ -92,13 +92,20 @@ aloud; the geometry says it.
 export const COLOR = {
   void:     0x0b0d1a,   // background. deep indigo-charcoal, NOT pure black
   ash:      0x2a2d3d,   // unlit mask points
-  magenta:  0xd4256b,   // Prevention: guidance counselors
-  marigold: 0xe8a020,   // Prevention: teacher training
-  cyan:     0x2bb8c9,   // Prevention: classroom redesign
-  jade:     0x2e9e6b,   // Prevention: peer networks / CPCs
+  rose:     0xff3d94,   // Prevention: guidance counselors
+  ember:    0xff7a3d,   // Prevention: teacher training
+  gold:     0xffc93c,   // Prevention: classroom redesign
+  fuchsia:  0xf45ad0,   // Prevention: peer networks / CPCs
+  radiance: 0xfff0c2,   // the close blooms past the four into plain light
   intruder: 0x6b8f3a,   // NVE shard. deliberately off-palette, sickly
 };
 ```
+
+The four festival hues are taken from `assets/mask-art.png` itself — the
+artwork's own dominant colors (#f05aa5 pink, #f3ad67 orange, #f8e85d yellow),
+pulled out and punched up for emission. They replaced an invented palette that
+included cyan and jade; those were cool colors fighting a piece whose title
+means *illumination*. Warm all the way through now.
 
 Background is indigo-charcoal rather than pure black because festival color
 needs somewhere to bleed into. Pure black kills the glow falloff.
