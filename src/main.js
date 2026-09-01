@@ -17,6 +17,7 @@ import { loadMask } from './mask.js';
 import { createPointField } from './pointfield.js';
 import { createCaption } from './overlay/caption.js';
 import { createShardLabel } from './overlay/shardlabel.js';
+import { createTracker } from './overlay/tracker.js';
 import { createDeck } from './deck.js';
 
 const FOV = 50;
@@ -86,6 +87,10 @@ async function boot() {
   const overlay = {
     caption: createCaption(overlayEl),
     shardlabel: createShardLabel(overlayEl),
+    // Attached to the body, not #overlay: the tracker is review chrome that
+    // outlives any single beat, and it must sit above the black veil so `B`
+    // does not blind the operator to their own position.
+    tracker: createTracker(document.body),
   };
 
   const ctx = { renderer, scene, camera, timer, container, field, mask, overlay, veil };

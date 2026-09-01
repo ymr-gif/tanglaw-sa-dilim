@@ -95,6 +95,7 @@ export function createDeck(ctx) {
     else SCENES[beat.scene].apply(beat.state, ctx);
 
     showText(beat, !animate);
+    overlay.tracker.update(index);
   }
 
   /**
@@ -113,6 +114,7 @@ export function createDeck(ctx) {
 
     index = end;
     showText(beats[end], true);
+    overlay.tracker.update(end);
   }
 
   const deck = {
@@ -169,6 +171,7 @@ export function createDeck(ctx) {
         overlay.shardlabel.hide();
         mountScene(QNA.scene);
         SCENES[QNA.scene].enter(QNA.state, ctx);
+        overlay.tracker.update(-1);
       } else {
         inQna = false;
         goTo(qnaReturn);
@@ -205,6 +208,13 @@ export function createDeck(ctx) {
 
     if (key === 'b' || key === 'B') {
       deck.toggleBlack();
+      return;
+    }
+
+    // The tracker is review chrome. It already hides itself in fullscreen; this
+    // is the manual override in either direction.
+    if (key === 'h' || key === 'H') {
+      overlay.tracker.toggle();
       return;
     }
 

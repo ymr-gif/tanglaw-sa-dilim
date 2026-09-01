@@ -47,6 +47,7 @@ and there are no CDN links — so `dist/` works from a laptop with the wifi off.
 | `Q` | Toggle the Q&A ember field |
 | `B` | Black the screen (toggle) |
 | `F` | Fullscreen |
+| `H` | Show/hide the tracker (review chrome) |
 
 Sections for the number keys: `1` cold open, `2` threshold, `3` title,
 `4` roots, `5` effects, `6` prevention, `7` refusal, `8` close.
@@ -57,6 +58,31 @@ unsure, wait — every scene drifts at rest, so a held beat never looks broken.
 **A click during an animation finishes it instantly and then advances.** One
 click is always one beat. Nothing queues, and the deck can never end up running
 behind the speaker.
+
+---
+
+## Pointing at a beat that needs changes
+
+The tracker in the bottom corners shows where you are:
+
+```
+← → Space · 1-8 jump · Q qna · B black · H hide        07 / 22   roots-02   BR
+```
+
+- **`07 / 22`** — position, and the bar along the bottom fills as you go.
+- **`roots-02`** — the beat's id. **Quote this, not the number.** `beats.js` says
+  ids are stable and are never renumbered, so `roots-02` still means the same
+  beat after something gets inserted, and "slide 7" does not.
+- **`BR`** — who is speaking. The box is drawn around it on handoff beats, so
+  the operator can see a speaker change coming.
+
+**It hides itself in fullscreen**, which is the only state the deck is ever
+presented in, and comes back when you exit. `H` overrides either way. So
+reviewing shows it, presenting never does, and nobody has to remember.
+
+Feedback that lands directly: *"`roots-02` — the shard lights too fast"* or
+*"`eff-01` — hold the empty seat longer."* Every beat's id, caption, script and
+staging cue live together in `src/beats.js`; the visual summary is CONTEXT.md §6.
 
 ---
 
