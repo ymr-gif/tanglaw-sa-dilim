@@ -159,7 +159,14 @@ Three rules the code enforces, and any change has to keep:
 
 1. **Sizing check.** Load the deck, drag the window from very narrow to full
    width, and toggle fullscreen mid-beat. Nothing should crop, overflow, or
-   jump. This catches essentially every sizing bug the deck can have.
+   jump.
+
+   **Do this on the machine that will drive the projector**, and on a retina or
+   HiDPI screen if you have one. Resizing on a single ordinary monitor does not
+   test device pixel ratio, and a DPR bug renders the deck zoomed in and cropped
+   on every retina, tablet and phone display while looking perfect on a DPR-1
+   monitor. That exact bug shipped once (`renderer.setSize` was told not to set
+   the canvas CSS size) and survived six rounds of aspect-ratio testing.
 2. **Rehearse once with slides but no voice**, clicking at speaking pace. You
    will feel which beats sit too long with nothing happening.
 3. **Rehearse once with the operator and both speakers.** The six handoffs are

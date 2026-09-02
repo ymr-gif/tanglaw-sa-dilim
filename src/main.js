@@ -80,7 +80,15 @@ async function boot() {
     const h = container.clientHeight;
     if (!w || !h) return;
 
-    renderer.setSize(w, h, false);
+    // The third argument (updateStyle) MUST stay true.
+    //
+    // Passing false tells Three not to set the canvas's CSS size. Combined with
+    // setPixelRatio(2) that leaves a canvas whose backing store is 2w x 2h and
+    // whose CSS size is unset — so it lays out at its buffer size, twice the
+    // container, and the deck renders zoomed in and cropped on every retina,
+    // tablet and phone display. It looks perfect on any DPR-1 monitor, which is
+    // what made it survive several rounds of aspect-ratio testing.
+    renderer.setSize(w, h);
     camera.aspect = w / h;
     camera.position.set(0, 0, fitDistance(mask.halfW, mask.halfH, FOV, camera.aspect));
     camera.updateProjectionMatrix();
