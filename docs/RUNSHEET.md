@@ -250,7 +250,7 @@ Jump key `5`.
 
 **On screen** nothing. The voice carries this beat.
 
-**Click cue** Click on "We face." The camera pushes FORWARD through an empty frame for ~1.7s — nothing is there, and that is the point. Do not fill the silence. The blood then arrives suddenly, sweeping left to right; time your click so it lands on "tragedy." THEN STAY HERE. Say the whole contagion sentence to the stain — no click. The camera drifts back off it as you speak, which is the only movement left in the section and is meant to feel like withdrawal. This is the last image of the dark half of the deck. AFTER THE LINE: press B and hold black for FOUR full seconds before Prevention. Do not rush this. The deck has just been loud for three beats; Prevention does not work without the silence.
+**Click cue** Click on "We face." The camera pushes FORWARD through an empty frame for ~1.7s — nothing is there, and that is the point. Do not fill the silence. The blood then bursts in fast, top to bottom; time your click so it lands on "tragedy." THEN STAY HERE. Say the whole contagion sentence to the stain — no click. Nothing moves; the camera holds where it pushed in and the blood stays at full size, engulfing the left half, for the whole line. This is the last image of the dark half of the deck. AFTER THE LINE: press B and hold black for FOUR full seconds before Prevention. Do not rush this. The deck has just been loud for three beats; Prevention does not work without the silence.
 
 ### Prevention
 

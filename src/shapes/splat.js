@@ -44,9 +44,9 @@
 import { POINTS } from '../theme.js';
 import { seededRandom } from '../noise.js';
 
-const CORE_SHARE = 0.58;
-const SAT_SHARE = 0.13;
-const SPIKE_SHARE = 0.21;
+const CORE_SHARE = 0.66;
+const SAT_SHARE = 0.1;
+const SPIKE_SHARE = 0.18;
 /** The rest are drips. */
 
 /**
@@ -59,7 +59,7 @@ const SPIKE_SHARE = 0.21;
  * space. A bigger core, sharing more of the point budget, is what actually
  * reads as coverage rather than a dot with a halo.
  */
-const CORE_SCALE = 1.9;
+const CORE_SCALE = 2.4;
 
 /**
  * Satellites live between these radii. The inner bound now sits just past
@@ -72,8 +72,8 @@ const CORE_SCALE = 1.9;
  * screen, and the one thing that should visibly reach nearest the boundary is
  * the main-thrust Spike, not a stray satellite.
  */
-const SAT_MIN = 0.45;
-const SAT_MAX = 0.75;
+const SAT_MIN = 0.55;
+const SAT_MAX = 0.9;
 
 /** Points per droplet. */
 const DROP = 6;
@@ -129,10 +129,10 @@ const BLOB_CDF = (() => {
  * alone approach the boundary, so the reach reads as deliberate.
  */
 const SPIKES = [
-  { angle: 68, length: 0.55, width: 0.065, weight: 0.8 },
-  { angle: 26, length: 0.7, width: 0.075, weight: 1.0 },
-  { angle: -10, length: 1.0, width: 0.09, weight: 1.3 },
-  { angle: -50, length: 0.6, width: 0.068, weight: 0.9 },
+  { angle: 68, length: 0.68, width: 0.075, weight: 0.8 },
+  { angle: 26, length: 0.86, width: 0.088, weight: 1.0 },
+  { angle: -10, length: 1.25, width: 0.1, weight: 1.3 },
+  { angle: -50, length: 0.74, width: 0.078, weight: 0.9 },
 ];
 
 const SPIKE_WEIGHT_TOTAL = SPIKES.reduce((sum, s) => sum + s.weight, 0);

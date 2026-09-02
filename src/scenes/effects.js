@@ -270,9 +270,9 @@ function splatExtent() {
 
 /** Kept away from screen-centre in the FINAL, clamped position (below) — the
  *  real guarantee, independent of the estimate `splatFraming` makes. */
-const CENTER_MARGIN = 0.03;
+const CENTER_MARGIN = 0.02;
 /** Kept away from the visible left/top/bottom edges, in the same sense. */
-const EDGE_MARGIN = 0.05;
+const EDGE_MARGIN = 0.025;
 
 /**
  * How much to grow the splat, and how far left to shift it, so it fills the
@@ -500,17 +500,16 @@ function returnCamera(ctx) {
 }
 
 /**
- * The camera withdraws off the stain.
- *
- * Structural, not decorative. `splat` is the last beat of the section now, so
- * if nothing brings the dolly home the camera is still pushed in when
- * Prevention mounts — and `rig.clearScene()` then snaps it back in a single
- * frame, at the exact transition the whole piece turns on.
- *
- * Making it a stage of this beat rather than a fix in `unmount` also earns its
- * keep dramatically: CH speaks the contagion sentence to a held image, and the
- * camera pulling slowly off the blood is the only movement left in the section.
- * It reads as withdrawal, which is what the sentence is about.
+ * RETIRED 2026-09-03. The camera used to withdraw off the stain here, over
+ * RECEDE_MS, so it wasn't still pushed in when Prevention mounted and
+ * `rig.clearScene()` snapped it back in one frame. Explicitly cut: the ask
+ * was for the blood to stay at full size — engulfing the left half — for as
+ * long as the beat holds, not shrink back down while CH is still speaking to
+ * it. `restCamera`/`recede` cost nothing to keep for the same reason the
+ * rest of this file keeps retired states; restoring the withdrawal is a
+ * one-line change to `beat12` below. The instant cut into Prevention this
+ * leaves behind is the same kind of cut every other section boundary in the
+ * deck already makes.
  */
 const RECEDE_MS = 2600;
 
@@ -547,14 +546,10 @@ const beat12 = createSequence([
   {
     ms: TIME.splatForm,
     play: burst,
-    done: snapSplat,
-  },
-  {
-    ms: RECEDE_MS,
-    play: recede,
     // `settle` runs every stage's `done` in order, so this is what a jump into
-    // eff-02 lands on: the stain arrived, the camera already home.
-    done: restCamera,
+    // eff-02 lands on: the stain arrived, camera still pushed in — no third
+    // stage now pulls it back, so the jump target matches the held state.
+    done: snapSplat,
   },
 ]);
 

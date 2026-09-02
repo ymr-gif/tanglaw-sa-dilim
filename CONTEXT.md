@@ -378,9 +378,12 @@ shot. `eff-04` is retired, not reused.
 **It ends on the splat.** A fourth beat followed it until 2026-09-03, in which
 the stain dispersed into a darkened grid of desks; it was cut for not connecting
 to what came before it, and its sentence moved onto `eff-02`, which now holds
-the stain while CH speaks it and lets the camera withdraw off the blood. The
-`grid-dark` state is retired in `effects.js`, not deleted, alongside `shatter`,
-`seat` and `grid-fail`.
+the stain while CH speaks it. The camera used to withdraw off the blood during
+that line; cut the same day, so the splat — engulfing the left half of the
+screen — stays at full size for as long as the beat holds, instead of shrinking
+back down while CH is still speaking to it. The `grid-dark` state is retired in
+`effects.js`, not deleted, alongside `shatter`, `seat`, `grid-fail`, and now
+the withdrawal itself (`recede`/`restCamera`).
 
 The constraint that survives: the gun is assembled from the four shards of the
 child's mask. It is what the shattered child became. A weapon that arrives from
