@@ -71,21 +71,25 @@ const WHITE_CUT = 247;
 /**
  * How far each shard travels when the mask breaks, and how wrong it goes.
  *
- * Deliberately small. These were three times larger when the mask was a simple
- * line-art outline, where big gaps still read as "a cracked face". The real
- * artwork carries a crown, a swirl and a painted face, and at that scale the
- * same displacement stops reading as damage and starts reading as four
- * unrelated shapes — the mask has to stay recognisable while it is broken, or
- * the Prevention mirror has nothing to put back together.
+ * NO ROTATION on the three native shards. Pieces that rotate as they separate
+ * lean, and the break reads as a pinwheel — the mask looks like it is being
+ * twisted apart rather than coming apart. Straight translation along each
+ * piece's own axis reads as a clean break: the crest lifts straight up, the
+ * cheek goes left, the mouth drops.
+ *
+ * The translations are larger than they were to compensate. Rotation was
+ * contributing most of the apparent gap at the rim (roughly rot x radius), so
+ * removing it without raising `mag` would have quietly undone the separation.
+ *
+ * Shard 3 keeps a small tilt — deliberately. It is the one piece that does not
+ * belong to this face, and being the only thing askew says that before anyone
+ * has to. Set its `rot` to 0 as well if the tilt is unwanted anywhere.
  */
 const FRACTURE = [
-  { mag: 0.135, rot: 0.085, sx: 1.0, sy: 1.0 },
-  { mag: 0.135, rot: -0.085, sx: 1.0, sy: 1.0 },
-  { mag: 0.120, rot: 0.070, sx: 1.0, sy: 1.0 },
-  // Shard 3 is the intruder. It travels further, turns much further, and is
-  // scaled non-uniformly, so it visibly does not belong to the same face
-  // before a word is said about it (§6).
-  { mag: 0.290, rot: 0.260, sx: 1.08, sy: 0.93 },
+  { mag: 0.200, rot: 0, sx: 1.0, sy: 1.0 },
+  { mag: 0.200, rot: 0, sx: 1.0, sy: 1.0 },
+  { mag: 0.190, rot: 0, sx: 1.0, sy: 1.0 },
+  { mag: 0.340, rot: 0.095, sx: 1.06, sy: 0.95 },
 ];
 
 /** Classroom grid used by Effects. 30 desks, ~233 points each. */
