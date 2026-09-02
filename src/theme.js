@@ -88,13 +88,20 @@ export const EASE = {
  * MassKara artwork — the crown's petals and the face's swirl carry far more
  * detail than an outline did, and at 7000 the mask read as a sparse smudge.
  */
-export const POINTS = 12000;
+export const POINTS = 17000;
 
 /** Camera breathing room around the mask's bounding sphere (§8). */
 export const FIT_MARGIN = 1.35;
 
-/** Point size at a 900px-tall container; scaled with height in the resizer. */
-export const BASE_POINT_SIZE = 0.0145;
+/**
+ * Point size in world units.
+ *
+ * Sized for a PROJECTOR, not for this monitor. Projectors have poor black
+ * levels and low contrast, and they lose fine detail in a room that is never as
+ * dark as promised — so the deck runs deliberately denser and thicker than it
+ * needs to be on a laptop screen.
+ */
+export const BASE_POINT_SIZE = 0.0195;
 
 /** Reusable Color scratch — avoids allocating in the render loop. */
 export const scratchColor = new Color();

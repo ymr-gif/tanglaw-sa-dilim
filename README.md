@@ -2,7 +2,7 @@
 
 *Illuminating Campus Extremism and Aggression*
 
-A live-presented advocacy deck. One MassKara mask of 12,000 points, morphing
+A live-presented advocacy deck. One MassKara mask of 17,000 points, morphing
 through 22 beats, driven by an operator's keyboard.
 
 **Live:** <https://ymr-gif.github.io/tanglaw-sa-dilim/>

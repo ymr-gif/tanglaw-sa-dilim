@@ -55,8 +55,18 @@ const EASE_FN = {
 
 const DEFAULT_DRIFT = 0.006;
 
-/** A soft round sprite. Pure black kills glow falloff, which is why the
- *  background is indigo-charcoal and the points are additive (§4). */
+/**
+ * The point sprite: a solid core with a short glow falloff.
+ *
+ * Pure black kills glow falloff, which is why the background is
+ * indigo-charcoal and the points are additive (§4).
+ *
+ * The core is deliberately hard. A wide soft gradient looks better on a laptop
+ * and turns to haze on a projector — low contrast plus a room that is never
+ * fully dark means the faint outer half of every sprite simply disappears, and
+ * the mask loses its edges. Most of the sprite is opaque, with just enough
+ * falloff at the rim to keep the glow.
+ */
 function glowTexture() {
   const size = 64;
   const canvas = document.createElement('canvas');
@@ -64,7 +74,8 @@ function glowTexture() {
   const g = canvas.getContext('2d');
   const grad = g.createRadialGradient(size / 2, size / 2, 0, size / 2, size / 2, size / 2);
   grad.addColorStop(0.0, 'rgba(255,255,255,1)');
-  grad.addColorStop(0.35, 'rgba(255,255,255,0.55)');
+  grad.addColorStop(0.42, 'rgba(255,255,255,0.92)');
+  grad.addColorStop(0.66, 'rgba(255,255,255,0.42)');
   grad.addColorStop(1.0, 'rgba(255,255,255,0)');
   g.fillStyle = grad;
   g.fillRect(0, 0, size, size);

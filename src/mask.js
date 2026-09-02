@@ -55,6 +55,13 @@ const ANCHORS_ART = [
  */
 const CRACK_ORIGIN_ART = [590, 690];
 
+/**
+ * The mask's face, in the artwork's pixel coordinates — the region that gets
+ * sampled harder than its area deserves, so the headpiece cannot drown it.
+ */
+const FACE_CENTER_ART = [592, 715];
+const FACE_SIGMA_ART = 205;
+
 /** Resolution the artwork is rasterised at before sampling. */
 const RASTER = 620;
 
@@ -158,6 +165,17 @@ async function rasterise() {
 function samplePoints({ data, w, h }) {
   const weight = new Float32Array(w * h);
 
+  // The face, in raster pixels. Everything about this artwork is dominated by
+  // the headpiece; this is the counterweight.
+  const toRaster = w / 1170;
+  const FACE_C = [FACE_CENTER_ART[0] * toRaster, FACE_CENTER_ART[1] * toRaster];
+  const faceSigma = FACE_SIGMA_ART * toRaster;
+  const FACE_DENOM = 2 * faceSigma * faceSigma;
+  const FACE_GAIN = 2.6;
+
+  /** How far the headpiece falls back in tone relative to the face. */
+  const CROWN_FLOOR = 0.52;
+
   const lumaAt = (x, y) => {
     const i = (y * w + x) * 4;
     return 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
@@ -185,11 +203,29 @@ function samplePoints({ data, w, h }) {
       const gy = Math.abs(lumaAt(x, y + 1) - lumaAt(x, y - 1));
       const edge = Math.min(1, Math.hypot(gx, gy) / 140);
 
-      // Balanced by eye against the render, not derived. The base term keeps
-      // the near-white face present at all; the saturation term has to
-      // outweigh it, because a point count spread evenly over this artwork puts
-      // most of itself on neutral pixels and the whole mask comes out grey.
-      weight[y * w + x] = 0.22 + sat * 2.3 + edge * 1.7;
+      /*
+       * EDGE-DOMINANT, ON PURPOSE — this is what stops the crown eating the deck.
+       *
+       * The headpiece is roughly 70% of the artwork's area. Weighting by area
+       * (or by colour, which is spread over the same area) hands it ~70% of the
+       * points, and it renders as a large bright mass beside a small face. No
+       * amount of tuning colour fixes that, because the problem is mass.
+       *
+       * Weighting by edge converts the crown from a filled shape into its own
+       * outline: the petals, the lotus motifs and the banding all become lines.
+       * That collapses its visual weight and turns it into a frame AROUND the
+       * face instead of a competitor to it — and it is denser along every line,
+       * which is what carries on a projector.
+       *
+       * The face then gets an explicit boost on top, because it is the subject
+       * of a piece about children behind masks and it should not have to win an
+       * argument about surface area to be seen.
+       */
+      const fdx = x - FACE_C[0];
+      const fdy = y - FACE_C[1];
+      const faceBoost = 1 + FACE_GAIN * Math.exp(-(fdx * fdx + fdy * fdy) / FACE_DENOM);
+
+      weight[y * w + x] = (0.05 + sat * 0.85 + edge * 3.4) * faceBoost;
     }
   }
 
@@ -247,7 +283,21 @@ function samplePoints({ data, w, h }) {
     // that are deliberately monochrome: the face, the swirl and the crown's
     // petals still differ from each other in value even when they share a hue.
     const luma = (0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2]) / 255;
-    artLuma[n] = 0.58 + luma * 0.55;
+
+    /*
+     * ...and then the headpiece is held back.
+     *
+     * Sampling density alone does not decide what a viewer looks at —
+     * brightness does. Even outlined, a crown covering most of the frame at the
+     * same luminance as the face still reads as the subject. Falling the tone
+     * off with distance from the face makes the crown a frame around it, which
+     * is the job it should have been doing all along.
+     */
+    const fdx = x - FACE_C[0];
+    const fdy = y - FACE_C[1];
+    const near = Math.exp(-(fdx * fdx + fdy * fdy) / FACE_DENOM);
+
+    artLuma[n] = (0.58 + luma * 0.55) * (CROWN_FLOOR + (1 - CROWN_FLOOR) * near);
 
     if (x < minX) minX = x;
     if (x > maxX) maxX = x;
