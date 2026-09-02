@@ -9,6 +9,14 @@
  * audience imagines is worse than what can be rendered at this point density.
  * Same principle as the empty seat this section retired.
  *
+ * COVERAGE OVER REACH, as of 2026-09-03. `effects.js` confines and scales the
+ * finished splat to fill the left half of the screen, but scaling up a small
+ * dense core inside a wide sparse halo just spreads the same sparseness over
+ * more area — it does not read as "covered." CORE_SHARE and CORE_SCALE below
+ * exist to make the core itself big enough that scaling it doesn't hollow it
+ * out. Satellites and drips stayed proportionally smaller on purpose; they are
+ * texture at the edge of a mass now, not the mass itself.
+ *
  * FOUR COMPONENTS, because a single radial spray reads as a firework:
  *
  *   Core        several overlapping blobs of different sizes, merged. NOT a
@@ -36,25 +44,36 @@
 import { POINTS } from '../theme.js';
 import { seededRandom } from '../noise.js';
 
-const CORE_SHARE = 0.4;
-const SAT_SHARE = 0.22;
-const SPIKE_SHARE = 0.26;
+const CORE_SHARE = 0.58;
+const SAT_SHARE = 0.13;
+const SPIKE_SHARE = 0.21;
 /** The rest are drips. */
 
 /**
- * Satellites live between these radii.
+ * Scales the whole BLOBS layout (positions and radii together) without
+ * hand-editing eight rows. `effects.js` confines and scales the finished
+ * splat to fill the left half of the screen — that's a camera-framing
+ * concern. This is a shape concern: at CORE_SHARE's original size, the core
+ * was a small dense knot inside a wide, sparse satellite halo, so scaling
+ * the whole thing up (effects.js) just spread the same knot over more empty
+ * space. A bigger core, sharing more of the point budget, is what actually
+ * reads as coverage rather than a dot with a halo.
+ */
+const CORE_SCALE = 1.9;
+
+/**
+ * Satellites live between these radii. The inner bound now sits just past
+ * the (much bigger, CORE_SCALE'd) core's own edge — satellites are an outer
+ * halo beyond the mass, not noise scattered inside it, which is what they'd
+ * be if SAT_MIN were still smaller than the core's own reach.
  *
  * The outer bound is set by what the camera can actually see, AND by the
  * spikes: `effects.js` confines the whole splat to the left half of the
  * screen, and the one thing that should visibly reach nearest the boundary is
- * the main-thrust Spike, not a stray satellite. 0.78 (the original bound) let
- * satellites tie the spike for "farthest right point" — 0.6 keeps satellites
- * inside it. `eff-02` dollies forward to z ~ 1.3, where the visible
- * half-height is only about 0.6, so this also still reads as a spray thrown
- * from a stain rather than an evenly spread starfield.
+ * the main-thrust Spike, not a stray satellite.
  */
-const SAT_MIN = 0.2;
-const SAT_MAX = 0.6;
+const SAT_MIN = 0.45;
+const SAT_MAX = 0.75;
 
 /** Points per droplet. */
 const DROP = 6;
@@ -110,10 +129,10 @@ const BLOB_CDF = (() => {
  * alone approach the boundary, so the reach reads as deliberate.
  */
 const SPIKES = [
-  { angle: 68, length: 0.3, width: 0.05, weight: 0.8 },
-  { angle: 26, length: 0.4, width: 0.058, weight: 1.0 },
-  { angle: -10, length: 0.64, width: 0.07, weight: 1.3 },
-  { angle: -50, length: 0.36, width: 0.052, weight: 0.9 },
+  { angle: 68, length: 0.55, width: 0.065, weight: 0.8 },
+  { angle: 26, length: 0.7, width: 0.075, weight: 1.0 },
+  { angle: -10, length: 1.0, width: 0.09, weight: 1.3 },
+  { angle: -50, length: 0.6, width: 0.068, weight: 0.9 },
 ];
 
 const SPIKE_WEIGHT_TOTAL = SPIKES.reduce((sum, s) => sum + s.weight, 0);
@@ -147,10 +166,10 @@ export function buildSplat() {
     // sqrt keeps the area density even inside one blob; the overlaps between
     // blobs are then the only thing making the mass uneven, which is what a
     // stain looks like.
-    const r = BLOBS[b][2] * Math.sqrt(rand());
+    const r = BLOBS[b][2] * CORE_SCALE * Math.sqrt(rand());
 
-    out[i3] = BLOBS[b][0] + Math.cos(a) * r;
-    out[i3 + 1] = BLOBS[b][1] + Math.sin(a) * r * 0.92;
+    out[i3] = BLOBS[b][0] * CORE_SCALE + Math.cos(a) * r;
+    out[i3 + 1] = BLOBS[b][1] * CORE_SCALE + Math.sin(a) * r * 0.92;
     out[i3 + 2] = (rand() - 0.5) * 0.09;
   }
 
