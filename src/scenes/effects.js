@@ -284,12 +284,14 @@ const EDGE_MARGIN = 0.025;
  * rule. Bigger, bolder particles read as a bigger, denser mass without
  * moving the boundary at all.
  *
- * 1.2, down from a first attempt at 1.5: bigger points are also WIDER soft
- * glow discs, and at 1.5 combined with the denser core, they overlapped into
- * a diffuse blown-out haze rather than reading as a mass of blood. See
- * BLOOD's comment — this and that value were tuned together.
+ * 0.85, down from 1.2, down from a first attempt at 1.5: bigger points are
+ * also WIDER soft glow discs, and even at 1.2 combined with the denser core
+ * they still overlapped into a diffuse blown-out haze at the core's densest
+ * point rather than reading as a mass of blood. See BLOOD's comment and
+ * splat.js's BLOBS weights — all three were tuned together against the same
+ * failure mode.
  */
-const SPLAT_POINT_SIZE = 1.2;
+const SPLAT_POINT_SIZE = 0.85;
 
 /**
  * How much to grow the splat, and how far left to shift it, so it fills the
@@ -383,15 +385,19 @@ function splatDelay() {
 /**
  * The one non-ash colour in the section, and the only one.
  *
- * 1.4, down from an already-once-lowered 2.4 (originally 3.2): these points
- * are emissive under additive blending, and where the core is densest the
- * channels saturate and the red washes out to pink, then white. The 2026-09-03
- * coverage pass made the core both much denser (CORE_SHARE, CORE_SCALE) and
- * the points themselves 1.5x bigger (SPLAT_POINT_SIZE) — more overlap on top
- * of more overlap — so the value that was already tuned for this failure mode
- * needed tuning again. Lower keeps it red where it matters most.
+ * 0.6, down through 1.0 and 1.4 from an already-once-lowered 2.4 (originally
+ * 3.2): these points are emissive under additive blending, and where the
+ * core is densest the channels saturate and the red washes out to pink, then
+ * white. The 2026-09-03 coverage pass made the core both much denser
+ * (CORE_SHARE, CORE_SCALE) and the points themselves bigger
+ * (SPLAT_POINT_SIZE) — more overlap on top of more overlap, concentrated
+ * worst at the two most-overlapping BLOBS (their weights were flattened too,
+ * see splat.js — that alone wasn't enough). Intensity alone couldn't fully
+ * fix a fixed number of points stacking in the same screen pixels without
+ * dimming the whole splat too far; SPLAT_POINT_SIZE's reduction to 0.85 is
+ * the other half of this fix. Lower keeps it red where it matters most.
  */
-const BLOOD = solid(COLOR.blood, 1.4);
+const BLOOD = solid(COLOR.blood, 0.6);
 
 /**
  * How far the camera pushes in. The rig computes `position.z = fitZ + offset.z`,

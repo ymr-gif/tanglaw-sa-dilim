@@ -88,10 +88,18 @@ const DRIPS = 5;
  * weights are sampling weights, not areas: the overlaps are what make the
  * density uneven, and uneven density is most of what makes it read as a stain
  * rather than as a shape.
+ *
+ * Blobs 0 and 1's weights were flattened (1.0->0.6, 0.55->0.35) 2026-09-03:
+ * their centres sit close enough together that after CORE_SCALE they overlap
+ * heavily, and that lens was the single densest patch in the whole splat —
+ * dense enough that even a much darker BLOOD intensity (see effects.js)
+ * still blew it out to white on its own. This spreads more of the core's
+ * points to the rest of the mass instead of stacking them in one spot; the
+ * other blobs' weights are unchanged.
  */
 const BLOBS = [
-  [-0.03, 0.01, 0.22, 1.0],
-  [0.11, 0.06, 0.15, 0.55],
+  [-0.03, 0.01, 0.22, 0.6],
+  [0.11, 0.06, 0.15, 0.35],
   [-0.14, -0.06, 0.13, 0.45],
   [0.08, -0.11, 0.12, 0.4],
   [-0.06, 0.14, 0.1, 0.3],
