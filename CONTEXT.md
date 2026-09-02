@@ -327,9 +327,10 @@ decision of the author, recorded in
 The constraint that survives: the gun is assembled from the four shards of the
 child's mask. It is what the shattered child became. A weapon that arrives from
 outside the piece would contradict §1's thesis; a weapon made of the child does
-not. After `eff-03`, hold black two full seconds before Prevention — the
+not. After `eff-03`, hold black FOUR full seconds before Prevention — the
 section is now the loudest in the deck and that silence is the only contrast
-left.
+left. Four, not the two this rule originally said: the sequence turned out
+louder than the plan that specified it, and two seconds does not pay for it.
 
 **Prevention.** The turn. Fragments drift inward, one shard relights per click.
 Festival color enters the deck here for the first time.
