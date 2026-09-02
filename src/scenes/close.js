@@ -1,5 +1,5 @@
 /**
- * close.js — beats 21-22. The mask completes, then becomes a lantern.
+ * close.js — beats 25-26. The mask completes, then becomes a lantern.
  *
  * "Final shard seats, mask completes in full color, rises, dissolves upward
  *  into lantern glow. Loops indefinitely." (CONTEXT.md §6)
@@ -18,7 +18,7 @@ import { Color } from 'three';
 
 import { COLOR, TIME } from '../theme.js';
 import { POINTS } from '../theme.js';
-import { clearDelays, createFlare } from './_base.js';
+import { clearDelays, createFlare, reshuffle } from './_base.js';
 
 /**
  * The close does not light the mask in four assigned hues. It lights the mask in
@@ -149,10 +149,19 @@ export default {
       field.setDrift(0.007);
       field.setUpdate(null);
 
-      // The final shard arrives last — it seats on "bringing the light".
+      // Refusal hands its stars over by reshuffling, not by sliding — "the
+      // transition will be like the dots reshuffling" is the storyboard's last
+      // frame, and this entry is where it lands. It costs nothing on the paths
+      // that do not come from the stars.
+      reshuffle(field, 0.6);
+
+      // The final shard still arrives last — it seats on "bringing the light".
+      // Layered ON TOP of the reshuffle rather than replacing it, so the two
+      // do not cancel each other out.
       for (let i = 0; i < field.posDelay.length; i++) {
-        field.posDelay[i] = mask.shardOf[i] === 3 ? 0.34 : 0;
-        field.colDelay[i] = mask.shardOf[i] === 3 ? 0.34 : 0;
+        const last = mask.shardOf[i] === 3 ? 0.34 : 0;
+        field.posDelay[i] = Math.min(0.92, field.posDelay[i] + last);
+        field.colDelay[i] = last;
       }
 
       field.morph(mask.states.complete, { duration: 1500, ease: 'outExpo' });

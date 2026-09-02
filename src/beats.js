@@ -321,7 +321,11 @@ export const beats = [
   },
 
   // ─────────────────────────────────────────────────────────────────────
-  // REFUSAL — the only full sentence the audience reads all night.
+  // REFUSAL — classroom becomes cage becomes weapons becomes light.
+  //
+  // Six sentences, six beats. `ref-02` is RETIRED and must never be reused:
+  // it held four sentences that are now spread across five beats, so nothing
+  // is its honest successor. A stale reference to it should fail loudly.
   // ─────────────────────────────────────────────────────────────────────
   {
     id: 'ref-01',
@@ -330,28 +334,79 @@ export const beats = [
     state: { mode: 'hold', gap: true },
     speaker: 'CH',
     handoff: true,
-    caption: 'Do not build prisons out of our classrooms.',
-    script: `Do not surrender our generation to despair. Do not build prisons
-             out of our classrooms.`,
-    cue: `>>> CH TAKES OVER. Mask nearly whole, one gap remaining. Read the
-          caption ALOUD, in sync with the audience reading it. Only beat in
-          the deck where screen and voice say the same words.`,
+    caption: null,
+    script: `Do not surrender our generation to despair.`,
+    cue: `>>> CH TAKES OVER. Mask nearly whole, one gap remaining — the exact
+          state Prevention ended on. Nothing moves but the drift. Click on
+          "despair."`,
   },
   {
-    id: 'ref-02',
+    id: 'ref-03',
     section: 'refusal',
     scene: 'refusal',
-    state: { mode: 'hold', gap: true, dim: true },
+    state: { mode: 'bars' },
+    speaker: 'CH',
+    handoff: false,
+    caption: 'Do not build prisons out of our classrooms.',
+    script: `Do not build prisons out of our classrooms.`,
+    cue: `The mask's own points rise into five white prison bars. Read the
+          caption ALOUD, in sync with the audience reading it. Only beat in
+          the deck where screen and voice say the same words. Click on
+          "classrooms."`,
+  },
+  {
+    id: 'ref-04',
+    section: 'refusal',
+    scene: 'refusal',
+    state: { mode: 'weapons' },
     speaker: 'CH',
     handoff: false,
     caption: null,
     script: `When a child turns to violence, society failed them long before
-             they picked up a weapon. Refuse the cheap comfort of vengeance.
-             Fix the toxic environments poisoning our youth and hold the line
-             for healing — because treating children as lost causes surrenders
-             the future.`,
-    cue: `Caption clears, mask holds. Nothing moves but the slow noise.
-          All attention on CH.`,
+             they picked up a weapon.`,
+    cue: `Caption clears. The bars become a knife (left) and the Effects
+          handgun (right), both bright white. Click on "weapon."`,
+  },
+  {
+    id: 'ref-05',
+    section: 'refusal',
+    scene: 'refusal',
+    state: { mode: 'hands' },
+    speaker: 'CH',
+    handoff: false,
+    caption: null,
+    script: `Refuse the cheap comfort of vengeance.`,
+    cue: `Many yellow hands fade in out of the shadows around both weapons —
+          fingertips vivid, palms swallowed by the dark. The weapons do not
+          change yet. Click on "vengeance."`,
+  },
+  {
+    id: 'ref-06',
+    section: 'refusal',
+    scene: 'refusal',
+    state: { mode: 'crush' },
+    speaker: 'CH',
+    handoff: false,
+    caption: null,
+    script: `Fix the toxic environments poisoning our youth and hold the line
+             for healing —`,
+    cue: `The hands close into fists, thumbs up. The weapons break and
+          scatter, densest at the crush. Fast — do not wait for it. The dash
+          at the end of "healing" is your click.`,
+  },
+  {
+    id: 'ref-07',
+    section: 'refusal',
+    scene: 'refusal',
+    state: { mode: 'stars' },
+    speaker: 'CH',
+    handoff: false,
+    caption: null,
+    script: `— because treating children as lost causes surrenders the
+             future.`,
+    cue: `The hands become stars. The debris fades to nothing. Hold here as
+          long as you like — the stars breathe. Clicking on into close-01
+          reshuffles them into the completed mask.`,
   },
 
   // ─────────────────────────────────────────────────────────────────────

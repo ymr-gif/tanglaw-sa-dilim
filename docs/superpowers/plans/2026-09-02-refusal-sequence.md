@@ -167,13 +167,13 @@ every later task depends on the beats existing.
 
 **Files:** Modify `src/beats.js`; regenerate `docs/RUNSHEET.md`.
 
-- [ ] **Step 1:** Replace the two Refusal entries with six: `ref-01`, `ref-03`, `ref-04`, `ref-05`, `ref-06`, `ref-07`. **`ref-02` is retired and must not be reused.** Speaker is `CH` throughout; `handoff: true` on `ref-01` only — the section is still one continuous CH passage, so the deck's handoff count stays at six.
+- [x] **Step 1:** Replace the two Refusal entries with six: `ref-01`, `ref-03`, `ref-04`, `ref-05`, `ref-06`, `ref-07`. **`ref-02` is retired and must not be reused.** Speaker is `CH` throughout; `handoff: true` on `ref-01` only — the section is still one continuous CH passage, so the deck's handoff count stays at six.
 
-- [ ] **Step 2:** Split the script verbatim, one sentence per beat. Do not reword. The em-dash before "because" in the source becomes the join between beats 5 and 6 — beat 5's script ends `…hold the line for healing —` and beat 6's begins `— because treating children…`, matching how `roots-00`/`roots-01` already handle a sentence broken across a click.
+- [x] **Step 2:** Split the script verbatim, one sentence per beat. Do not reword. The em-dash before "because" in the source becomes the join between beats 5 and 6 — beat 5's script ends `…hold the line for healing —` and beat 6's begins `— because treating children…`, matching how `roots-00`/`roots-01` already handle a sentence broken across a click.
 
-- [ ] **Step 3:** Write the `cue` field for each beat. These are the operator's run sheet and are the only place the new staging is written down for a human. Each must say where in the sentence to click.
+- [x] **Step 3:** Write the `cue` field for each beat. These are the operator's run sheet and are the only place the new staging is written down for a human. Each must say where in the sentence to click.
 
-- [ ] **Step 4:** Regenerate and confirm the count.
+- [x] **Step 4:** Regenerate and confirm the count.
 
 ```bash
 npm run runsheet
@@ -190,9 +190,9 @@ console.log('ref-02 must be absent:', !ids.includes('ref-02'));
 "
 ```
 
-- [ ] **Step 5:** Verify the deck still runs with the new count before any visuals exist. All six beats will show the old held mask; that is expected. Check the tracker reads `/26`, that `7` still jumps to the section start, and that `←` walks back through all six.
+- [x] **Step 5:** Verify the deck still runs with the new count before any visuals exist. All six beats will show the old held mask; that is expected. Check the tracker reads `/26`, that `7` still jumps to the section start, and that `←` walks back through all six.
 
-- [ ] **Step 6:** Commit. Ship this alone — it is independently correct and it unblocks rehearsal on the real structure.
+- [x] **Step 6:** Commit. Ship this alone — it is independently correct and it unblocks rehearsal on the real structure.
 
 ---
 
@@ -202,7 +202,7 @@ console.log('ref-02 must be absent:', !ids.includes('ref-02'));
 
 **Interfaces:** Produces `buildBars()` → `Float32Array(POINTS * 3)`
 
-- [ ] **Step 1:** Create `src/shapes/bars.js`. Seven vertical bars, running past the top and bottom of frame so they read as continuous rather than as seven floating rectangles, plus a cross-rail top and bottom to make it a cage rather than a fence.
+- [x] **Step 1:** Create `src/shapes/bars.js`. Seven vertical bars, running past the top and bottom of frame so they read as continuous rather than as seven floating rectangles, plus a cross-rail top and bottom to make it a cage rather than a fence.
 
 ```js
 import { POINTS } from '../theme.js';
@@ -240,15 +240,15 @@ export function buildBars() {
 }
 ```
 
-- [ ] **Step 2:** Wire beat 2. `reshuffle(field)` then morph from beat 1's held mask over ~1600ms, `ease: 'inOutQuad'`. **The mask's own points become the cage** — do not fade one out and the other in.
+- [x] **Step 2:** Wire beat 2. `reshuffle(field)` then morph from beat 1's held mask over ~1600ms, `ease: 'inOutQuad'`. **The mask's own points become the cage** — do not fade one out and the other in.
 
   Colour: **white**, per the spec list. This is the first hard white in the deck and it should feel like it — the festival hues Prevention just earned drain out into cold structure. `solid(COLOR.radiance, 2.2)` reads as white here without introducing a new palette entry.
 
-- [ ] **Step 3:** Show the caption `Do not build prisons out of our classrooms.` on this beat, and carry `ref-01`'s old cue with it: *read it aloud, in sync with the room.*
+- [x] **Step 3:** Show the caption `Do not build prisons out of our classrooms.` on this beat, and carry `ref-01`'s old cue with it: *read it aloud, in sync with the room.*
 
-- [ ] **Step 4:** Verify the bars read as confinement and the caption stays legible against them. If the text fights the uprights, widen `SPACING` rather than moving the caption — the caption's position is governed by the safe-area rules and should not become a special case.
+- [x] **Step 4:** Verify the bars read as confinement and the caption stays legible against them. If the text fights the uprights, widen `SPACING` rather than moving the caption — the caption's position is governed by the safe-area rules and should not become a special case.
 
-- [ ] **Step 5:** Commit.
+- [x] **Step 5:** Commit.
 
 ---
 
@@ -271,7 +271,7 @@ silhouette fire; seeing it crushed is the answer to that.
 
 Colour: **bright white**, brighter than the bars. `solid(COLOR.radiance, 3.4)`.
 
-- [ ] **Step 1:** Generalise `buildGun`. It currently distributes all `POINTS` by shard at the origin; it needs to place an arbitrary subset at an arbitrary scale and offset.
+- [x] **Step 1:** Generalise `buildGun`. It currently distributes all `POINTS` by shard at the origin; it needs to place an arbitrary subset at an arbitrary scale and offset.
 
 ```js
 export function buildGun(target, { pick, tilt = 0, scale = 1, offset = [0, 0] } = {}) { … }
@@ -279,13 +279,13 @@ export function buildGun(target, { pick, tilt = 0, scale = 1, offset = [0, 0] } 
 
 Keep the existing shard-based call working — the Effects section depends on it — by defaulting `pick` to "all points, distributed by shard".
 
-- [ ] **Step 2:** Create `src/shapes/knife.js`. The storyboard draws a broad cleaver-like blade rather than a slim knife — blade as a tapered quad with a squared tip, a short bolster, and a handle. Roughly 1.0 long so it carries the same visual weight as the gun beside it.
+- [x] **Step 2:** Create `src/shapes/knife.js`. The storyboard draws a broad cleaver-like blade rather than a slim knife — blade as a tapered quad with a squared tip, a short bolster, and a handle. Roughly 1.0 long so it carries the same visual weight as the gun beside it.
 
-- [ ] **Step 3:** Wire beat 3. `reshuffle(field)`, then split points by index parity — even indices to the knife on the left, odd to the gun on the right — so both weapons form simultaneously out of the bars rather than one after the other. Position at roughly `x = ∓0.62`.
+- [x] **Step 3:** Wire beat 3. `reshuffle(field)`, then split points by index parity — even indices to the knife on the left, odd to the gun on the right — so both weapons form simultaneously out of the bars rather than one after the other. Position at roughly `x = ∓0.62`.
 
-- [ ] **Step 4:** **Verify both read at a glance**, side by side, and that they are the same visual weight. A knife that reads and a gun that does not will look like a mistake. Iterate before proceeding; every silhouette in this project needed it.
+- [x] **Step 4:** **Verify both read at a glance**, side by side, and that they are the same visual weight. A knife that reads and a gun that does not will look like a mistake. Iterate before proceeding; every silhouette in this project needed it.
 
-- [ ] **Step 5:** Commit.
+- [x] **Step 5:** Commit.
 
 ---
 
@@ -311,7 +311,7 @@ doing the work a silhouette would otherwise have to do.
 It is also **many hands, not two.** They come in from every edge and surround
 both weapons, as the storyboard draws and the reference shows.
 
-- [ ] **Step 1:** Create `src/shapes/hands.js`. Each hand is five tapered fingers radiating from an implied palm; the palm itself gets almost no points because it is meant to vanish.
+- [x] **Step 1:** Create `src/shapes/hands.js`. Each hand is five tapered fingers radiating from an implied palm; the palm itself gets almost no points because it is meant to vanish.
 
 ```js
 import { POINTS } from '../theme.js';
@@ -379,11 +379,11 @@ export function buildHands({ closed = false } = {}) {
 }
 ```
 
-- [ ] **Step 2:** Wire beat 4. `reshuffle(field)`, then morph from the weapons state — the hands arrive by the weapons' own leftover points redistributing, keeping the section's one-object rule. Duration ~1200ms, `ease: 'outExpo'`.
+- [x] **Step 2:** Wire beat 4. `reshuffle(field)`, then morph from the weapons state — the hands arrive by the weapons' own leftover points redistributing, keeping the section's one-object rule. Duration ~1200ms, `ease: 'outExpo'`.
 
   **The weapons must stay lit and unchanged on this beat.** Nothing happens to them yet; only the hands arrive.
 
-- [ ] **Step 3:** Colour **yellow**, per the spec list — `solid(COLOR.gold, 2.6)` — multiplied per point by `tipness` through the `brightness` buffer:
+- [x] **Step 3:** Colour **yellow**, per the spec list — `solid(COLOR.gold, 2.6)` — multiplied per point by `tipness` through the `brightness` buffer:
 
 ```js
 for (let i = 0; i < POINTS; i++) field.brightness[i] = 0.06 + tipness[i] * 0.94;
@@ -392,9 +392,9 @@ for (let i = 0; i < POINTS; i++) field.brightness[i] = 0.06 + tipness[i] * 0.94;
 That 0.06 floor is deliberate: the palms are *nearly* gone but not absent, so the
 hands still read as connected forms rather than as floating claws.
 
-- [ ] **Step 4:** Verify against the reference image in the storyboard: vivid fingertips, palms swallowed by the dark, thumbs reading as separate and facing up. If a hand reads as a starburst rather than a hand, reduce `spread` on the non-thumb fingers so they sit more parallel.
+- [x] **Step 4:** Verify against the reference image in the storyboard: vivid fingertips, palms swallowed by the dark, thumbs reading as separate and facing up. If a hand reads as a starburst rather than a hand, reduce `spread` on the non-thumb fingers so they sit more parallel.
 
-- [ ] **Step 5:** Commit.
+- [x] **Step 5:** Commit.
 
 ---
 
@@ -405,12 +405,12 @@ hands still read as connected forms rather than as floating claws.
 The emotional peak of the section, and the one place the deck spends real
 colour outside the Close.
 
-- [ ] **Step 1:** Three stages via `createSequence`:
+- [x] **Step 1:** Three stages via `createSequence`:
   1. **Close** (~420ms, `ease: 'inQuad'`) — hands morph to `buildHands({ closed: true })`, weapons compress toward their centres. Fast; a slow crush reads as a hug. Thumbs stay up and stay visible, per the storyboard's labels on both fists.
   2. **Fragment** (~180ms) — a small camera shake via `rig.shake(0.035, 380)`, and the weapon points scatter outward.
   3. **Disperse** (~1400ms, `ease: 'outExpo'`) — fragments drift outward and begin to dim.
 
-- [ ] **Step 2:** **The scatter is denser near the crush**, which the storyboard calls out twice. Weight the scatter displacement by distance from the fist so debris piles up where the weapon broke and thins toward the edges:
+- [x] **Step 2:** **The scatter is denser near the crush**, which the storyboard calls out twice. Weight the scatter displacement by distance from the fist so debris piles up where the weapon broke and thins toward the edges:
 
 ```js
 // Storyboard: "scatter denser" at the point of the crush.
@@ -418,13 +418,13 @@ const d = Math.hypot(x - fistX, y - fistY);
 const throwOut = 0.25 + d * 0.9;      // near points barely move; far ones fly
 ```
 
-- [ ] **Step 3:** The hands stay lit through the scatter — they do not fade here. They are still holding at the end of this beat, and beat 6 is what becomes of them.
+- [x] **Step 3:** The hands stay lit through the scatter — they do not fade here. They are still holding at the end of this beat, and beat 6 is what becomes of them.
 
-- [ ] **Step 4:** `apply()` is `beat5.settle(ctx)` — hands closed, weapons gone, fragments dispersed and dimming.
+- [x] **Step 4:** `apply()` is `beat5.settle(ctx)` — hands closed, weapons gone, fragments dispersed and dimming.
 
-- [ ] **Step 5:** Verify the scatter reads as *release* rather than as another shatter. The Effects shatter is violent and outward; this one is a thing being closed on and let go of. If they look alike, slow stage 3 and add upward bias.
+- [x] **Step 5:** Verify the scatter reads as *release* rather than as another shatter. The Effects shatter is violent and outward; this one is a thing being closed on and let go of. If they look alike, slow stage 3 and add upward bias.
 
-- [ ] **Step 6:** Commit.
+- [x] **Step 6:** Commit.
 
 ---
 
@@ -442,7 +442,7 @@ thing that endures. The weapon debris does not transform; it simply goes. That
 distinction is the whole beat and it must survive implementation: **debris fades
 to nothing, hands become stars.**
 
-- [ ] **Step 1:** Create `src/shapes/stars.js`. Roughly 20 five-pointed stars, as the storyboard draws, scattered across `x ±1.45`, `y ±0.92`. Each star is a small cluster: five spokes radiating from a centre, ~90 points each, so the glyph actually reads as a star rather than a dot.
+- [x] **Step 1:** Create `src/shapes/stars.js`. Roughly 20 five-pointed stars, as the storyboard draws, scattered across `x ±1.45`, `y ±0.92`. Each star is a small cluster: five spokes radiating from a centre, ~90 points each, so the glyph actually reads as a star rather than a dot.
 
 ```js
 const SPOKES = 5;
@@ -450,17 +450,17 @@ const OUTER = 0.075;
 const INNER = 0.028;
 ```
 
-- [ ] **Step 2:** Split the field by what it was. Points that belonged to a hand go to the stars; points that belonged to the weapons fade out. Carry a `wasHand` flag from beat 4 rather than recomputing it — the assignment must match or the wrong points will transform.
+- [x] **Step 2:** Split the field by what it was. Points that belonged to a hand go to the stars; points that belonged to the weapons fade out. Carry a `wasHand` flag from beat 4 rather than recomputing it — the assignment must match or the wrong points will transform.
 
-- [ ] **Step 3:** Debris fades via the `brightness` buffer to 0 over ~1200ms. It does not move while fading; it is already where it landed and drifting it as well reads as busy.
+- [x] **Step 3:** Debris fades via the `brightness` buffer to 0 over ~1200ms. It does not move while fading; it is already where it landed and drifting it as well reads as busy.
 
-- [ ] **Step 4:** Colour **yellow**, the same `COLOR.gold` the hands carried — they are the same points and should not change hue as they change shape. Brightness rises as they resolve.
+- [x] **Step 4:** Colour **yellow**, the same `COLOR.gold` the hands carried — they are the same points and should not change hue as they change shape. Brightness rises as they resolve.
 
-- [ ] **Step 5:** Stars breathe slowly out of phase. Same `sin(absolute time)` idiom as everywhere else, so `apply()` reproduces it.
+- [x] **Step 5:** Stars breathe slowly out of phase. Same `sin(absolute time)` idiom as everywhere else, so `apply()` reproduces it.
 
-- [ ] **Step 6:** Verify the stars do not read as the Q&A ember field — the nearest existing thing. Embers are loose, dim, warm-multicoloured and orbiting; these are discrete yellow glyphs, brighter, steadier, and they hold position. If they are confusable, sharpen the spokes and raise the intensity.
+- [x] **Step 6:** Verify the stars do not read as the Q&A ember field — the nearest existing thing. Embers are loose, dim, warm-multicoloured and orbiting; these are discrete yellow glyphs, brighter, steadier, and they hold position. If they are confusable, sharpen the spokes and raise the intensity.
 
-- [ ] **Step 7:** Commit.
+- [x] **Step 7:** Commit.
 
 ---
 
@@ -474,25 +474,25 @@ Refusal beat into `close-01`, and the deck already does it — `close.js` morphs
 to the completed mask on entry. The only change needed is that the transition
 should reshuffle rather than glide.
 
-- [ ] **Step 1:** Call `reshuffle(field, 0.6)` at the top of `close.js`'s `complete` entry, so the star field redistributes into the mask instead of sliding into it.
+- [x] **Step 1:** Call `reshuffle(field, 0.6)` at the top of `close.js`'s `complete` entry, so the star field redistributes into the mask instead of sliding into it.
 
-- [ ] **Step 2:** Verify the handoff on the real click. The stars should scatter and re-gather as the face; if it reads as the stars *sliding*, raise the spread.
+- [x] **Step 2:** Verify the handoff on the real click. The stars should scatter and re-gather as the face; if it reads as the stars *sliding*, raise the spread.
 
-- [ ] **Step 3:** Confirm the Close still lands its own moment. `close-01` is the first time all four hues are lit at once and must stay the brightest frame in the deck — the Refusal stars are yellow only, and that separation is what protects it.
+- [x] **Step 3:** Confirm the Close still lands its own moment. `close-01` is the first time all four hues are lit at once and must stay the brightest frame in the deck — the Refusal stars are yellow only, and that separation is what protects it.
 
-- [ ] **Step 4:** Commit.
+- [x] **Step 4:** Commit.
 
 ---
 
 ### Task 7: Full verification
 
-- [ ] **Step 1:** All 26 beats forward, `←` back to 0, every number key from several starting points, `Q` in and out. Zero console errors.
-- [ ] **Step 2:** Tracker reads `/26` and the Refusal ids appear correctly.
-- [ ] **Step 3:** Jump safety — press `7` from cold. No crush, no shake, no hand animation; the section start must be the held mask.
-- [ ] **Step 4:** Mid-sequence interruption — click into beat 5 and click again 300ms in, mid-crush. Must land cleanly on beat 6 with no half-run stage and no stuck camera offset.
-- [ ] **Step 5:** Seven-profile device matrix. Bars run past the frame edge by design; confirm that is true at 5:4 and portrait too, where the frame is taller.
-- [ ] **Step 6:** Caption audit — exactly one caption in the section, on beat 2, sentence case, verbatim.
-- [ ] **Step 7:** Frame cost at 1920×1080 and 320×180; small viewport holds the vsync cap.
+- [x] **Step 1:** All 26 beats forward, `←` back to 0, every number key from several starting points, `Q` in and out. Zero console errors.
+- [x] **Step 2:** Tracker reads `/26` and the Refusal ids appear correctly.
+- [x] **Step 3:** Jump safety — press `7` from cold. No crush, no shake, no hand animation; the section start must be the held mask.
+- [x] **Step 4:** Mid-sequence interruption — click into beat 5 and click again 300ms in, mid-crush. Must land cleanly on beat 6 with no half-run stage and no stuck camera offset.
+- [x] **Step 5:** Seven-profile device matrix. Bars run past the frame edge by design; confirm that is true at 5:4 and portrait too, where the frame is taller.
+- [x] **Step 6:** Caption audit — exactly one caption in the section, on beat 2, sentence case, verbatim.
+- [x] **Step 7:** Frame cost at 1920×1080 and 320×180; small viewport holds the vsync cap.
 
 ---
 
@@ -536,3 +536,87 @@ and ships alone — it is independently correct, it takes the deck from 22 beats
 to 26, and rehearsal can start on the real structure while the visuals are
 built. Everything after it depends on the Effects plan's camera rig and gun
 shape, so build that plan's Tasks 1 and 2 first or extract those two pieces.
+
+---
+
+## Implementation notes
+
+Built 2026-09-02. Every task above is done and `- [x]`; what follows is only
+where the built thing differs from what this document specified, and why.
+
+**The camera rig is not in the tree.** `src/camera-rig.js` and its wiring in
+`main.js`/`deck.js` were removed while this section was being built, so Task 5's
+`rig.shake(0.035, 380)` is written as `ctx.rig?.shake(...)`. Refusal is complete
+and correct without it and the shake lights up on its own the moment the Effects
+plan's Task 1 lands. Nothing else here depends on the rig.
+
+**The scatter formula in Task 5 Step 2 does not do what it says.** `throwOut =
+0.25 + d * 0.9` is a displacement proportional to radius, which is a uniform
+dilation — and dilating a uniform cloud leaves it uniform. On screen it produced
+a bright rim around a hollow middle, the exact opposite of the storyboard's
+"scatter denser" note. What produces the note's image is a displacement drawn
+from `pow(rand(), 2.6)`, in a RANDOM direction rather than outward: nearly every
+fragment stays where the weapon broke and a few fly. An outward push cannot work
+at any magnitude, because its mean exceeds the crushed weapon's own radius and
+evacuates the centre.
+
+**The crush destroys the weapon's shape rather than shrinking it.** Compressing
+toward the fist preserves every feature, and the gun's trigger guard came
+through the compression as an arch-shaped hole in the debris. The weapon is
+remapped into a filled disc instead — wide angular smear, and radius mostly
+redrawn rather than carried through, because a radius-preserving map can only
+put a point at the centre if something was already there and the gun's own
+centre IS the hole inside its trigger guard.
+
+**`buildHands` fans fingers from a knuckle line, not from a point.** Five
+fingers meeting at one place is five times the point density there, and under
+additive blending density beats brightness — the palms came out as the
+*brightest* part of each hand and the whole `tipness` gradient read backwards.
+Sampling along each finger is also weighted toward the tip, so brightness and
+density agree. Task 4's warning about starbursts was right; this is the fix.
+
+**A closed hand is drawn differently from an open one.** Curling the same five
+fingers gives five spirals and a spike — a claw. A fist is a mass with knuckle
+banding and a thumb on top, which is how the storyboard draws both of them.
+Open and closed still share one seed and draw the same number of randoms per
+point, so closing is *this* hand closing rather than a different hand appearing.
+
+**The fists ring the crush; they do not pile into it.** Pulled all the way in,
+five fists per side overlap into one yellow knot and none of them reads as a
+hand.
+
+**The section is sized by the narrowest profile, not the widest.** A more
+present staging looked better at 16:9 and put both weapons half off the frame in
+portrait, where the fit is height-bound. The bars run to ±2.3 for the same
+reason — at ±1.5 the uprights ended on screen at 5:4 and portrait, and an
+upright that ends on screen is a rectangle, not a bar.
+
+**Knife shape, three passes.** A blade tapering from tip to heel reads as a
+megaphone; a plain rectangle reads as a hammer head. What reads is a deep
+near-rectangular slab with the top corner cut away at the front, a neck the
+silhouette steps into and out of, and a handle riding the spine at a third the
+blade's depth.
+
+**Deviations from the stated interfaces**, all in the same direction — every
+builder writes into a caller-supplied buffer at a caller-supplied subset of
+point indices, because the field is split between the weapons and the hands:
+
+| Specified | Built |
+|---|---|
+| `buildStars(count)` | `buildStars(target, phase, { pick, count })` |
+| `buildHands({ closed })` | `buildHands(target, tipness, { pick, closed })` |
+| `buildGun(shardOf, { tilt })` | `buildGun(target, { shardOf, pick, tilt, scale, flip, offset })` |
+
+`buildGun` keeps the Effects staging intact: pass `shardOf` and the points keep
+their shard identity, so shard 0 is still the grip and shard 3 still the trigger
+and muzzle.
+
+**Frame cost was measured under software GL** (`--use-angle=swiftshader`), which
+is not representative: ~49ms median at 1920×1080, ~17ms at 320×180. The small
+viewport holds the vsync cap. The large one needs a re-measure on the real
+machine.
+
+**Also updated, though not in the file table:** `CONTEXT.md`'s beat table and
+§6 Refusal note, and the "22 beats" counts in `CONTEXT.md`, `README.md` and
+`overlay/tracker.js`'s comment. A canonical spec that still lists `ref-02` is
+worse than no spec.

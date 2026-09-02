@@ -4,7 +4,7 @@
  * THIS IS AN AUTHORING TOOL, NOT PART OF THE PIECE.
  *
  * The deck's whole discipline is that anything on screen is attention the
- * audience is not giving the speaker (CONTEXT.md §4). A permanent "07/22" in the
+ * audience is not giving the speaker (CONTEXT.md §4). A permanent "07/26" in the
  * corner violates that outright — so the tracker hides itself the moment the
  * deck goes fullscreen, which is the only state it is ever presented in, and
  * comes back when you exit. `H` overrides either way.

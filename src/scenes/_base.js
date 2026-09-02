@@ -80,6 +80,26 @@ export function staggerByShard(colDelay, shardOf, perShard) {
   }
 }
 
+/**
+ * Scatter the arrival times of a morph, so points redistribute rather than deform.
+ *
+ * A straight lerp moves every point on the same clock, which reads as one shape
+ * being PULLED into another. Giving each point its own delay makes them arrive
+ * scattered in time, and the eye reads redistribution instead — "the dots
+ * reshuffling", which is the Refusal section's specified transition feel and
+ * what carries the star field back into the mask at close-01.
+ *
+ * It is the same `posDelay` mechanism that lights shards 200ms apart; nothing
+ * new is introduced, only pointed at every point instead of every shard.
+ *
+ * Call it immediately before `morph`. `clearDelays` undoes it.
+ */
+export function reshuffle(field, spread = 0.55) {
+  for (let i = 0; i < POINTS; i++) {
+    field.posDelay[i] = field.noise.roll(i) * spread;
+  }
+}
+
 /** Clear both delay buffers. Scenes that do not stagger must still reset. */
 export function clearDelays(field) {
   field.posDelay.fill(0);

@@ -3,7 +3,7 @@
 *Illuminating Campus Extremism and Aggression*
 
 A live-presented advocacy deck. One MassKara mask of 17,000 points, morphing
-through 22 beats, driven by an operator's keyboard.
+through 26 beats, driven by an operator's keyboard.
 
 **Live:** <https://ymr-gif.github.io/tanglaw-sa-dilim/>
 
@@ -69,10 +69,10 @@ behind the speaker.
 The tracker in the bottom corners shows where you are:
 
 ```
-← → Space · 1-8 jump · Q qna · B black · H hide        07 / 22   roots-02   BR
+← → Space · 1-8 jump · Q qna · B black · H hide        07 / 26   roots-02   BR
 ```
 
-- **`07 / 22`** — position, and the bar along the bottom fills as you go.
+- **`07 / 26`** — position, and the bar along the bottom fills as you go.
 - **`roots-02`** — the beat's id. **Quote this, not the number.** `beats.js` says
   ids are stable and are never renumbered, so `roots-02` still means the same
   beat after something gets inserted, and "slide 7" does not.

@@ -13,7 +13,7 @@ codebase looks arbitrary, the explanation is here.
 ## 1. What this is
 
 An advocacy presentation delivered live by two speakers, **BR** and **CH**,
-alternating seven times across 22 beats. A **third person operates the deck** —
+alternating seven times across 26 beats. A **third person operates the deck** —
 neither speaker touches the keyboard.
 
 The subject is campus violence and extremism in Philippine schools: its roots,
@@ -271,10 +271,18 @@ summary.
 | 16 | `prev-02` | shard 1 | BR | TRAIN |
 | 17 | `prev-03` | shard 2 | BR | REDESIGN |
 | 18 | `prev-04` | shard 3 | BR | EMPOWER |
-| 19 | `ref-01` | hold + gap | **CH** | Do not build prisons out of our classrooms. |
-| 20 | `ref-02` | hold + dim | CH | — |
-| 21 | `close-01` | complete | **BR** | — |
-| 22 | `close-02` | lantern | BR | Tanglaw |
+| 19 | `ref-01` | hold + gap | **CH** | — |
+| 20 | `ref-03` | bars | CH | Do not build prisons out of our classrooms. |
+| 21 | `ref-04` | weapons | CH | — |
+| 22 | `ref-05` | hands | CH | — |
+| 23 | `ref-06` | crush | CH | — |
+| 24 | `ref-07` | stars | CH | — |
+| 25 | `close-01` | complete | **BR** | — |
+| 26 | `close-02` | lantern | BR | Tanglaw |
+
+`ref-02` is retired, not renumbered. It held four sentences that are now
+spread across five beats, so no beat is its honest successor and the gap is
+deliberate — see `docs/superpowers/plans/2026-09-02-refusal-sequence.md`.
 
 Bold speaker = handoff. The operator watches this column.
 
@@ -326,8 +334,14 @@ left.
 **Prevention.** The turn. Fragments drift inward, one shard relights per click.
 Festival color enters the deck here for the first time.
 
-**Refusal.** Mask nearly whole, one gap remaining. The only full sentence the
-audience reads.
+**Refusal.** Six beats, one per sentence. The mask holds whole with its gap,
+then its own points rise into prison bars; the bars become a knife and the
+Effects handgun; many hands fade in out of the shadows around them; the hands
+close and the weapons break and scatter; the hands become stars. Every shape is
+made of the same points as the mask — nothing arrives from outside the piece.
+Bars white, weapons bright white, hands and stars yellow. Transitions
+reshuffle rather than lerp. The only full sentence the audience reads sits on
+`ref-03`.
 
 **Close.** Final shard seats, mask completes in full color, rises, dissolves
 upward into lantern glow. Loops indefinitely. There is nothing after it except
@@ -523,7 +537,7 @@ handoffs are the only thing in this production that can't be fixed in code.
 ## 11. Build order
 
 1. **`beats.js`** — full script and captions, no visuals. Read it aloud. Time it.
-2. **`deck.js`** — click through 22 empty beats. Get resize and fit correct here,
+2. **`deck.js`** — click through 26 empty beats. Get resize and fit correct here,
    before any geometry exists to hide the bug.
 3. **`mask.js`** — sampled point states.
 4. **Roots + Prevention together** — they're mirrors; build them as a pair.

@@ -6,7 +6,7 @@
 Every beat in speaking order: what the speaker says, where to click, what the
 deck does, and what the audience reads.
 
-**22 beats** · **6 handoffs** · **12 beats with on-screen text** (10 carry none)
+**26 beats** · **6 handoffs** · **12 beats with on-screen text** (14 carry none)
 
 Quote the **id** when a beat needs changes — ids are stable and never
 renumbered, so `roots-02` survives an inserted beat and "slide 7" does not.
@@ -34,10 +34,14 @@ The same id shows in the deck's tracker (bottom right, `H` to toggle).
 | 16 | [`prev-02`](#prev-02) | Prevention | BR | `TRAIN` |
 | 17 | [`prev-03`](#prev-03) | Prevention | BR | `REDESIGN` |
 | 18 | [`prev-04`](#prev-04) | Prevention | BR | `EMPOWER` |
-| 19 | [`ref-01`](#ref-01) | Refusal | **CH** ⇠ handoff | `Do not build prisons out of our classrooms.` |
-| 20 | [`ref-02`](#ref-02) | Refusal | CH | — |
-| 21 | [`close-01`](#close-01) | Close | **BR** ⇠ handoff | — |
-| 22 | [`close-02`](#close-02) | Close | BR | `Tanglaw` |
+| 19 | [`ref-01`](#ref-01) | Refusal | **CH** ⇠ handoff | — |
+| 20 | [`ref-03`](#ref-03) | Refusal | CH | `Do not build prisons out of our classrooms.` |
+| 21 | [`ref-04`](#ref-04) | Refusal | CH | — |
+| 22 | [`ref-05`](#ref-05) | Refusal | CH | — |
+| 23 | [`ref-06`](#ref-06) | Refusal | CH | — |
+| 24 | [`ref-07`](#ref-07) | Refusal | CH | — |
+| 25 | [`close-01`](#close-01) | Close | **BR** ⇠ handoff | — |
+| 26 | [`close-02`](#close-02) | Close | BR | `Tanglaw` |
 
 Jump keys: `1` Cold open · `2` Threshold · `3` Title · `4` Roots · `5` Effects · `6` Prevention · `7` Refusal · `8` Close.
 
@@ -304,7 +308,7 @@ Jump key `6`.
 
 Jump key `7`.
 
-#### <a id="ref-01"></a>19 · `ref-01` — Do not build prisons out of our classrooms.
+#### <a id="ref-01"></a>19 · `ref-01`
 
 > **HANDOFF — CH takes over here.**
 
@@ -312,29 +316,77 @@ Jump key `7`.
 
 **Says**
 
-> Do not surrender our generation to despair. Do not build prisons out of our classrooms.
-
-**On screen** `Do not build prisons out of our classrooms.` — 8 words, mixed case — **over the 5-word ceiling, deliberately**
-
-**Click cue** >>> CH TAKES OVER. Mask nearly whole, one gap remaining. Read the caption ALOUD, in sync with the audience reading it. Only beat in the deck where screen and voice say the same words.
-
-#### <a id="ref-02"></a>20 · `ref-02`
-
-**Speaker** CH · **Scene** `refusal` · **State** `mode: hold, gap: true, dim: true`
-
-**Says**
-
-> When a child turns to violence, society failed them long before they picked up a weapon. Refuse the cheap comfort of vengeance. Fix the toxic environments poisoning our youth and hold the line for healing — because treating children as lost causes surrenders the future.
+> Do not surrender our generation to despair.
 
 **On screen** nothing. The voice carries this beat.
 
-**Click cue** Caption clears, mask holds. Nothing moves but the slow noise. All attention on CH.
+**Click cue** >>> CH TAKES OVER. Mask nearly whole, one gap remaining — the exact state Prevention ended on. Nothing moves but the drift. Click on "despair."
+
+#### <a id="ref-03"></a>20 · `ref-03` — Do not build prisons out of our classrooms.
+
+**Speaker** CH · **Scene** `refusal` · **State** `mode: bars`
+
+**Says**
+
+> Do not build prisons out of our classrooms.
+
+**On screen** `Do not build prisons out of our classrooms.` — 8 words, mixed case — **over the 5-word ceiling, deliberately**
+
+**Click cue** The mask's own points rise into five white prison bars. Read the caption ALOUD, in sync with the audience reading it. Only beat in the deck where screen and voice say the same words. Click on "classrooms."
+
+#### <a id="ref-04"></a>21 · `ref-04`
+
+**Speaker** CH · **Scene** `refusal` · **State** `mode: weapons`
+
+**Says**
+
+> When a child turns to violence, society failed them long before they picked up a weapon.
+
+**On screen** nothing. The voice carries this beat.
+
+**Click cue** Caption clears. The bars become a knife (left) and the Effects handgun (right), both bright white. Click on "weapon."
+
+#### <a id="ref-05"></a>22 · `ref-05`
+
+**Speaker** CH · **Scene** `refusal` · **State** `mode: hands`
+
+**Says**
+
+> Refuse the cheap comfort of vengeance.
+
+**On screen** nothing. The voice carries this beat.
+
+**Click cue** Many yellow hands fade in out of the shadows around both weapons — fingertips vivid, palms swallowed by the dark. The weapons do not change yet. Click on "vengeance."
+
+#### <a id="ref-06"></a>23 · `ref-06`
+
+**Speaker** CH · **Scene** `refusal` · **State** `mode: crush`
+
+**Says**
+
+> Fix the toxic environments poisoning our youth and hold the line for healing —
+
+**On screen** nothing. The voice carries this beat.
+
+**Click cue** The hands close into fists, thumbs up. The weapons break and scatter, densest at the crush. Fast — do not wait for it. The dash at the end of "healing" is your click.
+
+#### <a id="ref-07"></a>24 · `ref-07`
+
+**Speaker** CH · **Scene** `refusal` · **State** `mode: stars`
+
+**Says**
+
+> — because treating children as lost causes surrenders the future.
+
+**On screen** nothing. The voice carries this beat.
+
+**Click cue** The hands become stars. The debris fades to nothing. Hold here as long as you like — the stars breathe. Clicking on into close-01 reshuffles them into the completed mask.
 
 ### Close
 
 Jump key `8`.
 
-#### <a id="close-01"></a>21 · `close-01`
+#### <a id="close-01"></a>25 · `close-01`
 
 > **HANDOFF — BR takes over here.**
 
@@ -348,7 +400,7 @@ Jump key `8`.
 
 **Click cue** >>> BR TAKES OVER. Final shard seats on "bringing the light." Mask completes in full festival color. First time in the whole deck all four hues are lit at once.
 
-#### <a id="close-02"></a>22 · `close-02` — Tanglaw
+#### <a id="close-02"></a>26 · `close-02` — Tanglaw
 
 **Speaker** BR · **Scene** `close` · **State** `mode: lantern`
 
