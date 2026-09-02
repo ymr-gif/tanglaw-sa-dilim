@@ -157,7 +157,7 @@ function weapons() {
   // frame in portrait, where the fit is height-bound and the visible world is
   // barely wider than the mask. This is the largest the pair can be and still
   // fit the narrowest profile the deck supports.
-  buildKitchenKnife(buf, { pick: split.allKnife, scale: 1.498, tilt: 0.16 });
+  buildKitchenKnife(buf, { pick: split.allKnife, scale: 1.4845, tilt: 0.16 });
   buildGun(buf, { pick: split.allGun, scale: 0.57, tilt: -0.14, flip: true });
   centreOn(buf, split.allKnife, KNIFE_AT[0], KNIFE_AT[1]);
   centreOn(buf, split.allGun, GUN_AT[0], GUN_AT[1]);

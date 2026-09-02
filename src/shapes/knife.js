@@ -130,22 +130,22 @@ export function buildKnife(
 
 /**
  * Blade in TWO tapering parts, not one — a single point-to-heel taper over
- * the whole length came out as a triangle/arrowhead (tried first, looked at
- * on screen, rejected). Splitting a short TIP from a longer, gently-tapering
- * BODY concentrates the sharp point where it belongs and lets the body read
- * as a blade rather than a wedge. NECK is the waist before the handle.
+ * the whole length read as a triangle/arrowhead (tried first, rejected).
+ * Splitting a short TIP from a longer BODY concentrates the point where it
+ * belongs. NECK is the waist before the handle.
  * [x0, x1, l0, l1, h0, h1], same convention as PARTS above.
+ *
+ * The tip sits ON the spine line, not centred between the two edges — a
+ * centred point read as a spearhead: both edges sweeping in equally to a
+ * point centred in the blade's height is exactly a spear tip. A knife's
+ * spine runs on straight, nearly level, and only the cutting edge sweeps up
+ * from below to meet it — so the point lands where the spine already is,
+ * with the whole blade hanging below that line.
  */
-/**
- * The SPINE (top edge, h0/h1) stays nearly flat across both parts — it barely
- * rises from tip to heel. The CUTTING EDGE (bottom edge, l0/l1) does almost
- * all of the tapering. Symmetric tapering on both edges was tried first and
- * read as an arrowhead/dart, not a knife: a real blade's back is straight
- * and only the edge curves up into the point.
- */
-const KITCHEN_TIP = [-0.46, -0.34, -0.008, -0.05, 0.01, 0.06];
-const KITCHEN_BODY = [-0.34, 0.0, -0.05, -0.16, 0.06, 0.07];
-const KITCHEN_NECK = [0.0, 0.03, -0.035, -0.035, 0.035, 0.035];
+const SPINE_Y = 0.06;
+const KITCHEN_TIP = [-0.46, -0.34, SPINE_Y, -0.05, SPINE_Y, 0.065];
+const KITCHEN_BODY = [-0.34, 0.0, -0.05, -0.17, 0.065, 0.075];
+const KITCHEN_NECK = [0.0, 0.03, -0.05, -0.05, -0.01, -0.01];
 
 /**
  * The handle is a CAPSULE — a rectangle with two rounded end-caps, not an
@@ -159,16 +159,24 @@ const KITCHEN_NECK = [0.0, 0.03, -0.035, -0.035, 0.035, 0.035];
  * Sized so the BLADE carries roughly two-thirds of the filled area, the
  * handle the other third. An earlier pass sized the handle nearly as large
  * as the blade and it read as a harpoon — a shaft with a bulb on the end —
- * rather than a knife, on screen at real point density. A knife's silhouette
- * has to be blade-dominant to read as one.
+ * rather than a knife.
+ *
+ * The capsule's aspect ratio matters as much as its area. A short, wide one
+ * (length under 2x its own diameter) still reads as a ball once the point
+ * sprites' glow blurs its corners — it has to run at least 3-4x longer than
+ * it is wide to survive that blur as a visible grip rather than a blob.
  */
-const CAP_R = 0.075;
-const RECT_LEN = 0.12;
+const CAP_R = 0.05;
+const RECT_LEN = 0.28;
+/** Handle centreline matches the neck's, so the grip continues the blade's
+ *  own centreline rather than the spine's — the spine keeps running, but a
+ *  hand doesn't grip along the very top edge of a blade. */
+const HANDLE_Y = -0.03;
 const LEFT_CAP_CX = KITCHEN_NECK[1] + CAP_R;
 const RECT_X0 = LEFT_CAP_CX;
 const RECT_X1 = RECT_X0 + RECT_LEN;
 const RIGHT_CAP_CX = RECT_X1;
-const KITCHEN_RECT = [RECT_X0, RECT_X1, -CAP_R, -CAP_R, CAP_R, CAP_R];
+const KITCHEN_RECT = [RECT_X0, RECT_X1, HANDLE_Y - CAP_R, HANDLE_Y - CAP_R, HANDLE_Y + CAP_R, HANDLE_Y + CAP_R];
 
 /** The four trapezoid parts, in order along the blade. */
 const KITCHEN_PARTS = [KITCHEN_TIP, KITCHEN_BODY, KITCHEN_NECK, KITCHEN_RECT];
@@ -250,7 +258,7 @@ export function buildKitchenKnife(
         ? Math.PI / 2 + rand() * Math.PI // 90°..270°, facing -x
         : -Math.PI / 2 + rand() * Math.PI; // -90°..90°, facing +x
       x = cx + Math.cos(theta) * r;
-      y = Math.sin(theta) * r;
+      y = HANDLE_Y + Math.sin(theta) * r;
     }
 
     out[i3] = (x * cos - y * sin) * scale + offset[0];
