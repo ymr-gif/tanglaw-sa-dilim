@@ -105,8 +105,9 @@ w('Neither is in the code. Both are the operator\'s, on purpose — a pause bake
 w('into a timer stops being a decision made in the room.');
 w();
 w('1. **After `cold-01`** — three full beats of silence before the second line.');
-w('2. **After `eff-03`** — two full seconds of black before Prevention. Use `B`,');
-w('   so the length is chosen in the moment.');
+w('2. **After `eff-02`** — FOUR full seconds of black before Prevention. Use `B`,');
+w('   so the length is chosen in the moment. Effects is the loudest passage in');
+w('   the deck and this silence is the only contrast left before the turn.');
 w();
 
 /* ── Beat by beat ───────────────────────────────────────────────────────── */

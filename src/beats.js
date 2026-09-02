@@ -251,12 +251,19 @@ export const beats = [
 
   // ─────────────────────────────────────────────────────────────────────
   // EFFECTS — the literal sequence. The mask's shards become a gun, it fires,
-  // the camera tracks the bullet, the blood arrives, the classroom goes dark.
+  // the camera tracks the bullet, and the blood arrives. It ENDS THERE.
+  //
+  // There used to be a fourth beat after the blood, in which the stain
+  // dispersed into a darkened grid of desks. Cut 2026-09-03: it did not connect
+  // to what came before it, and the splat is the stronger place to stop. The
+  // section now hands straight to the mask. effects.js keeps the `grid-dark`
+  // state, retired alongside `shatter` and `seat`, so restoring it is a
+  // one-line change to a beat's `state`.
   //
   // This section used to be the deck's quiet floor. It is now its loudest
   // passage, by an explicit decision of the author recorded in CONTEXT.md §6.
   // The contrast it used to carry is now the four-second black hold after
-  // eff-03 — see that beat's cue, and do not shorten it.
+  // eff-02 — see that beat's cue, and do not shorten it.
   // ─────────────────────────────────────────────────────────────────────
   {
     id: 'eff-00',
@@ -297,28 +304,22 @@ export const beats = [
     handoff: false,
     caption: null,
     script: `We face mass casualty risks, where a single weapon turns a quiet
-             morning into tragedy.`,
+             morning into tragedy. This breeds a contagion of hopelessness
+             across the student body — learning stops, ambition fades, and
+             classrooms turn into spaces of constant fear, shattering trust in
+             our schools.`,
     cue: `Click on "We face." The camera pushes FORWARD through an empty frame
           for ~1.7s — nothing is there, and that is the point. Do not fill the
           silence. The blood then arrives suddenly, sweeping left to right;
-          time your click so it lands on "tragedy."`,
-  },
-  {
-    id: 'eff-03',
-    section: 'effects',
-    scene: 'effects',
-    state: { mode: 'grid-dark' },
-    speaker: 'CH',
-    handoff: false,
-    caption: 'learning stops',
-    script: `This breeds a contagion of hopelessness across the student body —
-             learning stops, ambition fades, and classrooms turn into spaces of
-             constant fear, shattering trust in our schools.`,
-    cue: `Click on "This breeds." The stain disperses into the darkened
-          classroom — one death, then every desk. Caption reads `+"`learning stops`"+`.
+          time your click so it lands on "tragedy."
 
-          AFTER THIS LINE: press B and hold black for FOUR full seconds before
-          Prevention. Do not rush this. The deck has just been loud for four
+          THEN STAY HERE. Say the whole contagion sentence to the stain — no
+          click. The camera drifts back off it as you speak, which is the only
+          movement left in the section and is meant to feel like withdrawal.
+          This is the last image of the dark half of the deck.
+
+          AFTER THE LINE: press B and hold black for FOUR full seconds before
+          Prevention. Do not rush this. The deck has just been loud for three
           beats; Prevention does not work without the silence.`,
   },
 

@@ -718,3 +718,54 @@ Tasks 3, 5, 6. `buildGun(shardOf)`, `buildWind()`, `buildSplat()` all return
 | Someone "fills" the empty advance frame | Task 5A | Called out in the storyboard note and again in Step 2 — the emptiness is the beat |
 | Multi-stage beat breaks on a mid-chain click | Task 5A | `createSequence` with a `settle()` that plays nothing; Task 8 Step 2b tests it |
 | Red survives into Prevention | Task 6 | Step 1 requires colour back to monochrome before the section ends |
+
+
+---
+
+## Amendment — 2026-09-03: `eff-03` is cut
+
+**Task 6 is reverted.** `eff-03` — the splat dispersing into the darkened
+classroom grid — was removed by decision of the author: it did not connect to
+what came before it, and the blood splat is the stronger place to stop. Effects
+is now three beats and hands straight to the mask.
+
+What moved, and what it means for the risks this plan tracked:
+
+**The sentence was kept.** *"This breeds a contagion of hopelessness across the
+student body — learning stops, ambition fades, and classrooms turn into spaces
+of constant fear, shattering trust in our schools."* is CH's line, not a slide,
+so it is now the second half of `eff-02`'s script. The operator holds on the
+stain and speaks it; `eff-02`'s cue says so explicitly.
+
+**The `learning stops` caption is gone,** and with it the only on-screen word in
+Effects. It belonged to the classroom image. Putting it on `eff-02` would have
+lit a caption during the 1.7s empty camera push, which is the one stretch of
+this section the plan is most insistent must stay empty — so the caption lost,
+not the silence. Restoring it is one field in `beats.js` if that call is wrong.
+
+**`eff-02` now brings the camera home itself,** in a third `RECEDE_MS` stage.
+This is not cosmetic. With nothing after it, the dolly would still be at
+`ADVANCE_Z` when Prevention mounts, and `rig.clearScene()` would snap it back in
+one frame at the single most important transition in the piece. As a stage it
+also earns its keep: the camera withdrawing off the blood is the only movement
+left in the section, and it reads as withdrawal, which is what the sentence is
+about. `settle()` lands at offset 0, so `apply()` and a click-through are
+identical — verified by comparing the two frames.
+
+**"Red survives into Prevention" is no longer mitigated by Task 6 Step 1.** The
+blood is now the last colour of the dark half, draining to ash over `prev-00`'s
+700ms colour morph, behind the four-second black hold. That is the intended
+outcome rather than a regression: `COLOR.blood` is not a festival hue, and no
+festival hue appears before `prev-01`.
+
+**The black hold moved from after `eff-03` to after `eff-02`** and is four
+seconds, unchanged. While correcting the references, two documents that still
+said *two* seconds (`CONTEXT.md` §10 and the run sheet generator) were brought
+in line with the beat's own cue, which is the authority.
+
+**`grid-dark` stays in `effects.js`, retired,** alongside `shatter`, `seat` and
+`grid-fail`, with its geometry still built by `mask.js`. Restoring it is a
+one-line change to a beat's `state` — but read the note in the file header
+first: `splat` and `grid-dark` would then both be returning the camera.
+
+Deck is 28 -> 27 beats.

@@ -1,9 +1,9 @@
 /**
- * effects.js — beats 10-13. The literal sequence.
+ * effects.js — beats 10-12. The literal sequence.
  *
  * The mask's four shards converge into a handgun, it fires, the camera tracks
- * the bullet, then pushes forward through an empty frame into a blood splat,
- * and the classroom goes dark.
+ * the bullet, then pushes forward through an empty frame into a blood splat.
+ * It ends there.
  *
  * THIS SECTION USED TO BE THE OPPOSITE OF WHAT IT IS NOW. It was "least motion,
  * least color, most silence" — a shatter, an empty seat, and a grid of desks
@@ -23,18 +23,30 @@
  *
  * Effects is now the loudest passage in the deck, which it was never meant to
  * be. The contrast that used to live inside it is carried instead by the `B`
- * key: four full seconds of black after `eff-03`, before Prevention.
+ * key: four full seconds of black after `eff-02`, before Prevention.
  *
- *   gun        the shards converge into the weapon, then it fires
- *   bullet     the tracking shot. Loops indefinitely
- *   splat      the camera advances through nothing, then the blood
- *   grid-dark  the stain disperses into the darkened classroom
+ *   gun     the shards converge into the weapon, then it fires
+ *   bullet  the tracking shot. Loops indefinitely
+ *   splat   the camera advances through nothing, then the blood, then the
+ *           camera withdraws off it
  *
- * The retired states are deliberately still here. `shatter`, `seat` and
- * `grid-fail` cost nothing to keep, and `mask.js` still builds their geometry,
- * so restoring any of them is a one-line change to a beat's `state`. The empty
- * seat in particular was the quietest and arguably the strongest image in the
- * deck.
+ * THE SPLAT IS THE END OF THE SECTION, AND OF THE DARK HALF OF THE DECK.
+ * `grid-dark` — the stain dispersing into a darkened grid of desks — was a
+ * fourth beat until 2026-09-03, and was cut for not connecting to what came
+ * before it. The section hands straight to the mask now.
+ *
+ * The retired states are deliberately still here. `shatter`, `seat`,
+ * `grid-fail` and `grid-dark` cost nothing to keep, and `mask.js` still builds
+ * their geometry, so restoring any of them is a one-line change to a beat's
+ * `state`. The empty seat in particular was the quietest and arguably the
+ * strongest image in the deck.
+ *
+ * One thing to know before restoring `grid-dark` as a beat: `splat` now brings
+ * the camera home itself, in its own third stage, because with nothing after it
+ * the dolly would otherwise still be pushed in when Prevention mounts and
+ * `rig.clearScene()` would snap it back at the single most important transition
+ * in the piece. `returnCamera` would then be animating 0 -> 0. Harmless, but
+ * drop one of the two rather than leaving both.
  */
 
 import { animate } from 'animejs';
@@ -340,6 +352,42 @@ function returnCamera(ctx) {
   field.setUpdate(() => rig.setOffset(0, 0, dolly.z));
 }
 
+/**
+ * The camera withdraws off the stain.
+ *
+ * Structural, not decorative. `splat` is the last beat of the section now, so
+ * if nothing brings the dolly home the camera is still pushed in when
+ * Prevention mounts — and `rig.clearScene()` then snaps it back in a single
+ * frame, at the exact transition the whole piece turns on.
+ *
+ * Making it a stage of this beat rather than a fix in `unmount` also earns its
+ * keep dramatically: CH speaks the contagion sentence to a held image, and the
+ * camera pulling slowly off the blood is the only movement left in the section.
+ * It reads as withdrawal, which is what the sentence is about.
+ */
+const RECEDE_MS = 2600;
+
+function recede(ctx) {
+  const { field, rig } = ctx;
+
+  dollyAnim?.pause();
+  dollyAnim = animate(dolly, {
+    z: 0,
+    duration: RECEDE_MS,
+    ease: 'inOutQuad',
+    onComplete: () => field.setUpdate(null),
+  });
+
+  field.setUpdate(() => rig.setOffset(0, 0, dolly.z));
+}
+
+function restCamera(ctx) {
+  dollyAnim?.pause();
+  dolly.z = 0;
+  ctx.rig.setOffset(0, 0, 0);
+  ctx.field.setUpdate(null);
+}
+
 const beat12 = createSequence([
   {
     ms: TIME.advance,
@@ -353,6 +401,13 @@ const beat12 = createSequence([
     ms: TIME.splatForm,
     play: burst,
     done: snapSplat,
+  },
+  {
+    ms: RECEDE_MS,
+    play: recede,
+    // `settle` runs every stage's `done` in order, so this is what a jump into
+    // eff-02 lands on: the stain arrived, the camera already home.
+    done: restCamera,
   },
 ]);
 

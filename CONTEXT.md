@@ -297,34 +297,19 @@ scenes.
 Full script text and staging cues live in `src/beats.js`. This is the visual
 summary.
 
-| # | Beat | Scene / state | Speaker | Caption |
-|---|---|---|---|---|
-| 1 | `cold-01` | void | BR | — |
-| 2 | `cold-02` | drift | BR | — |
-| 3 | `thresh-01` | split | **CH** | — |
-| 4 | `title-01` | assemble | **BR** | Tanglaw sa Dilim |
-| 5 | `roots-00` | fracture | BR | — |
-| 6 | `roots-01` | shard 0 | BR | bullying |
-| 7 | `roots-02` | shard 1 | BR | untreated |
-| 8 | `roots-03` | shard 2 | BR | to be seen |
-| 9 | `roots-04` | shard 3 | BR | weaponized |
-| 10 | `eff-00` | shatter | **CH** | — |
-| 11 | `eff-01` | seat | CH | — |
-| 12 | `eff-02` | grid-fail | CH | — |
-| 13 | `eff-03` | grid-dark | CH | learning stops |
-| 14 | `prev-00` | converge | **BR** | — |
-| 15 | `prev-01` | shard 0 | BR | CAPACITATE |
-| 16 | `prev-02` | shard 1 | BR | TRAIN |
-| 17 | `prev-03` | shard 2 | BR | REDESIGN |
-| 18 | `prev-04` | shard 3 | BR | EMPOWER |
-| 19 | `ref-01` | hold + gap | **CH** | — |
-| 20 | `ref-03` | bars | CH | Do not build prisons out of our classrooms. |
-| 21 | `ref-04` | weapons | CH | — |
-| 22 | `ref-05` | hands | CH | — |
-| 23 | `ref-06` | crush | CH | — |
-| 24 | `ref-07` | stars | CH | — |
-| 25 | `close-01` | complete | **BR** | — |
-| 26 | `close-02` | lantern | BR | Tanglaw |
+**The beat table used to live here and no longer does.** It was a second,
+hand-maintained copy of `src/beats.js`, and by 2026-09-03 it had drifted badly —
+still listing the retired `shatter`/`seat`/`grid-fail` staging for Effects, the
+two-cloud `split` for the Threshold, and 26 beats when the deck ran 27. Keeping
+two tables in agreement is exactly the failure `tools/runsheet.mjs` exists to
+prevent, so there is now one:
+
+**[`docs/RUNSHEET.md`](docs/RUNSHEET.md)** — generated from `beats.js` by
+`npm run runsheet`. Every beat in speaking order with its id, section, speaker,
+handoff, state, script, click cue and on-screen text. CI fails if it is stale.
+
+What stays in this file is the reasoning a generated document cannot carry: the
+shard mapping below, and the section notes after it.
 
 `ref-02` is retired, not renumbered. It held four sentences that are now
 spread across five beats, so no beat is its honest successor and the gap is
@@ -374,16 +359,23 @@ Recorded in `docs/superpowers/plans/2026-09-02-threshold-sequence.md`.
 **Roots.** Mask cracks on entry, all four shards dim. One lights per click.
 
 **Effects.** From 2026-09-02 this section is a literal sequence: the broken
-mask converges into a gun, fires, the camera tracks the bullet, and pulls back
-to a blood splat before the classroom goes dark. This replaces the earlier rule
-("mass casualty is abstract only — never depict the act") by an explicit
+mask converges into a gun, fires, the camera tracks the bullet, and pushes
+forward through an empty frame into a blood splat. This replaces the earlier
+rule ("mass casualty is abstract only — never depict the act") by an explicit
 decision of the author, recorded in
 `docs/superpowers/plans/2026-09-02-effects-sequence.md`.
+
+**It ends on the splat.** A fourth beat followed it until 2026-09-03, in which
+the stain dispersed into a darkened grid of desks; it was cut for not connecting
+to what came before it, and its sentence moved onto `eff-02`, which now holds
+the stain while CH speaks it and lets the camera withdraw off the blood. The
+`grid-dark` state is retired in `effects.js`, not deleted, alongside `shatter`,
+`seat` and `grid-fail`.
 
 The constraint that survives: the gun is assembled from the four shards of the
 child's mask. It is what the shattered child became. A weapon that arrives from
 outside the piece would contradict §1's thesis; a weapon made of the child does
-not. After `eff-03`, hold black FOUR full seconds before Prevention — the
+not. After `eff-02`, hold black FOUR full seconds before Prevention — the
 section is now the loudest in the deck and that silence is the only contrast
 left. Four, not the two this rule originally said: the sequence turned out
 louder than the plan that specified it, and two seconds does not pay for it.
@@ -566,8 +558,10 @@ broken.
 **The two deliberate pauses:**
 
 - After `cold-01` — three beats of silence before the second line.
-- After `eff-03` — two full seconds of black before Prevention. Use `B`, not a
-  black slide, so the length is decided in the moment.
+- After `eff-02` — FOUR full seconds of black before Prevention. Use `B`, not a
+  black slide, so the length is decided in the moment. (This rule said two
+  seconds in one place and four in another for a while; four is correct, and the
+  beat's own `cue` is the authority.)
 
 ### Failsafes
 

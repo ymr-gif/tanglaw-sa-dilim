@@ -123,7 +123,7 @@ for the run sheet.
 ### The two deliberate pauses
 
 1. **After `cold-01`** — three full beats of silence before the second line.
-2. **After `eff-03`** — **four full seconds** of black before Prevention. Use
+2. **After `eff-02`** — **four full seconds** of black before Prevention. Use
    `B`, so the length is decided in the moment rather than baked into a slide.
 
    This one is not a suggestion. Effects used to be the deck's quiet floor and
@@ -155,9 +155,10 @@ Three rules the code enforces, and any change has to keep:
    festival hue. Two sections before that carry colour anyway, both cold and
    both documented: **Threshold** uses the `THRESHOLD` palette (yellow student,
    electric-violet shadows, red knife) because slide 3 is symbolic and has to
-   read across a lit room, and **Effects** uses `COLOR.blood` on `eff-02`, gone
-   again by the end of `eff-03`. Cold open, Title and Roots stay
-   near-monochrome, and no festival hue ever appears before `prev-01`.
+   read across a lit room, and **Effects** uses `COLOR.blood` on `eff-02`,
+   which is where that section now ends and is the last image of the dark half.
+   Cold open, Title and Roots stay near-monochrome, and no festival hue ever
+   appears before `prev-01`.
 2. **Caption case is load-bearing.** Lowercase in the darkness, uppercase in the
    light. Text renders verbatim from `beats.js`; there is no `text-transform`
    anywhere in the project.

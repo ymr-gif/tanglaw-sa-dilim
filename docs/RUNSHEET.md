@@ -6,7 +6,7 @@
 Every beat in speaking order: what the speaker says, where to click, what the
 deck does, and what the audience reads.
 
-**28 beats** · **6 handoffs** · **13 beats with on-screen text** (15 carry none)
+**27 beats** · **6 handoffs** · **12 beats with on-screen text** (15 carry none)
 
 Quote the **id** when a beat needs changes — ids are stable and never
 renumbered, so `roots-02` survives an inserted beat and "slide 7" does not.
@@ -30,20 +30,19 @@ The same id shows in the deck's tracker (bottom right, `H` to toggle).
 | 12 | [`eff-00`](#eff-00) | Effects | **CH** ⇠ handoff | — |
 | 13 | [`eff-01`](#eff-01) | Effects | CH | — |
 | 14 | [`eff-02`](#eff-02) | Effects | CH | — |
-| 15 | [`eff-03`](#eff-03) | Effects | CH | `learning stops` |
-| 16 | [`prev-00`](#prev-00) | Prevention | **BR** ⇠ handoff | — |
-| 17 | [`prev-01`](#prev-01) | Prevention | BR | `CAPACITATE` |
-| 18 | [`prev-02`](#prev-02) | Prevention | BR | `TRAIN` |
-| 19 | [`prev-03`](#prev-03) | Prevention | BR | `REDESIGN` |
-| 20 | [`prev-04`](#prev-04) | Prevention | BR | `EMPOWER` |
-| 21 | [`ref-01`](#ref-01) | Refusal | **CH** ⇠ handoff | — |
-| 22 | [`ref-03`](#ref-03) | Refusal | CH | `Do not build prisons out of our classrooms.` |
-| 23 | [`ref-04`](#ref-04) | Refusal | CH | — |
-| 24 | [`ref-05`](#ref-05) | Refusal | CH | — |
-| 25 | [`ref-06`](#ref-06) | Refusal | CH | — |
-| 26 | [`ref-07`](#ref-07) | Refusal | CH | — |
-| 27 | [`close-01`](#close-01) | Close | **BR** ⇠ handoff | — |
-| 28 | [`close-02`](#close-02) | Close | BR | `Tanglaw` |
+| 15 | [`prev-00`](#prev-00) | Prevention | **BR** ⇠ handoff | — |
+| 16 | [`prev-01`](#prev-01) | Prevention | BR | `CAPACITATE` |
+| 17 | [`prev-02`](#prev-02) | Prevention | BR | `TRAIN` |
+| 18 | [`prev-03`](#prev-03) | Prevention | BR | `REDESIGN` |
+| 19 | [`prev-04`](#prev-04) | Prevention | BR | `EMPOWER` |
+| 20 | [`ref-01`](#ref-01) | Refusal | **CH** ⇠ handoff | — |
+| 21 | [`ref-03`](#ref-03) | Refusal | CH | `Do not build prisons out of our classrooms.` |
+| 22 | [`ref-04`](#ref-04) | Refusal | CH | — |
+| 23 | [`ref-05`](#ref-05) | Refusal | CH | — |
+| 24 | [`ref-06`](#ref-06) | Refusal | CH | — |
+| 25 | [`ref-07`](#ref-07) | Refusal | CH | — |
+| 26 | [`close-01`](#close-01) | Close | **BR** ⇠ handoff | — |
+| 27 | [`close-02`](#close-02) | Close | BR | `Tanglaw` |
 
 Jump keys: `1` Cold open · `2` Threshold · `3` Title · `4` Roots · `5` Effects · `6` Prevention · `7` Refusal · `8` Close.
 
@@ -53,8 +52,9 @@ Neither is in the code. Both are the operator's, on purpose — a pause baked
 into a timer stops being a decision made in the room.
 
 1. **After `cold-01`** — three full beats of silence before the second line.
-2. **After `eff-03`** — two full seconds of black before Prevention. Use `B`,
-   so the length is chosen in the moment.
+2. **After `eff-02`** — FOUR full seconds of black before Prevention. Use `B`,
+   so the length is chosen in the moment. Effects is the loudest passage in
+   the deck and this silence is the only contrast left before the turn.
 
 ## Beat by beat
 
@@ -246,29 +246,17 @@ Jump key `5`.
 
 **Says**
 
-> We face mass casualty risks, where a single weapon turns a quiet morning into tragedy.
+> We face mass casualty risks, where a single weapon turns a quiet morning into tragedy. This breeds a contagion of hopelessness across the student body — learning stops, ambition fades, and classrooms turn into spaces of constant fear, shattering trust in our schools.
 
 **On screen** nothing. The voice carries this beat.
 
-**Click cue** Click on "We face." The camera pushes FORWARD through an empty frame for ~1.7s — nothing is there, and that is the point. Do not fill the silence. The blood then arrives suddenly, sweeping left to right; time your click so it lands on "tragedy."
-
-#### <a id="eff-03"></a>15 · `eff-03` — learning stops
-
-**Speaker** CH · **Scene** `effects` · **State** `mode: grid-dark`
-
-**Says**
-
-> This breeds a contagion of hopelessness across the student body — learning stops, ambition fades, and classrooms turn into spaces of constant fear, shattering trust in our schools.
-
-**On screen** `learning stops` — 2 words, lowercase
-
-**Click cue** Click on "This breeds." The stain disperses into the darkened classroom — one death, then every desk. Caption reads `learning stops`. AFTER THIS LINE: press B and hold black for FOUR full seconds before Prevention. Do not rush this. The deck has just been loud for four beats; Prevention does not work without the silence.
+**Click cue** Click on "We face." The camera pushes FORWARD through an empty frame for ~1.7s — nothing is there, and that is the point. Do not fill the silence. The blood then arrives suddenly, sweeping left to right; time your click so it lands on "tragedy." THEN STAY HERE. Say the whole contagion sentence to the stain — no click. The camera drifts back off it as you speak, which is the only movement left in the section and is meant to feel like withdrawal. This is the last image of the dark half of the deck. AFTER THE LINE: press B and hold black for FOUR full seconds before Prevention. Do not rush this. The deck has just been loud for three beats; Prevention does not work without the silence.
 
 ### Prevention
 
 Jump key `6`.
 
-#### <a id="prev-00"></a>16 · `prev-00`
+#### <a id="prev-00"></a>15 · `prev-00`
 
 > **HANDOFF — BR takes over here.**
 
@@ -282,7 +270,7 @@ Jump key `6`.
 
 **Click cue** >>> BR TAKES OVER. Fragments begin drifting inward. This is the turning point of the whole piece — lift your delivery here.
 
-#### <a id="prev-01"></a>17 · `prev-01` — CAPACITATE
+#### <a id="prev-01"></a>16 · `prev-01` — CAPACITATE
 
 **Speaker** BR · **Scene** `prevention` · **State** `shard: 0`
 
@@ -294,7 +282,7 @@ Jump key `6`.
 
 **Click cue** Magenta. Relights the same shard that was "bullying."
 
-#### <a id="prev-02"></a>18 · `prev-02` — TRAIN
+#### <a id="prev-02"></a>17 · `prev-02` — TRAIN
 
 **Speaker** BR · **Scene** `prevention` · **State** `shard: 1`
 
@@ -306,7 +294,7 @@ Jump key `6`.
 
 **Click cue** Marigold. Relights "untreated."
 
-#### <a id="prev-03"></a>19 · `prev-03` — REDESIGN
+#### <a id="prev-03"></a>18 · `prev-03` — REDESIGN
 
 **Speaker** BR · **Scene** `prevention` · **State** `shard: 2`
 
@@ -318,7 +306,7 @@ Jump key `6`.
 
 **Click cue** Cyan. Relights "to be seen." Longest line in the section — let the shard finish lighting before you finish the sentence.
 
-#### <a id="prev-04"></a>20 · `prev-04` — EMPOWER
+#### <a id="prev-04"></a>19 · `prev-04` — EMPOWER
 
 **Speaker** BR · **Scene** `prevention` · **State** `shard: 3`
 
@@ -334,7 +322,7 @@ Jump key `6`.
 
 Jump key `7`.
 
-#### <a id="ref-01"></a>21 · `ref-01`
+#### <a id="ref-01"></a>20 · `ref-01`
 
 > **HANDOFF — CH takes over here.**
 
@@ -348,7 +336,7 @@ Jump key `7`.
 
 **Click cue** >>> CH TAKES OVER. Mask nearly whole, one gap remaining — the exact state Prevention ended on. Nothing moves but the drift. Click on "despair."
 
-#### <a id="ref-03"></a>22 · `ref-03` — Do not build prisons out of our classrooms.
+#### <a id="ref-03"></a>21 · `ref-03` — Do not build prisons out of our classrooms.
 
 **Speaker** CH · **Scene** `refusal` · **State** `mode: bars`
 
@@ -360,7 +348,7 @@ Jump key `7`.
 
 **Click cue** The mask's own points rise into five white prison bars. Read the caption ALOUD, in sync with the audience reading it. Only beat in the deck where screen and voice say the same words. Click on "classrooms."
 
-#### <a id="ref-04"></a>23 · `ref-04`
+#### <a id="ref-04"></a>22 · `ref-04`
 
 **Speaker** CH · **Scene** `refusal` · **State** `mode: weapons`
 
@@ -372,7 +360,7 @@ Jump key `7`.
 
 **Click cue** Caption clears. The bars become a knife (left) and the Effects handgun (right), both bright white. Click on "weapon."
 
-#### <a id="ref-05"></a>24 · `ref-05`
+#### <a id="ref-05"></a>23 · `ref-05`
 
 **Speaker** CH · **Scene** `refusal` · **State** `mode: hands`
 
@@ -384,7 +372,7 @@ Jump key `7`.
 
 **Click cue** Many yellow hands fade in out of the shadows around both weapons — fingertips vivid, palms swallowed by the dark. The weapons do not change yet. Click on "vengeance."
 
-#### <a id="ref-06"></a>25 · `ref-06`
+#### <a id="ref-06"></a>24 · `ref-06`
 
 **Speaker** CH · **Scene** `refusal` · **State** `mode: crush`
 
@@ -396,7 +384,7 @@ Jump key `7`.
 
 **Click cue** The hands close into fists, thumbs up. The weapons break and scatter, densest at the crush. Fast — do not wait for it. The dash at the end of "healing" is your click.
 
-#### <a id="ref-07"></a>26 · `ref-07`
+#### <a id="ref-07"></a>25 · `ref-07`
 
 **Speaker** CH · **Scene** `refusal` · **State** `mode: stars`
 
@@ -412,7 +400,7 @@ Jump key `7`.
 
 Jump key `8`.
 
-#### <a id="close-01"></a>27 · `close-01`
+#### <a id="close-01"></a>26 · `close-01`
 
 > **HANDOFF — BR takes over here.**
 
@@ -426,7 +414,7 @@ Jump key `8`.
 
 **Click cue** >>> BR TAKES OVER. Final shard seats on "bringing the light." Mask completes in full festival color. First time in the whole deck all four hues are lit at once.
 
-#### <a id="close-02"></a>28 · `close-02` — Tanglaw
+#### <a id="close-02"></a>27 · `close-02` — Tanglaw
 
 **Speaker** BR · **Scene** `close` · **State** `mode: lantern`
 
