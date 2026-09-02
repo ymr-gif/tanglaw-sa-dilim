@@ -44,9 +44,9 @@
 import { POINTS } from '../theme.js';
 import { seededRandom } from '../noise.js';
 
-const CORE_SHARE = 0.66;
-const SAT_SHARE = 0.1;
-const SPIKE_SHARE = 0.18;
+const CORE_SHARE = 0.58;
+const SAT_SHARE = 0.19;
+const SPIKE_SHARE = 0.16;
 /** The rest are drips. */
 
 /**
@@ -72,8 +72,8 @@ const CORE_SCALE = 2.4;
  * screen, and the one thing that should visibly reach nearest the boundary is
  * the main-thrust Spike, not a stray satellite.
  */
-const SAT_MIN = 0.55;
-const SAT_MAX = 0.9;
+const SAT_MIN = 0.5;
+const SAT_MAX = 1.05;
 
 /** Points per droplet. */
 const DROP = 6;
@@ -174,22 +174,25 @@ export function buildSplat() {
   }
 
   /* ── Satellites ───────────────────────────────────────────────────────── */
-  const ratio = Math.log(SAT_MAX / SAT_MIN);
-
   for (let i = coreEnd; i < satEnd; i += DROP) {
     // One droplet centre, then DROP points scattered tightly around it.
     let a = 0;
     for (let tries = 0; tries < 8; tries++) {
       a = rand() * Math.PI * 2;
-      // Rightward bias. Nothing is excluded outright — a stain that threw only
-      // one way reads as a comet.
-      const w = 0.12 + 0.88 * ((0.5 + 0.5 * Math.cos(a)) ** 3);
+      // A soft rightward lean, not a hard bias — this layer's job is now to
+      // COVER the frame evenly (`effects.js` fills the whole left half with
+      // it), and a strong lean left big gaps top, bottom and left of the
+      // core. The Spikes carry the "thrown rightward" legibility instead.
+      const w = 0.55 + 0.45 * ((0.5 + 0.5 * Math.cos(a)) ** 2);
       if (rand() < w) break;
     }
 
-    // Log-uniform radius IS the 1/r^2 falloff: with density per unit area
-    // proportional to 1/r^2, the radial mass per unit r is constant / r.
-    const r = SAT_MIN * Math.exp(rand() * ratio);
+    // sqrt-uniform radius: EVEN density per unit area across the whole
+    // annulus, unlike the 1/r^2 falloff this replaced (log-uniform radius),
+    // which read as a dense knot fading to almost nothing before the edge —
+    // exactly the "small dot with a halo" look the frame-filling ask needs
+    // this layer to stop being.
+    const r = SAT_MIN + (SAT_MAX - SAT_MIN) * Math.sqrt(rand());
     const spread = 0.012 + (r / SAT_MAX) * 0.05;
 
     const cx = Math.cos(a) * r;
