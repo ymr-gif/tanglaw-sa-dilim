@@ -36,6 +36,12 @@ export function createCameraRig(camera) {
       fitZ = z;
     },
 
+    /** Read-only. A scene composing its own framing needs the fit distance to
+     *  compute what's actually visible; it still may never write it. */
+    getFitZ() {
+      return fitZ;
+    },
+
     /** Absolute, in world units. `z` is negative to move toward the field. */
     setOffset(x, y, z) {
       offset.x = x;

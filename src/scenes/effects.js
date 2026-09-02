@@ -248,6 +248,76 @@ function splat() {
   return splatBuf;
 }
 
+/** The raw splat's own x bounds, measured once — splat.js's geometry is a
+ *  pure seeded function, so this is exact and fixed for the deck's lifetime. */
+let splatXBounds = null;
+function splatXExtent() {
+  if (splatXBounds) return splatXBounds;
+
+  const target = splat();
+  let minX = Infinity;
+  let maxX = -Infinity;
+  for (let i = 0; i < POINTS; i++) {
+    const x = target[i * 3];
+    if (x < minX) minX = x;
+    if (x > maxX) maxX = x;
+  }
+  splatXBounds = { minX, maxX };
+  return splatXBounds;
+}
+
+/** Gap kept from screen-centre and from the visible left edge, so neither the
+ *  reaching spike nor a stray satellite ever touches either boundary. */
+const CENTER_MARGIN = 0.04;
+const EDGE_MARGIN = 0.05;
+
+/**
+ * How much to shrink the splat on X, and how far left to pan the camera, so
+ * the whole thing sits inside the left half of whatever the camera can
+ * actually see right now. Computed fresh every call — the camera's aspect can
+ * change (window resize, fullscreen toggle) between visits to this beat, and
+ * a cached value would silently go stale.
+ *
+ * Y is untouched: height was already tuned against the visible frame (see
+ * splat.js's SAT_MAX comment), and this is a width constraint only.
+ */
+function splatFraming(ctx) {
+  const { camera, rig } = ctx;
+  const { minX, maxX } = splatXExtent();
+
+  const d = rig.getFitZ() + ADVANCE_Z;
+  const vFov = (camera.fov * Math.PI) / 180;
+  const halfHeight = d * Math.tan(vFov / 2);
+  const halfWidth = halfHeight * camera.aspect;
+
+  // Capped at 1: a wide screen has room to spare on the left half, but that
+  // is not licence to blow the splat up past its own tuned proportions.
+  const scaleX = Math.min(1, (halfWidth - CENTER_MARGIN - EDGE_MARGIN) / (maxX - minX));
+  const shiftX = maxX * scaleX + CENTER_MARGIN;
+  return { scaleX, shiftX };
+}
+
+/**
+ * A copy of the splat scaled on X only, memoized against the scale actually
+ * in use — cheap to rebuild on the rare aspect-ratio change, free otherwise.
+ */
+let positionedBuf = null;
+let positionedScaleX = null;
+function positionedSplat(scaleX) {
+  if (positionedBuf && positionedScaleX === scaleX) return positionedBuf;
+
+  const raw = splat();
+  const out = new Float32Array(raw.length);
+  for (let i = 0; i < POINTS; i++) {
+    out[i * 3] = raw[i * 3] * scaleX;
+    out[i * 3 + 1] = raw[i * 3 + 1];
+    out[i * 3 + 2] = raw[i * 3 + 2];
+  }
+  positionedBuf = out;
+  positionedScaleX = scaleX;
+  return positionedBuf;
+}
+
 /** How much of the burst's duration each band waits before it starts moving. */
 const BURST_BANDS = [0, 0.16, 0.34, 0.54];
 
@@ -331,34 +401,48 @@ function emptyColors() {
   return emptyColorCache;
 }
 
-/** The dolly, driven the same way every morph in the deck is: a scalar. */
-const dolly = { z: 0 };
+/**
+ * The dolly, driven the same way every morph in the deck is: a scalar pair —
+ * `z` pushes the camera in, `x` pans it left so the splat (and the empty
+ * frame that precedes it) both sit in the left half of the screen. See
+ * `splatFraming()`.
+ */
+const dolly = { x: 0, z: 0 };
 let dollyAnim = null;
 
 function advanceCamera(ctx) {
   const { field, rig } = ctx;
+  const { shiftX } = splatFraming(ctx);
 
   field.setDrift(0.003);
   field.morphColor(emptyColors(), { duration: TIME.advance, ease: 'inOutQuad' });
 
   dollyAnim?.pause();
+  dolly.x = 0;
   dolly.z = 0;
-  dollyAnim = animate(dolly, { z: ADVANCE_Z, duration: TIME.advance, ease: 'inOutQuad' });
+  dollyAnim = animate(dolly, {
+    x: shiftX,
+    z: ADVANCE_Z,
+    duration: TIME.advance,
+    ease: 'inOutQuad',
+  });
 
   // The wind keeps running under the fade rather than freezing, so the frame
   // empties out instead of stopping dead.
   field.setUpdate((dt, time) => {
     stepWind(field, wind(), dt, time);
-    rig.setOffset(0, 0, dolly.z);
+    rig.setOffset(dolly.x, 0, dolly.z);
   });
 }
 
 function burst(ctx) {
   const { field, rig } = ctx;
+  const { scaleX, shiftX } = splatFraming(ctx);
 
   dollyAnim?.pause();
+  dolly.x = shiftX;
   dolly.z = ADVANCE_Z;
-  rig.setOffset(0, 0, ADVANCE_Z);
+  rig.setOffset(dolly.x, 0, ADVANCE_Z);
 
   // The wind lives in sceneOffset; fold it in so the burst starts from where
   // the points visibly are rather than from the seeded layout.
@@ -372,7 +456,7 @@ function burst(ctx) {
   // beats rather than drawn on in one continuous motion. 450ms in total,
   // because the storyboard says "dramatic, sudden" and anything slower reads
   // as the blood being drawn rather than thrown.
-  const target = splat();
+  const target = positionedSplat(scaleX);
   const delay = splatDelay();
   for (let i = 0; i < POINTS; i++) {
     field.posDelay[i] = delay[i];
@@ -385,16 +469,18 @@ function burst(ctx) {
 
 function snapSplat(ctx) {
   const { field, rig } = ctx;
+  const { scaleX, shiftX } = splatFraming(ctx);
 
   dollyAnim?.pause();
+  dolly.x = shiftX;
   dolly.z = ADVANCE_Z;
-  rig.setOffset(0, 0, ADVANCE_Z);
+  rig.setOffset(dolly.x, 0, ADVANCE_Z);
 
   field.setUpdate(null);
   field.sceneOffset.fill(0);
   field.setDrift(0.004);
   clearDelays(field);
-  field.snap(splat(), BLOOD);
+  field.snap(positionedSplat(scaleX), BLOOD);
 }
 
 /** How long the stain takes to become the room. */
@@ -409,13 +495,14 @@ function returnCamera(ctx) {
 
   dollyAnim?.pause();
   dollyAnim = animate(dolly, {
+    x: 0,
     z: 0,
     duration: DARK_MS,
     ease: 'inOutQuad',
     onComplete: () => field.setUpdate(null),
   });
 
-  field.setUpdate(() => rig.setOffset(0, 0, dolly.z));
+  field.setUpdate(() => rig.setOffset(dolly.x, 0, dolly.z));
 }
 
 /**
@@ -438,17 +525,19 @@ function recede(ctx) {
 
   dollyAnim?.pause();
   dollyAnim = animate(dolly, {
+    x: 0,
     z: 0,
     duration: RECEDE_MS,
     ease: 'inOutQuad',
     onComplete: () => field.setUpdate(null),
   });
 
-  field.setUpdate(() => rig.setOffset(0, 0, dolly.z));
+  field.setUpdate(() => rig.setOffset(dolly.x, 0, dolly.z));
 }
 
 function restCamera(ctx) {
   dollyAnim?.pause();
+  dolly.x = 0;
   dolly.z = 0;
   ctx.rig.setOffset(0, 0, 0);
   ctx.field.setUpdate(null);
@@ -459,7 +548,9 @@ const beat12 = createSequence([
     ms: TIME.advance,
     play: advanceCamera,
     done: (ctx) => {
-      ctx.rig.setOffset(0, 0, ADVANCE_Z);
+      const { shiftX } = splatFraming(ctx);
+      ctx.rig.setOffset(shiftX, 0, ADVANCE_Z);
+      dolly.x = shiftX;
       dolly.z = ADVANCE_Z;
     },
   },
@@ -655,6 +746,7 @@ export default {
         field.setDrift(0.004);
         field.setUpdate(null);
         field.sceneOffset.fill(0);
+        dolly.x = 0;
         dolly.z = 0;
         ctx.rig.setOffset(0, 0, 0);
         field.snap(mask.states.grid, GRID_DARK);

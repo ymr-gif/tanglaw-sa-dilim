@@ -44,14 +44,17 @@ const SPIKE_SHARE = 0.26;
 /**
  * Satellites live between these radii.
  *
- * The outer bound is set by what the camera can actually see. `eff-02` dollies
- * forward to z ~ 1.3, where the visible half-height is only about 0.6 — so a
- * spray reaching 1.15 puts most of its droplets outside the frame and the ones
- * left inside read as an evenly spread starfield rather than as a spray thrown
- * from a stain.
+ * The outer bound is set by what the camera can actually see, AND by the
+ * spikes: `effects.js` confines the whole splat to the left half of the
+ * screen, and the one thing that should visibly reach nearest the boundary is
+ * the main-thrust Spike, not a stray satellite. 0.78 (the original bound) let
+ * satellites tie the spike for "farthest right point" — 0.6 keeps satellites
+ * inside it. `eff-02` dollies forward to z ~ 1.3, where the visible
+ * half-height is only about 0.6, so this also still reads as a spray thrown
+ * from a stain rather than an evenly spread starfield.
  */
 const SAT_MIN = 0.2;
-const SAT_MAX = 0.78;
+const SAT_MAX = 0.6;
 
 /** Points per droplet. */
 const DROP = 6;
@@ -101,12 +104,15 @@ const BLOB_CDF = (() => {
  *
  * The one nearest level with the bullet's own line (index 2, close to 0°) is
  * the longest and thickest: the main thrust follows the shot, the shorter
- * ones above and below are what missed that exact line.
+ * ones above and below are what missed that exact line. It is now the single
+ * farthest-reaching feature in the whole splat (see SAT_MAX) — `effects.js`
+ * confines the splat to the left half of the screen and lets this one spike
+ * alone approach the boundary, so the reach reads as deliberate.
  */
 const SPIKES = [
   { angle: 68, length: 0.3, width: 0.05, weight: 0.8 },
   { angle: 26, length: 0.4, width: 0.058, weight: 1.0 },
-  { angle: -10, length: 0.55, width: 0.07, weight: 1.3 },
+  { angle: -10, length: 0.64, width: 0.07, weight: 1.3 },
   { angle: -50, length: 0.36, width: 0.052, weight: 0.9 },
 ];
 
