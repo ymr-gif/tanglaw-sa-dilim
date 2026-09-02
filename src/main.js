@@ -18,6 +18,7 @@ import { createPointField } from './pointfield.js';
 import { createCaption } from './overlay/caption.js';
 import { createShardLabel } from './overlay/shardlabel.js';
 import { createTracker } from './overlay/tracker.js';
+import { createCameraRig } from './camera-rig.js';
 import { createDeck } from './deck.js';
 
 const FOV = 50;
@@ -56,6 +57,9 @@ async function boot() {
   scene.background = new Color(COLOR.void);
 
   const camera = new PerspectiveCamera(FOV, 1, 0.1, 100);
+  // Every write to the camera goes through here. resize() sets the fit
+  // distance, scenes set an offset, the rig composes them with the sway.
+  const rig = createCameraRig(camera);
   const timer = new Timer();
 
   const mask = await loadMask();
@@ -90,7 +94,9 @@ async function boot() {
     // what made it survive several rounds of aspect-ratio testing.
     renderer.setSize(w, h);
     camera.aspect = w / h;
-    camera.position.set(0, 0, fitDistance(mask.halfW, mask.halfH, FOV, camera.aspect));
+    // The rig places the camera every frame; resize only tells it how far back
+    // the mask has to sit. Writing position.z here would be overwritten anyway.
+    rig.setFit(fitDistance(mask.halfW, mask.halfH, FOV, camera.aspect));
     camera.updateProjectionMatrix();
   }
 
@@ -108,7 +114,7 @@ async function boot() {
     tracker: createTracker(document.body),
   };
 
-  const ctx = { renderer, scene, camera, timer, container, field, mask, overlay, veil };
+  const ctx = { renderer, scene, camera, rig, timer, container, field, mask, overlay, veil };
   const deck = createDeck(ctx);
   deck.start();
 
@@ -121,6 +127,9 @@ async function boot() {
     const time = timer.getElapsed();
 
     field.update(dt, time);
+    // Before the label: the shard label projects through the camera, so it has
+    // to be placed against the camera this frame will actually draw with.
+    rig.update(dt, time);
     overlay.shardlabel.update(camera, container);
     renderer.render(scene, camera);
   });

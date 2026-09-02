@@ -64,7 +64,12 @@ export function createDeck(ctx) {
 
   function mountScene(name) {
     if (mounted === name) return;
-    if (mounted) SCENES[mounted].unmount(ctx);
+    if (mounted) {
+      SCENES[mounted].unmount(ctx);
+      // A scene's camera can never survive into the next one. unmount() clears
+      // the field's offsets; this is the same guarantee for the rig.
+      ctx.rig.clearScene();
+    }
     mounted = name;
     SCENES[name].mount(ctx);
   }
