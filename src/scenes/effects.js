@@ -466,6 +466,15 @@ export default {
       }
 
       case 'grid-dark': {
+        // Beat 12 can be interrupted mid-advance, and at that moment the wind
+        // is still live in sceneOffset. Without this the desks inherit the
+        // streaks' displacement and the classroom arrives smeared across the
+        // whole frame. Bake so the morph starts from where the points visibly
+        // are, then clear, so nothing is left driving them.
+        field.setUpdate(null);
+        field.bakeOffsets();
+        field.sceneOffset.fill(0);
+
         // The stain becoming the classroom is exactly what "a contagion of
         // hopelessness across the student body" says. One death, then every
         // desk. This used to arrive from a grid that was already on screen;
