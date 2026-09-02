@@ -1,9 +1,17 @@
 /**
- * effects.js — beats 10-12. The literal sequence.
+ * effects.js — beats 10-13. The literal sequence.
  *
  * The mask's four shards converge into a handgun, it fires, the camera tracks
  * the bullet, then pushes forward through an empty frame into a blood splat.
  * It ends there.
+ *
+ * FORMING AND FIRING ARE TWO CLICKS, NOT ONE. Until 2026-09-03 the gun fired
+ * itself, ~1.8s after the click that formed it, with no further input — the
+ * deck decided when the room had sat with it long enough. That is now the
+ * operator's call: `eff-00` forms the gun and holds; `eff-04` fires it. Same
+ * two animations, same durations, just no longer chained by a timer across
+ * the boundary. See `beats.js`'s note on why the new beat is `eff-04` and not
+ * a renumbering of anything.
  *
  * THIS SECTION USED TO BE THE OPPOSITE OF WHAT IT IS NOW. It was "least motion,
  * least color, most silence" — a shatter, an empty seat, and a grid of desks
@@ -25,10 +33,11 @@
  * be. The contrast that used to live inside it is carried instead by the `B`
  * key: four full seconds of black after `eff-02`, before Prevention.
  *
- *   gun     the shards converge into the weapon, then it fires
- *   bullet  the tracking shot. Loops indefinitely
- *   splat   the camera advances through nothing, then the blood, then the
- *           camera withdraws off it
+ *   gun-form  the shards converge into the weapon and hold, unfired
+ *   gun-fire  the shot: flash, screen shake, the muzzle kicks up and stays up
+ *   bullet    the tracking shot. Loops indefinitely
+ *   splat     the camera advances through nothing, then the blood, then the
+ *             camera withdraws off it
  *
  * THE SPLAT IS THE END OF THE SECTION, AND OF THE DARK HALF OF THE DECK.
  * `grid-dark` — the stain dispersing into a darkened grid of desks — was a
@@ -91,7 +100,7 @@ function gun(shardOf, tilt = 0) {
   return gunCache.get(tilt);
 }
 
-/* ── Beat 10: the gun forms, then it fires ──────────────────────────────── */
+/* ── Beat 10: the gun forms ─────────────────────────────────────────────── */
 
 /**
  * The flash's own timers, held so an interrupted beat cannot light the screen
@@ -113,8 +122,21 @@ function formGun(ctx) {
   field.morphColor(GUN_ASH, { duration: TIME.gunForm });
 }
 
+/* ── Beat 04: the gun fires ─────────────────────────────────────────────── */
+
+/**
+ * Formerly stage two of a single timed sequence (see git history on this
+ * file for the pre-2026-09-03 version); now its own click-triggered beat
+ * (`eff-04`), so it starts from wherever the field is actually sitting
+ * rather than trusting a timer to have landed on the formed gun.
+ */
 function fire(ctx) {
   const { field, mask, rig, flash } = ctx;
+
+  // Belt-and-braces: settle on the formed, unfired gun first. A no-op if
+  // `eff-00` already ran to completion, which is the only way to reach this
+  // beat by clicking through — but apply() can also enter it directly.
+  field.snap(gun(mask.shardOf), GUN_ASH);
 
   flash.hidden = false;
   // A frame between unhiding and lighting, or the transition has nothing to
@@ -134,32 +156,6 @@ function fire(ctx) {
   // about the hand reads as recoil.
   field.morph(gun(mask.shardOf, RECOIL_TILT), { duration: TIME.recoil, ease: 'outExpo' });
 }
-
-/**
- * Beat 10 has two stages, so it runs through the sequencer rather than a nested
- * onComplete: field.finish() runs pending completions, so an operator clicking
- * mid-chain would kick off the shot exactly as the next beat is entering.
- *
- * `settle` plays nothing and states the end result, which is what apply() needs
- * — and it lands AFTER the shot. A jump into eff-00 must never fire the gun:
- * the operator is recovering from a mistake, and re-firing would be worse than
- * the mistake.
- */
-const beat10 = createSequence([
-  {
-    ms: TIME.gunForm,
-    play: formGun,
-    done: (ctx) => ctx.field.snap(gun(ctx.mask.shardOf), GUN_ASH),
-  },
-  {
-    ms: TIME.recoil,
-    play: fire,
-    done: (ctx) => {
-      darken(ctx.flash);
-      ctx.field.snap(gun(ctx.mask.shardOf, RECOIL_TILT), GUN_ASH);
-    },
-  },
-]);
 
 /* ── Beat 11: the tracking shot ─────────────────────────────────────────── */
 
@@ -416,7 +412,6 @@ const beat12 = createSequence([
  * clicked away from must not keep running its stages into the next one.
  */
 function stopAll(ctx) {
-  beat10.stop();
   beat12.stop();
   dollyAnim?.pause();
   darken(ctx.flash);
@@ -462,9 +457,15 @@ export default {
     clearDelays(field);
 
     switch (state.mode) {
-      case 'gun': {
+      case 'gun-form': {
         field.setUpdate(null);
-        beat10.start(ctx);
+        formGun(ctx);
+        break;
+      }
+
+      case 'gun-fire': {
+        field.setUpdate(null);
+        fire(ctx);
         break;
       }
 
@@ -555,11 +556,18 @@ export default {
     clearDelays(field);
 
     switch (state.mode) {
-      case 'gun':
+      case 'gun-form':
         field.setDrift(0.006);
         field.setUpdate(null);
         field.sceneOffset.fill(0);
-        beat10.settle(ctx);
+        field.snap(gun(mask.shardOf), GUN_ASH);
+        break;
+      case 'gun-fire':
+        field.setDrift(0.006);
+        field.setUpdate(null);
+        field.sceneOffset.fill(0);
+        darken(ctx.flash);
+        field.snap(gun(mask.shardOf, RECOIL_TILT), GUN_ASH);
         break;
       case 'bullet':
         field.setDrift(0.003);

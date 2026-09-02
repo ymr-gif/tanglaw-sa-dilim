@@ -253,6 +253,13 @@ export const beats = [
   // EFFECTS — the literal sequence. The mask's shards become a gun, it fires,
   // the camera tracks the bullet, and the blood arrives. It ENDS THERE.
   //
+  // The gun's formation and its shot used to be one beat (`eff-00`) that fired
+  // itself ~1.8s after the click, unattended. Split 2026-09-03 into two clicks
+  // — `eff-00` forms and holds, `eff-04` fires — so the operator decides when
+  // the room is ready for the shot instead of the deck deciding for them.
+  // `eff-04` is a fresh id, not a renumbering: `eff-01`/`eff-02` keep the ids
+  // they always had (see the FIELDS note on `id` above).
+  //
   // There used to be a fourth beat after the blood, in which the stain
   // dispersed into a darkened grid of desks. Cut 2026-09-03: it did not connect
   // to what came before it, and the splat is the stronger place to stop. The
@@ -269,15 +276,28 @@ export const beats = [
     id: 'eff-00',
     section: 'effects',
     scene: 'effects',
-    state: { mode: 'gun' },
+    state: { mode: 'gun-form' },
     speaker: 'CH',
     handoff: true,
     caption: null,
     script: `Second, we must face the Effects.`,
     cue: `>>> CH TAKES OVER. Click on "Effects." The four shards of the mask
-          converge into a handgun over ~1.8s and THEN IT FIRES — flash, screen
-          shake, the muzzle kicks up and stays up. The shot lands about two
-          seconds after your click. Do not talk over it; let the room have it.`,
+          converge into a handgun over ~1.8s and HOLD THERE, formed but not
+          fired. Wait for your next click before the shot.`,
+  },
+  {
+    id: 'eff-04',
+    section: 'effects',
+    scene: 'effects',
+    state: { mode: 'gun-fire' },
+    speaker: 'CH',
+    handoff: false,
+    caption: null,
+    script: ``,
+    cue: `No new line — you are still silent from "Effects." Click when the
+          room has sat with the gun long enough. THEN IT FIRES — flash, screen
+          shake, the muzzle kicks up and stays up. Do not talk over it; let the
+          room have it, then begin "Left unchecked" on eff-01.`,
   },
   {
     id: 'eff-01',

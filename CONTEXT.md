@@ -365,6 +365,11 @@ rule ("mass casualty is abstract only — never depict the act") by an explicit
 decision of the author, recorded in
 `docs/superpowers/plans/2026-09-02-effects-sequence.md`.
 
+Forming and firing were one beat, timed to fire itself ~1.8s after the click,
+until 2026-09-03. Split into `eff-00` (forms, holds) and `eff-04` (fires) so
+the operator decides when the room has sat with the gun long enough, rather
+than the deck deciding for them.
+
 **It ends on the splat.** A fourth beat followed it until 2026-09-03, in which
 the stain dispersed into a darkened grid of desks; it was cut for not connecting
 to what came before it, and its sentence moved onto `eff-02`, which now holds
