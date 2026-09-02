@@ -1,13 +1,13 @@
 /**
- * threshold.js — slides 2-3. A child alone, three shadows, and a bullseye.
+ * threshold.js — slides 2-3. A child alone, three shadows, and a knife.
  *
- * Three beats were storyboarded, one per sentence CH speaks; `thresh-03` —
- * the wreckage holding, unmoving — was cut 2026-09-03 as a repeat of what
- * `thresh-02` already ends on. Its `mode: 'wreckage'` branch is left in
- * `enter`/`apply` below rather than deleted; see the note above it.
+ * Three beats, one per sentence CH speaks. The re-cut is not imposed on the
+ * words; the words already had it in them (see beats.js and
+ * docs/superpowers/plans/2026-09-02-threshold-sequence.md):
  *
  *   thresh-01  three shadows come out of the child's own back and are named
- *   thresh-02  a target falls into the picture, takes a shot, and shatters
+ *   thresh-02  a knife falls into the picture and shatters it
+ *   thresh-03  the wreckage holds. only the eyes still move
  *
  * COLOUR. This section is vivid, which the old §3 rule forbade and the amended
  * one allows: the deck's colour argument is TEMPERATURE, not saturation. These
@@ -16,23 +16,22 @@
  * because they are the single living thing in it. No festival hue appears here.
  *
  * THE POINT BUDGET. One THREE.Points object holds everything, so the child and
- * the shadows and the target are all carved out of the same 17000 points by
+ * the shadows and the knife are all carved out of the same 17000 points by
  * index:
  *
  *   i % 4 === 0   the child                                    (4250 points)
- *   i % 4 === 3   the bullseye, from thresh-02 on                (4250 points)
+ *   i % 4 === 3   the knife, from thresh-02 on                  (4250 points)
  *   everything else   the three shadows, by i % 3               (8500 points)
  *
  * Two things fall out of that arithmetic and both are wanted. The child keeps
  * exactly the points it had in `cold-02` and never re-scatters, so it holds
- * still while the darkness leaves it. And the target is made of shadow — it is
- * not a new object arriving, it is what was already standing behind the child,
- * and residue 3 can never take a point from residue 0.
+ * still while the darkness leaves it. And the knife is made of shadow — the
+ * blade is not a new object arriving, it is what was already standing behind
+ * the child, and residue 3 can never take a point from residue 0.
  *
- * The bullseye's quarter is generous for its size, deliberately. It has to be
- * the densest thing on screen the moment it lands or it disappears into the
- * picture it is breaking, which is what the first version of this scene did
- * with the knife it used to be.
+ * The knife's quarter is generous for its size, deliberately. It has to be the
+ * densest thing on screen the moment it lands or it disappears into the picture
+ * it is breaking, which is what the first version of this scene did.
  */
 
 import { Vector3 } from 'three';
@@ -43,12 +42,12 @@ import { createSequence } from '../sequence.js';
 import { buildStudent } from '../shapes/student.js';
 import { buildShadows, SHADOW_HEADS } from '../shapes/shadow.js';
 import { buildCracks } from '../shapes/cracks.js';
-import { buildBullseye } from '../shapes/bullseye.js';
+import { buildKnife } from '../shapes/knife.js';
 
 /* ── Who owns which point ───────────────────────────────────────────────── */
 
 const isStudent = (i) => i % 4 === 0;
-const isBullseye = (i) => i % 4 === 3;
+const isKnife = (i) => i % 4 === 3;
 
 /**
  * The child's placement, exported so `cold-02` builds the same figure from the
@@ -91,44 +90,97 @@ const POOLED = compose(near.positions);
 /** The settled pose: three shadows flanking and rising behind the child. */
 const ARRIVED = compose(far.positions);
 
-/* ── The bullseye, and where it goes in ─────────────────────────────────── */
-
-/** Where the shot lands, and therefore where every crack radiates from. */
-const ORIGIN = [0.05, -0.06];
+/* ── The knife, and where it goes in ────────────────────────────────────── */
 
 /**
- * Centred directly on `ORIGIN` — unlike the knife it replaced, a target is
- * radially symmetric about its own middle, so there is no tip offset to solve
- * for and no `tilt` to give it: buildBullseye's rings look the same rotated
- * any way at all.
+ * Upright, handle up, blade down. buildKnife draws a cleaver lying on its side
+ * with the blade toward -x, so a quarter turn the positive way stands it up
+ * point-down; the offset then lifts it so the tip sits just below the middle of
+ * the picture, in the child.
  */
-const BULLSEYE = {
+const KNIFE = {
   pick: (() => {
     const pick = [];
-    for (let i = 0; i < POINTS; i++) if (isBullseye(i)) pick.push(i);
+    for (let i = 0; i < POINTS; i++) if (isKnife(i)) pick.push(i);
     return pick;
   })(),
-  // Small enough to read as a target IN the picture rather than a disc across
-  // it, on the same reasoning the knife it replaced was kept narrow: leave the
-  // composition visible around it rather than crowding the child.
-  scale: 0.34,
-  offset: ORIGIN,
+  tilt: Math.PI / 2,
+  // Small enough to read as a knife IN the picture rather than a slab across
+  // it. At 0.85 the cleaver was as wide as the child and as tall as the frame,
+  // and the two shapes fought; this leaves the composition visible around it.
+  scale: 0.62,
+  offset: [0, 0.3],
 };
 
-/** How far above the frame the bullseye starts its fall. */
+/** Where the tip lands, and therefore where every crack radiates from. */
+
+const ORIGIN = [0.05, -0.06];
+
+/** How far above the frame the knife starts its fall. */
 const DROP = 1.15;
 
-function withBullseye(picture) {
+/**
+ * knife.js draws a CLEAVER — broad, deep, squared tip, blade toward -x — and
+ * that is the right shape where it was written for: lying on its side next to
+ * the gun in the Refusal, where a slim blade would be four points wide and
+ * vanish.
+ *
+ * Stood on its tip it is the wrong shape. A cleaver's proportions rotated 90
+ * degrees read as a red slab with a handle, and the first version of this beat
+ * put exactly that through the middle of the picture. So the Threshold narrows
+ * it toward its own centreline and tapers the last fifth into an actual point.
+ *
+ * Done here rather than in knife.js on purpose: the Refusal depends on the
+ * cleaver being a cleaver, and this is a fact about standing one up, not a fact
+ * about knives.
+ */
+const NARROW = 0.5;
+const TIP_SHARE = 0.2;
+const TIP_WIDTH = 0.12;
+
+function sharpen(out) {
+  let minX = Infinity;
+  let maxX = -Infinity;
+  let minY = Infinity;
+  let maxY = -Infinity;
+
+  for (const i of KNIFE.pick) {
+    const x = out[i * 3];
+    const y = out[i * 3 + 1];
+    if (x < minX) minX = x;
+    if (x > maxX) maxX = x;
+    if (y < minY) minY = y;
+    if (y > maxY) maxY = y;
+  }
+
+  const cx = (minX + maxX) / 2;
+  const tipEnd = minY + (maxY - minY) * TIP_SHARE;
+
+  for (const i of KNIFE.pick) {
+    const i3 = i * 3;
+    let k = NARROW;
+    if (out[i3 + 1] < tipEnd) {
+      // Linear from a near-point at the very tip up to full width at the
+      // shoulder. Linear, not eased: a curved taper reads as a leaf.
+      const t = (out[i3 + 1] - minY) / (tipEnd - minY);
+      k *= TIP_WIDTH + (1 - TIP_WIDTH) * t;
+    }
+    out[i3] = cx + (out[i3] - cx) * k;
+  }
+}
+
+function withKnife(picture) {
   const out = picture.slice();
-  buildBullseye(out, BULLSEYE);
+  buildKnife(out, KNIFE);
+  sharpen(out);
   return out;
 }
 
-/** Picture untouched, bullseye embedded. The instant of impact. */
-const PIERCED = withBullseye(ARRIVED);
+/** Picture untouched, knife embedded. The instant of impact. */
+const PIERCED = withKnife(ARRIVED);
 
 /** Fully broken. Small displacement, so the picture stays findable as itself. */
-const CRACKED = withBullseye(buildCracks(ARRIVED, ORIGIN));
+const CRACKED = withKnife(buildCracks(ARRIVED, ORIGIN));
 
 /** The fast separation: most of the way there, then stage 3 finishes it. */
 const SEPARATING = (() => {
@@ -141,19 +193,14 @@ const SEPARATING = (() => {
 
 /**
  * `thresh-03`'s one small move: the wedges open a little further, radially,
- * and stop. The bullseye is excluded by name — the storyboard's clearest
- * single instruction was that it stays upright and whole while everything
- * around it is in pieces, so it may not drift with them.
- *
- * `thresh-03` itself is retired (see the file header) and no beat reaches
- * this constant any more. Left here rather than deleted, on the same
- * reasoning `effects.js` keeps its own retired states: it costs nothing to
- * keep, and restoring the beat is a one-line change away.
+ * and stop. The knife is excluded by name — the storyboard's clearest single
+ * instruction is that it stays upright and whole while everything around it is
+ * in pieces, so it may not drift with them.
  */
 const SETTLED = (() => {
   const out = CRACKED.slice();
   for (let i = 0; i < POINTS; i++) {
-    if (isBullseye(i)) continue;
+    if (isKnife(i)) continue;
     const i3 = i * 3;
     const dx = out[i3] - ORIGIN[0];
     const dy = out[i3 + 1] - ORIGIN[1];
@@ -204,15 +251,15 @@ const PICTURE_COLORS = pictureColors();
  *   The light goes out of a thing when it breaks, and this is the deck's whole
  *   vocabulary for that.
  *
- *   The bullseye lands exactly where the child is, because the storyboard
- *   puts it through the middle of the picture. Under additive blending a
- *   full-intensity yellow child sitting inside a full-intensity red target
- *   averages out to an orange smear and neither shape survives. Dropping the
- *   picture is what lets the target read as a target.
+ *   The knife lands exactly where the child is, because the storyboard puts it
+ *   through the middle of the picture. Under additive blending a full-intensity
+ *   yellow child sitting inside a full-intensity red blade averages out to an
+ *   orange smear and neither shape survives. Dropping the picture is what lets
+ *   the blade read as a blade.
  *
  * The eyes are the exception and keep every bit of their brightness: they are
- * the one thing still alive in the frame — originally for `thresh-03`'s
- * benefit, and left this way since retiring that beat costs nothing.
+ * the one thing still alive in the frame, and `thresh-03` is built on the
+ * audience not being able to look away from them.
  */
 const WRECK_DIM = 0.42;
 
@@ -227,7 +274,7 @@ const WRECK_COLORS = (() => {
     out[i * 3 + 2] *= WRECK_DIM;
   }
 
-  for (const i of BULLSEYE.pick) {
+  for (const i of KNIFE.pick) {
     out[i * 3] = blood[0];
     out[i * 3 + 1] = blood[1];
     out[i * 3 + 2] = blood[2];
@@ -382,7 +429,7 @@ function fall(field, dt) {
   const s = 1 - dropT;
   const y = DROP * (1 - s * s);
   const o = field.sceneOffset;
-  for (const i of BULLSEYE.pick) o[i * 3 + 1] = y;
+  for (const i of KNIFE.pick) o[i * 3 + 1] = y;
 }
 
 const stab = createSequence([
@@ -402,10 +449,8 @@ const stab = createSequence([
   {
     ms: TIME.crack,
     play: (ctx) => {
-      // THE GUNSHOT. Fires HERE, not with the fall: this is the frame the
-      // target reaches the picture, and an impact that lands early reads as
-      // a stumble. Same magnitude as the Effects gun's own shot
-      // (`rig.shake(0.06, 520)` in effects.js) — it is the same kind of bang.
+      // The shake fires HERE, not with the fall: this is the frame the tip
+      // reaches the picture, and an impact that lands early reads as a stumble.
       ctx.rig.shake(0.05, 420);
       ctx.field.morph(SEPARATING, { duration: TIME.crack, ease: 'linear' });
     },
@@ -413,14 +458,7 @@ const stab = createSequence([
   },
   {
     ms: TIME.wreck,
-    play: (ctx) => {
-      // THE SHATTER, alongside the gunshot rather than instead of it: a
-      // second, softer jolt as the wedges carry on separating outward. Lower
-      // power and a longer decay than the gunshot above — a rattle following
-      // the bang, not a second bang.
-      ctx.rig.shake(0.022, 640);
-      ctx.field.morph(CRACKED, { duration: TIME.wreck, ease: 'outExpo' });
-    },
+    play: (ctx) => ctx.field.morph(CRACKED, { duration: TIME.wreck, ease: 'outExpo' }),
     done: (ctx) => ctx.field.snap(CRACKED, WRECK_COLORS),
   },
 ]);
@@ -473,8 +511,7 @@ export default {
       return;
     }
 
-    // wreckage. Retired with thresh-03 — no beat sets this mode any more, kept
-    // dormant per the file header. Near-stillness, eyes the last thing alive.
+    // wreckage. Near-stillness, and the eyes are the last thing alive in it.
     field.setDrift(0.002);
     field.setUpdate((dt, time) => {
       slitherAt(field, time, true);
