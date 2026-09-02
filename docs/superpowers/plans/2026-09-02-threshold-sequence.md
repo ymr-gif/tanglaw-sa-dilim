@@ -8,7 +8,7 @@
 
 **Tech Stack:** Vite 5, Three.js, anime.js, vanilla JS.
 
-**Spec:** `CONTEXT.md` (canonical — **see the colour decision below, which it currently forbids**), `docs/superpowers/specs/2026-09-01-tanglaw-sa-dilim-design.md`
+**Spec:** `CONTEXT.md` (canonical — **§3 is amended by Task 0 of this plan**), `docs/superpowers/specs/2026-09-01-tanglaw-sa-dilim-design.md`
 
 **Storyboard:** [`docs/assets/threshold-storyboard.jpg`](../../assets/threshold-storyboard.jpg) — includes a reference photo for the shadows. Authority on staging; where it and this document disagree, it wins.
 
@@ -39,77 +39,51 @@ plans move the count and the tracker reads it from `totalBeats` automatically.
 
 ---
 
-## Decision 1 — the colour rule. Read this before anything else.
+## Decisions — settled
 
-The spec list asks for **yellow student, neon purple shadows, vibrant red
-knife**, in slides 2 and 3.
+### Colour: the storyboard's palette, as drawn
 
-`CONTEXT.md` §3 forbids this, and not as a minor rule:
+**Student yellow, shadows neon purple, knife vibrant red.** Decided for
+vibrancy and visibility, and because this slide is doing symbolic work rather
+than depicting anything literal.
 
-> "Darkness sections are near-monochrome. Festival color appears only as light,
-> and only in Prevention onward. […] **This is the single most important
-> constraint in the project.** Breaking it anywhere — a stray magenta in Roots,
-> a warm accent in Effects — costs the entire effect."
+`CONTEXT.md` §3 currently forbids this and must be amended to match — see
+Task 0. Leaving the doc contradicting the deck is the one outcome that is not
+allowed.
 
-This is a larger ask than the Effects `blood` exception, which was one colour on
-one beat. Three saturated colours in the deck's **opening** changes what the
-whole piece is:
+**A correction to an earlier draft of this plan.** It argued that saturated
+colour here would leave Prevention's turn with nothing to be. That was
+overstated. Title, Roots and Effects all still drain to near-monochrome
+*between* this section and Prevention — roughly fourteen beats of it — so the
+contrast at `prev-01` is measured against Effects, not against slide 3. The
+local contrast is what an audience actually feels, and it survives untouched.
 
-- The deck's argument is carried structurally by colour — cold, drained, ash for
-  the first half; festival colour arriving only when Prevention earns it. If
-  slides 2–3 are already yellow, purple and red, **Prevention's turn has nothing
-  left to be.** "The first time colour enters" stops being true on slide 2.
-- The Close is built as the payoff of that arc. It is currently the brightest
-  frame in the deck by a wide margin; it stops being remarkable if the opening
-  was equally saturated.
+What the deck loses is a tidy sentence in its own documentation. What it gains
+is a shape that is arguably better: **vivid → drained → vivid again.** The
+Threshold shows what is at stake in full colour, the deck desaturates as the
+analysis gets bleak, and colour returns when solutions arrive. That is a
+stronger arc than a flat ramp, and Task 0 records it as the intended reading
+rather than as damage.
 
-Three ways forward. **All are one-line changes** — the colour lives in constants,
-so the rest of this plan is identical whichever you pick.
+**One thing to preserve while implementing.** Keep these hues *cold and
+violent* in character, against Prevention's *warm and human* festival palette.
+Not less saturated — different in temperature. The shadows are electric violet,
+not the warm pink-violet of `fuchsia`; the knife is hard red. The student is the
+single warm thing in the frame, which is the deck's existing language for "the
+one living thing here" and is why the image works at all.
 
-**Option A — hybrid (recommended).** The student is **yellow**; the shadows and
-knife stay near-monochrome (cold violet-black, and a hard desaturated red).
+That separation is what stops the two palettes reading as one colour system, and
+it costs nothing.
 
-This is the one that costs nothing and might be *better* than either extreme.
-The deck already permits "one weak lamp glow" in the cold open, and a single
-warm figure alone in a cold frame is exactly the deck's existing language — the
-student reads as the only living thing on screen, which is the point of the
-image. The shadows do not need saturation to be frightening; they need to be
-darker than the dark and to have eyes.
+### Word limit: exception granted
 
-**Option B — full storyboard colours, §3 amended.** You get the look you drew.
-Record it as a deliberate amendment the way the Effects plan records its own, and
-accept the consequence: the deck is colourful throughout, and the
-Prevention/Close arc needs re-thinking as something other than "colour arrives."
-That re-think is real work and is not in this plan.
+All three shadow labels appear — *unspoken trauma*, *student isolation*, *toxic
+online spaces*. Seven words, and this beat joins `ref-01` as the deck's second
+sanctioned exception to the five-word ceiling.
 
-**Option C — muted palette.** All three colours, pulled toward the near-
-monochrome band: `DIM.violet` (already in the palette, from Roots) for the
-shadows, `LAMP` for the student, a dark red for the knife. Keeps the three-colour
-identity, keeps the arc intact, loses the neon.
-
-I have written the plan against **Option A**, with the constants isolated in one
-block so switching is trivial.
-
----
-
-## Decision 2 — three labels at once
-
-Frame 2 puts three labels on screen: *unspoken trauma*, *student isolation*,
-*toxic online spaces*. That is seven words, against a five-word ceiling with one
-already-spent exception (`ref-01`).
-
-**Recommended: allow it, staggered.** The labels arrive one at a time as each
-shadow does, rather than all three at once. They are labels on objects, not prose
-— the eye takes them the way it takes a diagram, and staggering them spreads the
-reading across the sentence CH is speaking rather than dumping it in one hit.
-
-Mechanically this is `shardlabel.js` doing what it already does — anchoring a
-word to a projected 3D position — extended from one label to three. That is a
-small generalisation of an existing overlay, not a new system.
-
-**If you would rather not spend a second exception:** drop the labels entirely.
-CH names all three things aloud in that exact sentence, so the screen would be
-repeating the voice — which the deck deliberately does only once, at `ref-01`.
+Still **staggered**, one label arriving with each shadow: it spreads the reading
+across the sentence CH is speaking instead of dumping seven words at once, and
+it means each label lands on the thing it names.
 
 ---
 
@@ -141,49 +115,86 @@ repeating the voice — which the deck deliberately does only once, at `ref-01`.
 
 ---
 
+### Task 0: Amend the colour rule
+
+`CONTEXT.md` §3 forbids what this section does. Amend it before writing any
+code, so the doc and the deck never contradict each other — the same discipline
+the Effects plan follows.
+
+- [ ] **Step 1:** In §3, replace the near-monochrome rule with:
+
+```markdown
+**First rule, as amended 2026-09-02.** The deck's colour argument is
+temperature, not saturation.
+
+Threshold (slides 2-3) carries vivid colour — a yellow student, neon purple
+shadows, a red knife — because that beat is symbolic and has to read across a
+lit room. Those hues are COLD and violent by design: electric violet, hard red.
+Title, Roots and Effects then drain to near-monochrome, and the festival palette
+— the mask's own WARM pinks and golds — still appears only from Prevention
+onward.
+
+So the shape is vivid, drained, vivid again: the Threshold shows what is at
+stake, the deck desaturates as the analysis gets bleak, and colour returns when
+solutions arrive. The contrast at prev-01 is measured against Effects, not
+against slide 3, and is unaffected.
+
+What is still forbidden anywhere before prev-01: the festival hues themselves
+(`rose`, `ember`, `gold`, `fuchsia`, `radiance`). Warmth is what Prevention
+earns.
+```
+
+- [ ] **Step 2:** Update the same rule where it is restated — `src/theme.js`'s header comment and `README.md`'s "Three rules the code enforces" — so all three agree.
+
+- [ ] **Step 3:** Commit. Documentation only.
+
+---
+
 ### Task 1: Split the beats and set the palette
 
 **Files:** Modify `src/beats.js`, `src/theme.js`; regenerate `docs/RUNSHEET.md`.
 
 - [ ] **Step 1:** Split `thresh-01` into `thresh-01`, `thresh-02`, `thresh-03`, one sentence each per the mapping table. `thresh-01` keeps its id honestly — same position, same speaker, same handoff, same opening sentence. `speaker: 'CH'` throughout, `handoff: true` on `thresh-01` only.
 
-- [ ] **Step 2:** Add the section's colours to `theme.js`, isolated so Decision 1 is a one-block change:
+- [ ] **Step 2:** Add the palette to `theme.js`:
 
 ```js
 /**
- * Threshold palette (slides 2-3).
+ * Threshold palette (slides 2-3). Vivid by decision — this beat is symbolic and
+ * has to carry across a lit room.
  *
- * Option A of the colour decision: the student is warm and alone; the shadows
- * and the knife stay inside the near-monochrome band §3 requires of the deck's
- * first half. Swap this block wholesale to take Option B or C — nothing else in
- * the section reads colour from anywhere else.
+ * Kept COLD against the festival palette's warmth, so the two never read as one
+ * colour system: electric violet rather than `fuchsia`'s warm pink-violet, and
+ * a hard red. The student is the single warm thing in frame, which is the
+ * deck's existing language for the one living thing in a scene.
  */
 export const THRESHOLD = {
-  student: 0xffc93c,      // yellow — the one living thing in frame
-  shadowBody: 0x241a30,   // darker than the dark, faintly violet
-  shadowEye: 0x8a5cc4,    // the only saturation the shadows get
-  knife: 0x8c1a24,        // hard, desaturated. NOT the Effects `blood`
+  student: 0xffe23d,   // yellow. Purer and brighter than `gold`'s amber
+  shadow: 0x8f3dff,    // neon violet — electric, cold, nothing like `fuchsia`
+  shadowEye: 0xd9b3ff, // near-white violet, so the eyes read at distance
 };
 ```
 
-- [ ] **Step 3:** Write the `cue` field for each new beat — where in the sentence to click, and what happens.
+- [ ] **Step 3:** The knife reuses **`COLOR.blood`**, the Effects red, rather than adding a near-duplicate. That is deliberate and worth keeping: the same red is the knife here and the blood there — the threat named on slide 3, realised in Effects. Update `blood`'s doc comment to say it now appears in both sections.
 
-- [ ] **Step 4:** Regenerate and verify.
+- [ ] **Step 4:** Write the `cue` field for each new beat — where in the sentence to click, and what happens.
+
+- [ ] **Step 5:** Regenerate and verify.
 
 ```bash
 npm run runsheet
 node --input-type=module -e "
 import { beats, totalBeats } from './src/beats.js';
-console.log('total:', totalBeats, '(expect 24)');
 const t = beats.filter(b => b.section === 'threshold');
 console.log('threshold beats:', t.map(b => b.id).join(','), '(expect thresh-01,thresh-02,thresh-03)');
+console.log('total:', totalBeats, '(+2 on whatever the count was)');
 console.log('handoffs:', beats.filter(b => b.handoff).length, '(expect 6)');
 "
 ```
 
-- [ ] **Step 5:** Verify the deck runs at 24 beats with the old visuals. Tracker reads `/24`; `2` still jumps to Threshold; `←` walks back through all three.
+- [ ] **Step 6:** Verify the deck runs with the old visuals at the new count. Tracker reads the new total; `2` still jumps to Threshold; `←` walks back through all three.
 
-- [ ] **Step 6:** Commit. Ships alone.
+- [ ] **Step 7:** Commit. Ships alone.
 
 ---
 
@@ -237,7 +248,7 @@ export function buildStudent({ scale = 1, offset = [0, 0] } = {}) {
 
 - [ ] **Step 2:** Wire `cold-02`. The drifting field gathers into the student — `reshuffle(field)` then morph over ~2400ms, `ease: 'outExpo'`. Slow: this is the first shape the deck ever resolves into, and it should feel like something coming into focus rather than snapping on.
 
-- [ ] **Step 3:** Colour `THRESHOLD.student`. Keep `cold-01` exactly as it is — scattered, formless, and silent.
+- [ ] **Step 3:** Colour `THRESHOLD.student`, bright. Keep `cold-01` exactly as it is — scattered, formless, and silent.
 
 - [ ] **Step 4:** Verify the figure reads as a child standing alone, and that the frame still feels empty around them. If it reads as crowded, shrink `scale`; the loneliness is the image.
 
@@ -266,7 +277,7 @@ those and leave the body nearly black.
 
 - [ ] **Step 3:** `arrived: false` places each shadow off-frame along its entry vector; `arrived: true` is the settled pose. Same seed for both so beat 1's morph moves the same points.
 
-- [ ] **Step 4:** Colour: body `THRESHOLD.shadowBody` at low intensity — it should read as a hole in the frame rather than as an object. Eyes and mouth `THRESHOLD.shadowEye` at high intensity, applied through the `brightness` buffer via `eyeness`.
+- [ ] **Step 4:** Colour: body `THRESHOLD.shadow` — vivid neon violet, not a dark mass. Eyes and mouth `THRESHOLD.shadowEye` brighter still, applied through the `brightness` buffer via `eyeness`, so the faces read first and the bodies read as the thing carrying them.
 
 - [ ] **Step 5:** The student stays lit and unchanged through this beat. The shadows arrive around them; nothing happens to the child yet.
 
@@ -282,7 +293,7 @@ those and leave the body nearly black.
 
 **Files:** Modify `src/overlay/shardlabel.js`, `src/scenes/threshold.js`.
 
-Only if Decision 2 lands on "allow it". If not, skip this task entirely.
+The word-limit exception is granted, so this task is in scope. Seven words across three labels, staggered.
 
 - [ ] **Step 1:** Generalise `shardlabel.js` from one element to a small pool. It already projects a world position to screen space each frame and clamps into the safe area; the change is to hold up to three of those at once, each with its own anchor and text.
 
@@ -323,7 +334,7 @@ look like breakage, not redistribution.
 
 - [ ] **Step 3:** **The knife stays upright and whole through all of it.** The storyboard is explicit: it is embedded in the middle while everything around it is in pieces. It must not crack, drift or dim with the rest.
 
-- [ ] **Step 4:** Colour `THRESHOLD.knife`. The student and shadows keep their colours into the wreckage — the picture broke, it did not change palette.
+- [ ] **Step 4:** Colour `COLOR.blood` — the same red as the Effects splat, on purpose. The student and shadows keep their colours into the wreckage; the picture broke, it did not change palette.
 
 - [ ] **Step 5:** `apply()` is `beat.settle(ctx)` — knife embedded, picture cracked, everything at rest.
 
@@ -358,8 +369,9 @@ look like breakage, not redistribution.
 - [ ] **Step 3:** Jump safety — press `2` from cold. No knife, no shake, no shatter; the section start must be the shadows' settled pose.
 - [ ] **Step 4:** Mid-sequence interruption — click into `thresh-02` and click again 200 ms in, mid-pierce. Must land cleanly on `thresh-03`.
 - [ ] **Step 5:** Seven-profile device matrix, phone DPR 3 through 4K.
-- [ ] **Step 6:** **Colour audit against whichever option Decision 1 lands on.** If Option A or C, confirm no festival hue appears before `prev-01`. If Option B, confirm `CONTEXT.md` §3 has been amended to match rather than left contradicting the code.
-- [ ] **Step 7:** Caption audit — labels lowercase, and either three staggered or none, per Decision 2.
+- [ ] **Step 6:** **Colour audit.** Threshold may use `THRESHOLD.*` and `COLOR.blood`. Confirm **no festival hue** (`rose`, `ember`, `gold`, `fuchsia`, `radiance`) appears anywhere before `prev-01` — that half of the rule is unchanged and is the half Prevention still depends on.
+- [ ] **Step 7:** Confirm `CONTEXT.md` §3, `theme.js`'s header and `README.md` all state the amended rule and agree with each other.
+- [ ] **Step 8:** Caption audit — three labels, lowercase, staggered.
 - [ ] **Step 8:** Frame cost at 1920×1080 and 320×180; small viewport holds the vsync cap.
 
 ---
@@ -386,14 +398,17 @@ every other state in the deck.
 
 | Risk | Where | Mitigation |
 |---|---|---|
-| Colour rule broken silently | Decision 1 | Three explicit options; palette isolated in one block; Task 7 Step 6 audits whichever was chosen |
+| Amended rule left contradicting the code | Task 0 | Amend §3, `theme.js` and `README.md` together, before any code; Task 7 Step 7 audits all three |
+| Threshold hues drift warm and collide with the festival palette | Task 1 | Electric violet and hard red are specified against `fuchsia`'s warm pink-violet; temperature is what separates the two systems |
 | Shadows read as smoke, not demons | Task 3 | The eyes carry it — Step 7 says fix the eyes, not the body |
 | Shatter makes the picture illegible | Task 5 | Small displacement, learned from Effects; Step 6 checks the student is still findable |
 | Knife drifts with the wreckage | Task 5 | Step 3 states it explicitly; it is the storyboard's clearest instruction |
 | Three labels collide or leave frame | Task 4 | Existing safe-area clamping; Step 5 tests 5:4 and portrait specifically |
 | Cold open loses its emptiness | Task 2 | `cold-01` untouched; Step 4 checks the frame still feels empty around the figure |
 
-**Open.** Decision 1 (colour) and Decision 2 (labels). Both are isolated so the
-rest of the plan is unaffected either way — but Decision 1 should be made
-deliberately, because it is the one constraint `CONTEXT.md` calls the most
-important in the project.
+**Open.** Nothing. Colour and the word-limit exception are both settled above.
+
+**Sequencing.** Task 0 is documentation and ships first so nothing is built
+against a rule the docs still forbid. Task 1 is the beat split and also ships
+alone. Everything from Task 2 depends on the Refusal plan's `knife.js` and
+`reshuffle`, and on the Effects plan's `createSequence` and camera rig.
