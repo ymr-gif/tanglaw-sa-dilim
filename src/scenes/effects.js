@@ -1,23 +1,40 @@
 /**
- * effects.js — beats 10-13. The emotional floor.
+ * effects.js — beats 10-13. The literal sequence.
  *
- * "Least motion, least color, most silence." (CONTEXT.md §6)
+ * The mask's four shards converge into a handgun, it fires, the camera tracks
+ * the bullet, then pushes forward through an empty frame into a blood splat,
+ * and the classroom goes dark.
  *
- * Four states, and the restraint is the point:
+ * THIS SECTION USED TO BE THE OPPOSITE OF WHAT IT IS NOW. It was "least motion,
+ * least color, most silence" — a shatter, an empty seat, and a grid of desks
+ * where one went out and the failure propagated, with an explicit rule in
+ * CONTEXT.md §6 that said "never depict the act". That rule was replaced by an
+ * explicit decision of the author on 2026-09-02, recorded in
+ * `docs/superpowers/plans/2026-09-02-effects-sequence.md` and in §6 itself. Do
+ * not restore it by accident.
  *
- *   shatter    the mask breaks outward. Noise, not a uniform balloon (§7).
- *   seat       one empty seat. The quietest beat in the deck.
- *   grid-fail  a classroom of desks; one goes out and the failure spreads.
- *   grid-dark  all of it dark. "learning stops".
+ * THE CONSTRAINT THAT SURVIVED, and it is the most important thing in this
+ * file: the gun is assembled out of the four broken shards of the child's mask.
+ * Shard 0 becomes the grip, 1 the slide, 2 the barrel, 3 the trigger and the
+ * muzzle. It is what the shattered child became. §1's thesis is that society
+ * failed these children long before they picked up a weapon; a weapon arriving
+ * from outside the piece would contradict that, and a weapon made of the child
+ * does not.
  *
- * MASS CASUALTY IS ABSTRACT ONLY. A grid of desk-points where one extinguishes
- * and the failure propagates. Never depict the act. There is no representation
- * of a weapon, a body, or an attacker anywhere in this file, and there must
- * never be one.
+ * Effects is now the loudest passage in the deck, which it was never meant to
+ * be. The contrast that used to live inside it is carried instead by the `B`
+ * key: four full seconds of black after `eff-03`, before Prevention.
  *
- * The seat beat renders the absence rather than the chair: points fill a dim
- * field and are excluded from a chair silhouette, so what the audience reads is
- * the empty shape where someone should be.
+ *   gun        the shards converge into the weapon, then it fires
+ *   bullet     the tracking shot. Loops indefinitely
+ *   splat      the camera advances through nothing, then the blood
+ *   grid-dark  the stain disperses into the darkened classroom
+ *
+ * The retired states are deliberately still here. `shatter`, `seat` and
+ * `grid-fail` cost nothing to keep, and `mask.js` still builds their geometry,
+ * so restoring any of them is a one-line change to a beat's `state`. The empty
+ * seat in particular was the quietest and arguably the strongest image in the
+ * deck.
  */
 
 import { animate } from 'animejs';
@@ -302,6 +319,27 @@ function snapSplat(ctx) {
   field.snap(splat(), BLOOD);
 }
 
+/** How long the stain takes to become the room. */
+const DARK_MS = 2200;
+
+/**
+ * The camera comes back to neutral over the same duration the grid arrives in,
+ * so the pull-back and the room settling are one movement rather than two.
+ */
+function returnCamera(ctx) {
+  const { field, rig } = ctx;
+
+  dollyAnim?.pause();
+  dollyAnim = animate(dolly, {
+    z: 0,
+    duration: DARK_MS,
+    ease: 'inOutQuad',
+    onComplete: () => field.setUpdate(null),
+  });
+
+  field.setUpdate(() => rig.setOffset(0, 0, dolly.z));
+}
+
 const beat12 = createSequence([
   {
     ms: TIME.advance,
@@ -428,9 +466,20 @@ export default {
       }
 
       case 'grid-dark': {
+        // The stain becoming the classroom is exactly what "a contagion of
+        // hopelessness across the student body" says. One death, then every
+        // desk. This used to arrive from a grid that was already on screen;
+        // now it has to arrive from the blood.
         field.setDrift(0.004);
+        field.morph(mask.states.grid, { duration: DARK_MS, ease: 'inOutQuad' });
+
+        // The red must be GONE by the end. Effects returns to monochrome before
+        // Prevention, or the one colour exception leaks into the section that
+        // has spent the whole deck earning its own.
         field.colDelay.set(buildDeskDelay(mask.deskOf));
-        field.morphColor(GRID_DARK, { duration: 1800, ease: 'inOutQuad' });
+        field.morphColor(GRID_DARK, { duration: DARK_MS, ease: 'inOutQuad' });
+
+        returnCamera(ctx);
         break;
       }
     }
@@ -475,6 +524,10 @@ export default {
         break;
       case 'grid-dark':
         field.setDrift(0.004);
+        field.setUpdate(null);
+        field.sceneOffset.fill(0);
+        dolly.z = 0;
+        ctx.rig.setOffset(0, 0, 0);
         field.snap(mask.states.grid, GRID_DARK);
         break;
     }

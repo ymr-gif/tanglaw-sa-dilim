@@ -193,7 +193,13 @@ export const beats = [
   },
 
   // ─────────────────────────────────────────────────────────────────────
-  // EFFECTS — emotional floor. Least motion, least color, most silence.
+  // EFFECTS — the literal sequence. The mask's shards become a gun, it fires,
+  // the camera tracks the bullet, the blood arrives, the classroom goes dark.
+  //
+  // This section used to be the deck's quiet floor. It is now its loudest
+  // passage, by an explicit decision of the author recorded in CONTEXT.md §6.
+  // The contrast it used to carry is now the four-second black hold after
+  // eff-03 — see that beat's cue, and do not shorten it.
   // ─────────────────────────────────────────────────────────────────────
   {
     id: 'eff-00',
@@ -204,8 +210,10 @@ export const beats = [
     handoff: true,
     caption: null,
     script: `Second, we must face the Effects.`,
-    cue: `>>> CH TAKES OVER. Shatter runs ~1.4s. Click on "Effects," let the
-          break happen, THEN start the next line. Do not talk over the break.`,
+    cue: `>>> CH TAKES OVER. Click on "Effects." The four shards of the mask
+          converge into a handgun over ~1.8s and THEN IT FIRES — flash, screen
+          shake, the muzzle kicks up and stays up. The shot lands about two
+          seconds after your click. Do not talk over it; let the room have it.`,
   },
   {
     id: 'eff-01',
@@ -218,8 +226,10 @@ export const beats = [
     script: `Left unchecked, families lose their loved ones — parents send their
              children to learn, only to receive news that their life was cut
              short.`,
-    cue: `Everything dims except one empty seat-shaped void. No caption.
-          This is the quietest slide in the deck. Slow down.`,
+    cue: `Click on "Left unchecked." The camera locks to the bullet and the
+          wind tears past it. THIS BEAT LOOPS FOREVER — it is the one safe
+          place to sit in the section, so take the whole line at your own pace
+          and do not hurry to the click.`,
   },
   {
     id: 'eff-02',
@@ -231,8 +241,10 @@ export const beats = [
     caption: null,
     script: `We face mass casualty risks, where a single weapon turns a quiet
              morning into tragedy.`,
-    cue: `Grid of desk-points. One extinguishes, spread propagates outward.
-          Abstract only — never depict the act.`,
+    cue: `Click on "We face." The camera pushes FORWARD through an empty frame
+          for ~1.7s — nothing is there, and that is the point. Do not fill the
+          silence. The blood then arrives suddenly, sweeping left to right;
+          time your click so it lands on "tragedy."`,
   },
   {
     id: 'eff-03',
@@ -245,8 +257,12 @@ export const beats = [
     script: `This breeds a contagion of hopelessness across the student body —
              learning stops, ambition fades, and classrooms turn into spaces of
              constant fear, shattering trust in our schools.`,
-    cue: `Grid fully dark. After this line, hold black for two seconds before
-          clicking into Prevention. Deliberate. Uncomfortable. Let it be.`,
+    cue: `Click on "This breeds." The stain disperses into the darkened
+          classroom — one death, then every desk. Caption reads `+"`learning stops`"+`.
+
+          AFTER THIS LINE: press B and hold black for FOUR full seconds before
+          Prevention. Do not rush this. The deck has just been loud for four
+          beats; Prevention does not work without the silence.`,
   },
 
   // ─────────────────────────────────────────────────────────────────────

@@ -111,7 +111,7 @@ Six speaker changes. These are the only moments that cannot be fixed in code.
 |---|---|---|
 | `thresh-01` | BR → **CH** | on "morning bell" |
 | `title-01` | CH → **BR** | with the title, not before it |
-| `eff-00` | BR → **CH** | on "Effects" — then let the break finish |
+| `eff-00` | BR → **CH** | on "Effects" — then let the gun form AND fire |
 | `prev-00` | CH → **BR** | on "Prevention" |
 | `ref-01` | BR → **CH** | read the caption aloud, in sync with the room |
 | `close-01` | CH → **BR** | final shard seats on "bringing the light" |
@@ -123,8 +123,14 @@ for the run sheet.
 ### The two deliberate pauses
 
 1. **After `cold-01`** — three full beats of silence before the second line.
-2. **After `eff-03`** — two full seconds of black before Prevention. Use `B`, so
-   the length is decided in the moment rather than baked into a slide.
+2. **After `eff-03`** — **four full seconds** of black before Prevention. Use
+   `B`, so the length is decided in the moment rather than baked into a slide.
+
+   This one is not a suggestion. Effects used to be the deck's quiet floor and
+   is now its loudest passage — gun, gunshot, tracking shot, blood. Without the
+   hold, the deck runs loud from `eff-00` all the way to the close and the
+   Prevention turn, which is the emotional pivot of the whole piece, lands on
+   an audience that has had no silence to recover in.
 
 ---
 
@@ -137,7 +143,7 @@ and lifts — that repetition is what carries the narrative.
 |---|---|
 | Cold open | Scattered dim points, drifting, no face yet |
 | Roots | Points pull into a face — fractured, the smile cracked |
-| Effects | The mask shatters outward |
+| Effects | The shards become a gun, it fires, the blood, then a dark classroom |
 | Prevention | Points converge and warm, one shard at a time |
 | Close | The whole mask lifts and becomes a lantern |
 
@@ -145,7 +151,9 @@ Three rules the code enforces, and any change has to keep:
 
 1. **Festival colour appears only in Prevention onward.** Cold open, Threshold,
    Title, Roots and Effects are near-monochrome. Only `prevention.js`,
-   `refusal.js`, `close.js` and `qna.js` may write a festival hue.
+   `refusal.js`, `close.js` and `qna.js` may write a festival hue. Effects has
+   exactly one documented exception, `COLOR.blood` on `eff-02`, and it is gone
+   again by the end of `eff-03` — no festival hue ever appears there.
 2. **Caption case is load-bearing.** Lowercase in the darkness, uppercase in the
    light. Text renders verbatim from `beats.js`; there is no `text-transform`
    anywhere in the project.
