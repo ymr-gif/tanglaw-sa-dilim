@@ -24,8 +24,9 @@ import { COLOR, TIME } from '../theme.js';
 import { POINTS } from '../theme.js';
 import { DESKS } from '../mask.js';
 import { buildGun } from '../shapes/gun.js';
+import { BULLET, VAPOUR, buildWind, resetWind, stepWind } from '../shapes/wind.js';
 import { createSequence } from '../sequence.js';
-import { solid, clearDelays, swirl } from './_base.js';
+import { rgbOf, solid, clearDelays, swirl } from './_base.js';
 
 const GRID_COLS = 6;
 
@@ -128,6 +129,52 @@ const beat10 = createSequence([
   },
 ]);
 
+/* ── Beat 11: the tracking shot ─────────────────────────────────────────── */
+
+let windCache = null;
+function wind() {
+  if (!windCache) windCache = buildWind();
+  return windCache;
+}
+
+/**
+ * The bullet is the brightest thing in frame; the wind is barely there.
+ *
+ * The vapour and the streaks fall off along their own length rather than being
+ * flat, so the trail reads as dispersing and each streak reads as having a
+ * leading edge. That falloff is baked into the colour buffer instead of driven
+ * from `brightness` because it never changes — only the positions do.
+ */
+let windColorCache = null;
+function windColors() {
+  if (windColorCache) return windColorCache;
+
+  const w = wind();
+  const out = new Float32Array(POINTS * 3);
+
+  for (let i = 0; i < POINTS; i++) {
+    let intensity;
+    if (w.role[i] === BULLET) {
+      intensity = 9.0;
+    } else if (w.role[i] === VAPOUR) {
+      // Distance behind the bullet, recovered from the seeded layout.
+      const behind = Math.min(1, Math.max(0, (-0.25 - w.positions[i * 3]) / 0.9));
+      intensity = 4.2 * (1 - behind) ** 1.6;
+    } else {
+      // Head of the chain brightest, tail faintest.
+      intensity = 4.0 * (1 - w.slot[i] / 7) + 0.7;
+    }
+
+    const [r, g, b] = rgbOf(COLOR.ash, intensity);
+    out[i * 3] = r;
+    out[i * 3 + 1] = g;
+    out[i * 3 + 2] = b;
+  }
+
+  windColorCache = out;
+  return windColorCache;
+}
+
 /**
  * Every entry and every apply passes through here first. A beat the operator
  * clicked away from must not keep running its stages into the next one.
@@ -180,6 +227,17 @@ export default {
       case 'gun': {
         field.setUpdate(null);
         beat10.start(ctx);
+        break;
+      }
+
+      case 'bullet': {
+        // Drift stays low: the wind is already carrying all the motion this
+        // beat can take, and a wobbling bullet reads as a loose one.
+        field.setDrift(0.003);
+        resetWind(wind());
+        field.morph(wind().positions, { duration: 900, ease: 'outExpo' });
+        field.morphColor(windColors(), { duration: 900 });
+        field.setUpdate((dt, time) => stepWind(field, wind(), dt, time));
         break;
       }
 
@@ -240,6 +298,12 @@ export default {
         field.sceneOffset.fill(0);
         beat10.settle(ctx);
         break;
+      case 'bullet':
+        field.setDrift(0.003);
+        resetWind(wind());
+        field.snap(wind().positions, windColors());
+        field.setUpdate((dt, time) => stepWind(field, wind(), dt, time));
+        break;
       case 'shatter':
         field.setDrift(0.02);
         field.setUpdate(null);
@@ -265,6 +329,10 @@ export default {
 
   unmount(ctx) {
     stopAll(ctx);
+    // Bake first: the wind and the bullet live entirely in sceneOffset, so
+    // without this the next scene morphs from where the last morph left the
+    // points rather than from where they visibly are.
+    ctx.field.bakeOffsets();
     ctx.field.resetSceneMods();
   },
 };

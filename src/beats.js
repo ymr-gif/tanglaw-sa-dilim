@@ -211,7 +211,7 @@ export const beats = [
     id: 'eff-01',
     section: 'effects',
     scene: 'effects',
-    state: { mode: 'seat' },
+    state: { mode: 'bullet' },
     speaker: 'CH',
     handoff: false,
     caption: null,
