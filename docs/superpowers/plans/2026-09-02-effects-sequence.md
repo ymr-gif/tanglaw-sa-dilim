@@ -25,8 +25,8 @@ the drawing's own row grouping (the top row is bracketed as slide 10):
 | 2 gun | **10** | | shards converge into the handgun |
 | 3 shoot | **10** | | muzzle flash, **recoil tilt up**, screen shake |
 | 4 bullet + wind | **11** `eff-01` | "families lose their loved ones… news that their life was cut short" | tracking shot, **loops** |
-| 5 camera advances | **12** `eff-02` | "mass casualty risks… a single weapon turns a quiet morning into tragedy" | camera pushes forward through empty frame |
-| 6 blood splatter | **12** | | **sudden, dramatic, sweeps left→right** |
+| 5 camera advances | **12** `eff-02` | "mass casualty risks… a single weapon turns a quiet morning into tragedy" | camera pushes forward through empty frame, then **a silhouette resolves out of the dark** |
+| 6 blood splatter | **12** | | impact. **sudden, dramatic, sweeps left→right** |
 | — | **13** `eff-03` | "contagion of hopelessness… learning stops" | splat disperses into the dark classroom grid |
 
 Beat 11 carries the loop because it is the longest line in the section and the
@@ -95,7 +95,7 @@ is a one-line change to the beat's `state`.
 |---|---|---|
 | 10 `eff-00` | "Second, we must face the Effects." | The four mask shards converge into a dense gun. On the click, it fires: muzzle flash, screen shake, shockwave. |
 | 11 `eff-01` | "families lose their loved ones… news that their life was cut short" | Camera locked to the bullet. Wind streaks tear past. **Loops indefinitely** — safe to hold for as long as CH talks. |
-| 12 `eff-02` | "mass casualty risks… a single weapon turns a quiet morning into tragedy" | Camera pushes **forward** through an empty frame, then the splat hits — sudden, sweeping left→right. |
+| 12 `eff-02` | "mass casualty risks… a single weapon turns a quiet morning into tragedy" | Camera pushes **forward** through an empty frame. A student's silhouette resolves out of the dark. Impact — the splat is thrown out of the figure, sweeping left→right. |
 | 13 `eff-03` | "contagion of hopelessness… learning stops" | The splat disperses into the darkened classroom grid. Unchanged in meaning. |
 
 ---
@@ -108,8 +108,11 @@ is a one-line change to the beat's `state`.
 | `src/camera-rig.js` | **create** | Composes fit distance + parallax + scene offset + shake into one camera. Task 1. |
 | `src/shapes/gun.js` | **create** | The gun silhouette buffer. Task 2. |
 | `src/shapes/wind.js` | **create** | Bullet cluster + streaking wind field. Task 4. |
-| `src/shapes/splat.js` | **create** | Blood splat buffer. Task 5. |
+| `src/shapes/silhouette.js` | **create** | The figure the bullet reaches. Task 5A. |
+| `src/shapes/splat.js` | **create** | Blood splat buffer, thrown out of the figure. Task 5. |
+| `src/sequence.js` | **create** | Explicit stage runner so a 3-stage beat stays `apply()`-safe. Task 5A. |
 | `src/scenes/effects.js` | rewrite | Dispatcher for the four new states. Tasks 2–6. |
+| `docs/assets/effects-storyboard.png` | added | The author's rough draft. Staging authority. |
 | `src/theme.js` | modify | `blood` colour, sequence timings. Task 0. |
 | `src/beats.js` | modify | Four `state` values and four `cue` fields. Task 6. |
 | `src/main.js` | modify | Mount the rig; add `#flash` handling. Tasks 1, 3. |
@@ -436,19 +439,179 @@ Expected: small-viewport median still at the ~16.7 ms vsync cap. If it rises, cu
 
 ---
 
-### Task 5: Push forward, then the splat
+### Task 5A: The silhouette, and a sequencer that keeps beat 12 jump-safe
+
+**Files:** Create `src/shapes/silhouette.js`, `src/sequence.js`; modify `src/scenes/effects.js`.
+
+**Interfaces:**
+- Produces: `buildSilhouette()` → `{ positions: Float32Array(POINTS*3), impactOf: Float32Array(POINTS) }` where `impactOf[i]` is 0..1 by closeness to the impact site.
+- Produces: `createSequence(stages)` → `{ start(ctx), settle(ctx), stop() }`
+
+**Why a sequencer.** Beat 12 has three stages — camera advance, figure resolves,
+impact — and the deck's existing chaining idiom is a nested `onComplete`. Two
+stages of that is survivable; three is not. `field.finish()` runs pending
+completions, so an operator clicking mid-chain would kick off the *next* stage
+just as the next beat is entering, and `apply()` would have to replicate a
+cascade it never ran. An explicit stage list with a `settle()` that jumps
+straight to the end makes `apply()` one line and removes the whole class of bug.
+
+- [ ] **Step 1:** Create `src/sequence.js`.
+
+```js
+/**
+ * A short, explicit list of stages for a beat that has more than one.
+ *
+ * `start` plays them in order. `settle` skips to the finished state without
+ * playing anything — which is exactly what apply() needs, and what a jump into
+ * the middle of the section needs.
+ *
+ * Stages are {ms, play(ctx), done(ctx)}: `play` animates, `done` states the end
+ * result. `settle` calls every stage's `done` in order and no `play` at all, so
+ * the end state is defined once and cannot drift from what the animation
+ * actually produces.
+ */
+export function createSequence(stages) {
+  let timer = null;
+  let index = 0;
+
+  function step(ctx) {
+    if (index >= stages.length) return;
+    const stage = stages[index++];
+    stage.play(ctx);
+    timer = setTimeout(() => step(ctx), stage.ms);
+  }
+
+  return {
+    start(ctx) { index = 0; clearTimeout(timer); step(ctx); },
+    settle(ctx) {
+      clearTimeout(timer);
+      index = stages.length;
+      for (const stage of stages) stage.done(ctx);
+    },
+    stop() { clearTimeout(timer); },
+  };
+}
+```
+
+**This is the one place the deck uses `setTimeout`,** and it is worth being
+explicit about why it does not break "nothing is on a timer": the timer sequences
+*within* a beat that the operator has already triggered. It never advances the
+beat index. `unmount` must call `stop()`.
+
+- [ ] **Step 2:** Create `src/shapes/silhouette.js`. Composed primitives, the same approach that made the chair read — a polygon outline would be more accurate and much harder to tune.
+
+```js
+import { POINTS } from '../theme.js';
+import { seededRandom } from '../noise.js';
+
+/**
+ * A student, from the chest up. Straight on.
+ *
+ * The strap is doing the most work in this shape. Head-and-shoulders alone
+ * reads as "a person"; head, shoulders and a bag strap reads as "a student",
+ * which is the whole point — the line being spoken is about children sent to
+ * school. Do not drop it to simplify.
+ */
+const HEAD = { cx: 0, cy: 0.52, rx: 0.17, ry: 0.20 };
+const NECK = [-0.06, 0.06, 0.30, 0.38];
+const TORSO = { yTop: 0.30, yBot: -0.72, wTop: 0.56, wBot: 0.50 };
+const STRAP = { x0: -0.24, y0: 0.26, x1: 0.16, y1: -0.44, w: 0.075 };
+
+/** Where the bullet arrives: upper torso, left of centre, travelling right. */
+const IMPACT = [-0.10, 0.06];
+const IMPACT_R = 0.30;
+
+export function buildSilhouette() {
+  const rand = seededRandom(0x51100);
+  const positions = new Float32Array(POINTS * 3);
+  const impactOf = new Float32Array(POINTS);
+
+  for (let i = 0; i < POINTS; i++) {
+    const i3 = i * 3;
+    const roll = rand();
+    let x, y;
+
+    if (roll < 0.17) {
+      // Head — rejection-sample the ellipse so the edge stays clean.
+      do { x = (rand() * 2 - 1); y = (rand() * 2 - 1); } while (x * x + y * y > 1);
+      x = HEAD.cx + x * HEAD.rx;
+      y = HEAD.cy + y * HEAD.ry;
+    } else if (roll < 0.20) {
+      x = NECK[0] + rand() * (NECK[1] - NECK[0]);
+      y = NECK[2] + rand() * (NECK[3] - NECK[2]);
+    } else if (roll < 0.88) {
+      const t = rand();
+      y = TORSO.yTop + t * (TORSO.yBot - TORSO.yTop);
+      const w = TORSO.wTop + t * (TORSO.wBot - TORSO.wTop);
+      x = (rand() * 2 - 1) * w * 0.5;
+    } else {
+      const t = rand();
+      x = STRAP.x0 + t * (STRAP.x1 - STRAP.x0) + (rand() - 0.5) * STRAP.w;
+      y = STRAP.y0 + t * (STRAP.y1 - STRAP.y0);
+    }
+
+    positions[i3] = x;
+    positions[i3 + 1] = y;
+    positions[i3 + 2] = (rand() - 0.5) * 0.06;
+
+    const d = Math.hypot(x - IMPACT[0], y - IMPACT[1]);
+    impactOf[i] = Math.max(0, 1 - d / IMPACT_R);
+  }
+
+  return { positions, impactOf };
+}
+```
+
+- [ ] **Step 3:** Wire beat 12 as three stages.
+
+```js
+const beat12 = createSequence([
+  {
+    ms: TIME.advance,
+    play: (ctx) => advanceCamera(ctx),
+    done: (ctx) => ctx.rig.setOffset(0, 0, -1.6),
+  },
+  {
+    ms: 900,
+    play: (ctx) => resolveFigure(ctx),   // morph wind/bullet -> silhouette, ash
+    done: (ctx) => snapFigure(ctx),
+  },
+  {
+    ms: TIME.splatForm,
+    play: (ctx) => impact(ctx),
+    done: (ctx) => snapImpact(ctx),
+  },
+]);
+```
+
+- [ ] **Step 4:** `apply()` for `eff-02` is now one line: `beat12.settle(ctx)`. Verify by pressing `5` then walking forward — the state reached must be pixel-identical to clicking through.
+
+- [ ] **Step 5:** **Verify the figure reads as a student**, not a bust or a chess piece. Screenshot the stage-2 hold. Iterate the strap and shoulder width until it does; do not proceed until it reads.
+
+- [ ] **Step 6:** Commit.
+
+---
+
+### Task 5B: The splat, thrown out of the figure
 
 **Files:** Create `src/shapes/splat.js`; modify `src/scenes/effects.js`.
 
 **Interfaces:**
 - Produces: `buildSplat()` → `Float32Array(POINTS * 3)`
 
-- [ ] **Step 1:** Create `src/shapes/splat.js`. Three components, because a single radial spray reads as a firework rather than a stain:
+**The blood is the figure's own points.** Rather than fading in a separate
+shape, the ~22% of silhouette points with the highest `impactOf` are thrown
+rightward and turn red. The figure is left with a void where they used to be.
+This is both the correct reading — the blood comes *out of* the person — and
+mechanically simpler, since it needs no extra points and the hole in the
+silhouette is free.
+
+- [ ] **Step 1:** Create `src/shapes/splat.js`, generating the thrown destination for those points. Three components, because a single radial spray reads as a firework rather than a stain:
   - **Core** (~55% of points): dense irregular blob, radius ~0.28, with a noisy edge — never a circle.
   - **Satellites** (~30%): droplets flung outward, density falling off as `1/r²`, **biased rightward** — the bullet travels left→right, so the stain throws that way and the direction of the shot stays legible in it.
   - **Drips** (~15%): four to six short vertical tails running down from the core's lower edge, each thinning as it descends.
 
-- [ ] **Step 2:** The camera **advances** — storyboard frame 5. In `enter`, animate `rig.setOffset` forward to `z: -1.6` over `TIME.advance` with `ease: 'inOutQuad'`, driven from an anime.js scalar exactly as the field morphs are.
+- [ ] **Step 2:** (Camera advance now lives in Task 5A's stage 1.) For reference, the move is — storyboard frame 5. In `enter`, animate `rig.setOffset` forward to `z: -1.6` over `TIME.advance` with `ease: 'inOutQuad'`, driven from an anime.js scalar exactly as the field morphs are.
 
   Note the sign: the rig computes `camera.position.z = fitZ + offset.z`, so
   forward is **negative**. With `fitZ` around 2.9 an offset of `-1.6` lands at
@@ -492,7 +655,9 @@ anything slower reads as the blood being drawn rather than thrown.
 where it comes *from*: previously the desk grid was already on screen from
 `grid-fail`; now it has to arrive from the splat.
 
-- [ ] **Step 1:** Morph splat → `mask.states.grid` over 2200ms with `ease: 'inOutQuad'`, colours going to `GRID_DARK` on the way. The stain becomes the classroom: one death spreading into every desk is exactly what "a contagion of hopelessness across the student body" says.
+- [ ] **Step 1:** Morph the whole field — the wounded figure *and* its thrown blood — into `mask.states.grid` over 2200ms with `ease: 'inOutQuad'`, colours going to `GRID_DARK` on the way. The red must be gone by the end; Effects returns to monochrome before Prevention.
+
+  The figure becoming the empty classroom is exactly what "a contagion of hopelessness across the student body" says. One student, then every desk.
 
 - [ ] **Step 2:** Camera returns to neutral: `rig.setOffset(0, 0, 0)` over the same duration.
 
@@ -537,6 +702,8 @@ that has had no silence to recover in.
 
 - [ ] **Step 1:** All 22 beats forward, `←` back to 0, every number key from several starting points, `Q` in and out. Zero console errors.
 - [ ] **Step 2:** **Jump safety:** press `5` to enter Effects from cold. The gun must not fire, the flash must not trigger, the shake must not run. Then `←` and `→` across `eff-00`/`eff-01` repeatedly and confirm no accumulated drift.
+- [ ] **Step 2b:** **Mid-sequence interruption:** click into `eff-02` and then click again roughly one second in, while the camera is still advancing and the figure has not resolved. The deck must land cleanly on `eff-03` with no half-run stage, no stuck camera offset, and no red left on screen.
+- [ ] **Step 2c:** Jump into `eff-02` with `5` then `→` `→`. The figure must be present, wounded, splat complete, camera fully advanced — identical to having clicked through.
 - [ ] **Step 3:** Seven-profile device matrix. The rig now owns framing — canvas CSS size must equal its container on every profile, phone DPR 3 through 4K.
 - [ ] **Step 4:** Colour audit: no festival hue anywhere in Effects; `blood` appears only in `eff-02`.
 - [ ] **Step 5:** Frame cost at 1920×1080 and 320×180. Small viewport must hold the vsync cap.
@@ -556,15 +723,9 @@ Settled by [`effects-storyboard.png`](../../assets/effects-storyboard.png):
 | Camera on `eff-02` | **Advances forward** — not the pull-back this plan originally assumed |
 | Content warning | **No** |
 | Gun in frame while firing? | **Yes**, and it **recoils tilt-up** and stays up |
+| Impact target? | **Yes — a silhouette.** Specified after the storyboard; built in Task 5A |
 
-Still open, and the only one that changes scope:
-
-1. **Is there an impact target?** The bullet still flies through empty air and
-   the splat resolves out of the flight against nothing. The storyboard's frame
-   5 is an empty frame, which reads as *no target shown* — that is the
-   assumption implemented. If the splat should land on something visible (a
-   desk, a silhouette, a wall plane), that is a fifth shape and roughly another
-   task's work.
+Nothing is open. This section is handoff-ready.
 
 Two judgement calls made in the absence of an instruction, both cheap to flip:
 
@@ -599,4 +760,7 @@ Tasks 3, 5, 6. `buildGun(shardOf)`, `buildWind()`, `buildSplat()` all return
 | Wind field blows the frame budget | Task 4 | Step 7 measures against the vsync cap; cut streaks first |
 | Camera rig breaks framing everywhere | Task 1 | Device matrix re-run in Task 1 Step 4, before anything is built on it |
 | Deck runs loud from Effects to the close | Task 7 | Black hold extended to four seconds and made a hard operator instruction |
-| Splat reads as a flower | Task 5 | Three-component construction with `1/r²` falloff and directional bias |
+| Splat reads as a flower | Task 5B | Three-component construction with `1/r²` falloff and rightward bias |
+| Figure reads as a bust, not a student | Task 5A | The bag strap is the tell; Step 5 gates progress on it reading |
+| 3-stage beat 12 breaks on a mid-chain click | Task 5A | `createSequence` with a `settle()` that plays nothing; Task 8 Step 2 tests it |
+| Red survives into Prevention | Task 6 | Step 1 requires colour back to monochrome before the section ends |
