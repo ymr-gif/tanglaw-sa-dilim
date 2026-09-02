@@ -28,6 +28,11 @@
          operator decides how long the darkness lasts (CONTEXT.md §10). -->
     <div id="veil" hidden></div>
 
+    <!-- Muzzle flash. A DOM element rather than a scene light: it has to cover
+         the whole frame for a handful of frames, and the renderer has no cheap
+         way to do that. -->
+    <div id="flash" hidden></div>
+
     <script type="module" src="/src/main.js"></script>
   </body>
 </html>

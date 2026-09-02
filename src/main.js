@@ -46,6 +46,7 @@ async function boot() {
   const container = document.getElementById('stage');
   const overlayEl = document.getElementById('overlay');
   const veil = document.getElementById('veil');
+  const flash = document.getElementById('flash');
 
   const renderer = new WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
@@ -114,7 +115,7 @@ async function boot() {
     tracker: createTracker(document.body),
   };
 
-  const ctx = { renderer, scene, camera, rig, timer, container, field, mask, overlay, veil };
+  const ctx = { renderer, scene, camera, rig, timer, container, field, mask, overlay, veil, flash };
   const deck = createDeck(ctx);
   deck.start();
 

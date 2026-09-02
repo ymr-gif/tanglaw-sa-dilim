@@ -284,3 +284,27 @@ body.idle {
 #veil[hidden] {
   display: none;
 }
+
+/* ── Muzzle flash (eff-00) ──────────────────────────────────────────────── */
+
+/*
+ * Above the veil and the tracker. It is on screen for about 140ms, and for
+ * those frames it is the only thing that should be.
+ */
+#flash {
+  position: fixed;
+  inset: 0;
+  z-index: 4;
+  background: #fff6e2;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 90ms ease-out;
+}
+
+#flash[hidden] {
+  display: none;
+}
+
+#flash.is-lit {
+  opacity: 0.82;
+}

@@ -24,6 +24,7 @@ import { COLOR, TIME } from '../theme.js';
 import { POINTS } from '../theme.js';
 import { DESKS } from '../mask.js';
 import { buildGun } from '../shapes/gun.js';
+import { createSequence } from '../sequence.js';
 import { solid, clearDelays, swirl } from './_base.js';
 
 const GRID_COLS = 6;
@@ -40,14 +41,100 @@ const GRID_DARK = solid(COLOR.ash, 1.0);
 /** The weapon is the same ash as the mask it was made of. It is not lit. */
 const GUN_ASH = solid(COLOR.ash, 8.0);
 
+/** How far the muzzle kicks up, in radians about the grip. Storyboard frame 3. */
+const RECOIL_TILT = 0.24;
+
 /**
- * Built once. The gun is a pure function of the shard map, and rebuilding it
- * per entry would reseed the scatter and make the points jump on a re-entry.
+ * Built once each. The gun is a pure function of the shard map, and rebuilding
+ * it per entry would reseed the scatter and make the points jump on a re-entry.
+ *
+ * The recoiled gun is the SAME buildGun call with a pivot rotation rather than
+ * a second hand-authored shape, so it cannot drift out of agreement with the
+ * gun the audience just watched form.
  */
-let gunBuf = null;
-function gun(shardOf) {
-  if (!gunBuf) gunBuf = buildGun(null, { shardOf });
-  return gunBuf;
+const gunCache = new Map();
+function gun(shardOf, tilt = 0) {
+  if (!gunCache.has(tilt)) gunCache.set(tilt, buildGun(null, { shardOf, tilt }));
+  return gunCache.get(tilt);
+}
+
+/* ── Beat 10: the gun forms, then it fires ──────────────────────────────── */
+
+/**
+ * The flash's own timers, held so an interrupted beat cannot light the screen
+ * a quarter second into the next one.
+ */
+let flashTimers = [];
+
+function darken(flash) {
+  for (const t of flashTimers) clearTimeout(t);
+  flashTimers = [];
+  flash.classList.remove('is-lit');
+  flash.hidden = true;
+}
+
+function formGun(ctx) {
+  const { field, mask } = ctx;
+  field.setDrift(0.006);
+  field.morph(gun(mask.shardOf), { duration: TIME.gunForm, ease: 'inOutQuad' });
+  field.morphColor(GUN_ASH, { duration: TIME.gunForm });
+}
+
+function fire(ctx) {
+  const { field, mask, rig, flash } = ctx;
+
+  flash.hidden = false;
+  // A frame between unhiding and lighting, or the transition has nothing to
+  // animate from and the flash simply appears at full and cuts out.
+  requestAnimationFrame(() => flash.classList.add('is-lit'));
+  flashTimers.push(
+    setTimeout(() => {
+      flash.classList.remove('is-lit');
+      flashTimers.push(setTimeout(() => { flash.hidden = true; }, 120));
+    }, TIME.fire)
+  );
+
+  rig.shake(0.06, 520);
+
+  // The muzzle kicks UP and stays up, pivoting about the web of the grip.
+  // A gun pivoting about its middle reads as a spinning object; one pivoting
+  // about the hand reads as recoil.
+  field.morph(gun(mask.shardOf, RECOIL_TILT), { duration: TIME.recoil, ease: 'outExpo' });
+}
+
+/**
+ * Beat 10 has two stages, so it runs through the sequencer rather than a nested
+ * onComplete: field.finish() runs pending completions, so an operator clicking
+ * mid-chain would kick off the shot exactly as the next beat is entering.
+ *
+ * `settle` plays nothing and states the end result, which is what apply() needs
+ * — and it lands AFTER the shot. A jump into eff-00 must never fire the gun:
+ * the operator is recovering from a mistake, and re-firing would be worse than
+ * the mistake.
+ */
+const beat10 = createSequence([
+  {
+    ms: TIME.gunForm,
+    play: formGun,
+    done: (ctx) => ctx.field.snap(gun(ctx.mask.shardOf), GUN_ASH),
+  },
+  {
+    ms: TIME.recoil,
+    play: fire,
+    done: (ctx) => {
+      darken(ctx.flash);
+      ctx.field.snap(gun(ctx.mask.shardOf, RECOIL_TILT), GUN_ASH);
+    },
+  },
+]);
+
+/**
+ * Every entry and every apply passes through here first. A beat the operator
+ * clicked away from must not keep running its stages into the next one.
+ */
+function stopAll(ctx) {
+  beat10.stop();
+  darken(ctx.flash);
 }
 
 /** Per-point delay in 0..1, by how far that point's desk is from the origin. */
@@ -86,13 +173,13 @@ export default {
 
   enter(state, ctx) {
     const { field, mask } = ctx;
+    stopAll(ctx);
     clearDelays(field);
 
     switch (state.mode) {
       case 'gun': {
-        field.setDrift(0.006);
-        field.morph(gun(mask.shardOf), { duration: TIME.gunForm, ease: 'inOutQuad' });
-        field.morphColor(GUN_ASH, { duration: TIME.gunForm });
+        field.setUpdate(null);
+        beat10.start(ctx);
         break;
       }
 
@@ -143,6 +230,7 @@ export default {
 
   apply(state, ctx) {
     const { field, mask } = ctx;
+    stopAll(ctx);
     clearDelays(field);
 
     switch (state.mode) {
@@ -150,7 +238,7 @@ export default {
         field.setDrift(0.006);
         field.setUpdate(null);
         field.sceneOffset.fill(0);
-        field.snap(gun(mask.shardOf), GUN_ASH);
+        beat10.settle(ctx);
         break;
       case 'shatter':
         field.setDrift(0.02);
@@ -176,6 +264,7 @@ export default {
   },
 
   unmount(ctx) {
+    stopAll(ctx);
     ctx.field.resetSceneMods();
   },
 };
