@@ -309,10 +309,19 @@ Warm side dims across CH's paragraph.
 
 **Roots.** Mask cracks on entry, all four shards dim. One lights per click.
 
-**Effects.** The emotional floor. Least motion, least color, most silence. The
-"empty seat" beat is the quietest in the deck. Mass casualty is abstract only —
-a grid of desk-points where one extinguishes and the failure propagates. Never
-depict the act. After `eff-03`, hold black two full seconds before Prevention.
+**Effects.** From 2026-09-02 this section is a literal sequence: the broken
+mask converges into a gun, fires, the camera tracks the bullet, and pulls back
+to a blood splat before the classroom goes dark. This replaces the earlier rule
+("mass casualty is abstract only — never depict the act") by an explicit
+decision of the author, recorded in
+`docs/superpowers/plans/2026-09-02-effects-sequence.md`.
+
+The constraint that survives: the gun is assembled from the four shards of the
+child's mask. It is what the shattered child became. A weapon that arrives from
+outside the piece would contradict §1's thesis; a weapon made of the child does
+not. After `eff-03`, hold black two full seconds before Prevention — the
+section is now the loudest in the deck and that silence is the only contrast
+left.
 
 **Prevention.** The turn. Fragments drift inward, one shard relights per click.
 Festival color enters the deck here for the first time.
