@@ -39,7 +39,7 @@ import { createSequence } from '../sequence.js';
 import { buildBars } from '../shapes/bars.js';
 import { buildGun } from '../shapes/gun.js';
 import { buildHands } from '../shapes/hands.js';
-import { buildKitchenKnife } from '../shapes/knife.js';
+import { buildKnife } from '../shapes/knife.js';
 import { buildStars } from '../shapes/stars.js';
 import { geometryFor, colorsFor } from './prevention.js';
 import { clearDelays, reshuffle, rgbOf, solid } from './_base.js';
@@ -143,22 +143,34 @@ function weapons() {
   if (geo.weapons) return geo.weapons;
 
   const buf = new Float32Array(POINTS * 3);
-  // Scales chosen so the two come out at the same FILLED AREA — within a few
-  // percent — and within about a sixth on length. Both cannot be matched at
-  // once, and area is the one that matters: each weapon gets half the field, so
-  // area IS density, and the sparser of two silhouettes is the one that starts
-  // reading as an afterthought.
+  // Scales solved so the two come out at the same FILLED AREA. Both area and
+  // length cannot be matched at once, and area is the one that matters: each
+  // weapon gets half the field, so area IS density, and the sparser of two
+  // silhouettes is the one that starts reading as an afterthought. The knife
+  // comes out the longer object by about a third, which is simply true of a
+  // chef's knife beside a handgun.
   //
-  // RETUNE THESE WHENEVER gun.js CHANGES SHAPE. They are not free parameters;
-  // they are solved against that file's own extent and filled area.
+  // RETUNE THESE WHENEVER gun.js OR knife.js CHANGES SHAPE. They are not free
+  // parameters; they are solved against those files' own extent and area:
+  //
+  //   gun area at scale 1     0.7132  (the sum of its rectangles)
+  //   knife area at scale 1   0.1346  (KNIFE_METRICS.area)
+  //   knife scale             the largest that keeps the knife's own span clear
+  //                           of x = 0 once centred on KNIFE_AT
+  //   gun scale               sqrt(knife area at that scale / 0.7132)
+  //
+  // The KNIFE is the one that gets capped, and the gun comes down to meet its
+  // area, because `crushed()` and `debris()` below tell the two weapons apart
+  // BY THE SIGN OF X. A knife long enough to reach across the origin would send
+  // its own butt flying to the wrong fist.
   //
   // The pair is also sized to survive the device matrix. A wider, more
   // present staging looked better at 16:9 and put both weapons half off the
   // frame in portrait, where the fit is height-bound and the visible world is
   // barely wider than the mask. This is the largest the pair can be and still
   // fit the narrowest profile the deck supports.
-  buildKitchenKnife(buf, { pick: split.allKnife, scale: 1.4845, tilt: 0.16 });
-  buildGun(buf, { pick: split.allGun, scale: 0.57, tilt: -0.14, flip: true });
+  buildKnife(buf, { pick: split.allKnife, scale: 1.2032, tilt: 0.16 });
+  buildGun(buf, { pick: split.allGun, scale: 0.5227, tilt: -0.14, flip: true });
   centreOn(buf, split.allKnife, KNIFE_AT[0], KNIFE_AT[1]);
   centreOn(buf, split.allGun, GUN_AT[0], GUN_AT[1]);
 
