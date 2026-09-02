@@ -31,7 +31,11 @@ export const COLOR = {
   rose: 0xff3d94, // Prevention: guidance counselors
   ember: 0xff7a3d, // Prevention: teacher training
   gold: 0xffc93c, // Prevention: classroom redesign
-  fuchsia: 0xf45ad0, // Prevention: peer networks / CPCs
+  // Pushed violet, away from `rose`. At the original #f45ad0 it sat too close
+  // to the hot pink beside it, and the un-seated crest blended into the shard
+  // already home — which kills the one thing prev-04 has to show, that a single
+  // piece is still out of place.
+  fuchsia: 0xc94ae8, // Prevention: peer networks / CPCs
 
   /** The close blooms past the four hues into plain light. */
   radiance: 0xfff0c2,

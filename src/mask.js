@@ -79,13 +79,13 @@ const WHITE_CUT = 247;
  * the Prevention mirror has nothing to put back together.
  */
 const FRACTURE = [
-  { mag: 0.022, rot: 0.034, sx: 1.0, sy: 1.0 },
-  { mag: 0.022, rot: -0.034, sx: 1.0, sy: 1.0 },
-  { mag: 0.018, rot: 0.028, sx: 1.0, sy: 1.0 },
+  { mag: 0.135, rot: 0.085, sx: 1.0, sy: 1.0 },
+  { mag: 0.135, rot: -0.085, sx: 1.0, sy: 1.0 },
+  { mag: 0.120, rot: 0.070, sx: 1.0, sy: 1.0 },
   // Shard 3 is the intruder. It travels further, turns much further, and is
   // scaled non-uniformly, so it visibly does not belong to the same face
   // before a word is said about it (§6).
-  { mag: 0.080, rot: 0.150, sx: 1.06, sy: 0.95 },
+  { mag: 0.290, rot: 0.260, sx: 1.08, sy: 0.93 },
 ];
 
 /** Classroom grid used by Effects. 30 desks, ~233 points each. */
@@ -122,6 +122,7 @@ export async function loadMask() {
   const states = buildStates(positions, shardOf, crackOrigin);
 
   return {
+    shardState: states.shardState,
     base: positions,
     artColor: sampled.artColor,
     artLuma: sampled.artLuma,
@@ -409,6 +410,13 @@ function assignShards(positions, origin) {
   return shardOf;
 }
 
+/**
+ * How much of the break Prevention is still holding when it begins. High on
+ * purpose: the section's whole job is to put the mask back together, and there
+ * is nothing to watch if the pieces started nearly home.
+ */
+export const BROKEN = 0.82;
+
 const TAU = Math.PI * 2;
 const DEG = Math.PI / 180;
 
@@ -430,7 +438,7 @@ function buildStates(base, shardOf, origin) {
   const buf = () => new Float32Array(POINTS * 3);
 
   /** Shared shard displacement, scaled — 1 is fully broken, 0 is seated. */
-  function shardState(amount, only3 = null) {
+  function shardState(kByShard) {
     const out = buf();
 
     for (let i = 0; i < POINTS; i++) {
@@ -439,9 +447,10 @@ function buildStates(base, shardOf, origin) {
       const f = FRACTURE[shard];
       const dir = SHARD_DIR[shard];
 
-      // How much of the break this particular shard keeps. Prevention pulls
-      // shards 0-2 nearly home while the intruder stays out of place.
-      const k = only3 !== null && shard === 3 ? only3 : amount;
+      // How much of the break THIS shard is still holding: 1 is fully broken
+      // away, 0 is seated. Per-shard, so Prevention can bring one home at a
+      // time while the rest stay where they broke to.
+      const k = kByShard[shard];
 
       // Everything pivots about the ONE point the mask broke from, not about
       // each piece's own middle. Pieces that rotate about a shared origin stay
@@ -616,12 +625,15 @@ function buildStates(base, shardOf, origin) {
     split: split(),
     assembled,
     complete: assembled, // identical geometry; the difference at close-01 is light
-    fractured: shardState(1),
-    converged: shardState(0.22, 0.72), // shards 0-2 nearly home, intruder still out
+    fractured: shardState([1, 1, 1, 1]),
+    converged: shardState([BROKEN, BROKEN, BROKEN, BROKEN]),
     shattered: shattered(),
     seat: seat(),
     grid: grid(),
     lantern: lantern(),
     embers: embers(),
+
+    /** Build a geometry with an arbitrary per-shard break amount. */
+    shardState,
   };
 }

@@ -95,7 +95,7 @@ export const COLOR = {
   rose:     0xff3d94,   // Prevention: guidance counselors
   ember:    0xff7a3d,   // Prevention: teacher training
   gold:     0xffc93c,   // Prevention: classroom redesign
-  fuchsia:  0xf45ad0,   // Prevention: peer networks / CPCs
+  fuchsia:  0xc94ae8,   // Prevention: peer networks / CPCs
   radiance: 0xfff0c2,   // the close blooms past the four into plain light
   intruder: 0x6b8f3a,   // NVE shard. deliberately off-palette, sickly
 };

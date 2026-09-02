@@ -24,8 +24,8 @@
  */
 
 import { COLOR, TIME } from '../theme.js';
-import { POINTS } from '../theme.js';
-import { byShard, clearDelays, createFlare, swirl } from './_base.js';
+import { BROKEN } from '../mask.js';
+import { byShard, clearDelays, createFlare } from './_base.js';
 
 const UNLIT = [COLOR.ash, 5.0];
 
@@ -47,9 +47,6 @@ export const FESTIVAL = [
 const colorCache = new Map();
 const geoCache = new Map();
 
-/** How far the fragments sweep as they come home. Radians at mid-morph. */
-const CONVERGE_ARC = 0.16;
-
 const flare = createFlare({ peak: 2.05, ms: 700 });
 
 /** Exported so refusal.js can hold *exactly* the state Prevention ended on. */
@@ -67,23 +64,25 @@ export function colorsFor(shardOf, lit) {
  * one stays adrift — and shard 3 stays adrift no matter what, because lighting
  * it is not the same as seating it.
  */
+/**
+ * Geometry for a given number of lit shards.
+ *
+ * Each shard that has been reached flies HOME — from where it broke to, all the
+ * way into place. The ones that have not stay exactly where the break left
+ * them. That is the whole visual argument of the section: one repair at a time,
+ * and you can see each piece arrive.
+ *
+ * Shard 3 is the exception and stays out of place however many times it has
+ * been lit, because lighting is not seating. Its slot is the gap the refusal
+ * holds, and it closes only at close-01.
+ */
 export function geometryFor(mask, lit) {
   if (geoCache.has(lit)) return geoCache.get(lit);
 
-  const { converged, complete } = mask.states;
-  const out = new Float32Array(POINTS * 3);
+  const k = [BROKEN, BROKEN, BROKEN, BROKEN];
+  for (let s = 0; s <= lit && s < 3; s++) k[s] = 0;
 
-  for (let i = 0; i < POINTS; i++) {
-    const i3 = i * 3;
-    const s = mask.shardOf[i];
-    const seated = s <= lit && s !== 3;
-    const src = seated ? complete : converged;
-
-    out[i3] = src[i3];
-    out[i3 + 1] = src[i3 + 1];
-    out[i3 + 2] = src[i3 + 2];
-  }
-
+  const out = mask.shardState(k);
   geoCache.set(lit, out);
   return out;
 }
@@ -103,17 +102,17 @@ export default {
       ease: 'outExpo',
     });
 
-    // The fragments come home along an arc rather than a straight line, and the
-    // shard that just lit overshoots before settling. Both exist because this is
-    // the turn of the whole piece — it should look like something happening,
-    // not like a value being assigned.
+    // The shard that just lit overshoots before settling, so light arriving
+    // reads as something igniting rather than as a value being assigned.
+    //
+    // There is deliberately NO global swirl here any more. Rotating the whole
+    // field about its centre swung the entire mask as one object — the opposite
+    // of the read this section needs, which is pieces returning to a face that
+    // is standing still.
     if (lit >= 0) flare.trigger((i) => mask.shardOf[i] === lit);
     else flare.reset(field);
 
-    field.setUpdate((dt) => {
-      swirl(field, CONVERGE_ARC);
-      flare.step(field, dt);
-    });
+    field.setUpdate((dt) => flare.step(field, dt));
 
     // The light returning one shard at a time IS the early-intervention beat.
     // The newest shard leads; the ones already lit are already at their target,
