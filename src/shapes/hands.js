@@ -71,6 +71,30 @@ const KNUCKLE_STEP = 0.075;
 /** Fingers sit near-parallel. Any more splay and a hand reads as a starburst. */
 const FINGER_SPLAY = 0.055;
 
+/** Capsule half-width for every digit's shaft — real width, not a flat jitter. */
+const FINGER_HALF_W = 0.018;
+
+/**
+ * Share of a digit's points spent on its rounded tip cap rather than the
+ * straight shaft. Deliberately far above the cap's true share of a capsule's
+ * area — at this point density a true area share is a handful of points and
+ * disappears, the same "fine detail vanishes" lesson knife.js states for slim
+ * blades. Over-weighting the cap agrees with the existing tip-brightness bias
+ * rather than fighting it: the tip is already meant to be the brightest part.
+ */
+const CAP_SHARE = 0.12;
+
+/**
+ * Fixed, IRREGULAR offsets added to each of the four fingers' own direction
+ * (index, middle, ring, pinky), on top of the small structural FINGER_SPLAY
+ * fan. Not monotonic on purpose — a uniformly wider FINGER_SPLAY was tried
+ * and rejected as a starburst (see that constant's comment), so "reaching at
+ * odd angles" lives here instead of in a bigger splay. One fixed table,
+ * reused by all ten hands — each hand still reads differently on screen
+ * because each has its own `aim`.
+ */
+const FINGER_ANGLE_JITTER = [-0.34, 0.12, -0.2, 0.3]; // radians, index..pinky
+
 const THUMB_LEN = 0.24;
 const THUMB_OUT = 0.16;
 const THUMB_ANGLE = 0.78;
@@ -219,9 +243,6 @@ export function buildHands(target, tipness, { pick = null, closed = false } = {}
       const finger = (r2 * 5) | 0;
       const isThumb = finger === 0;
 
-      // Weighted toward the tip, so brightness and point density agree.
-      const t = Math.sqrt(r3);
-
       let base;
       let dir;
       let len;
@@ -234,16 +255,46 @@ export function buildHands(target, tipness, { pick = null, closed = false } = {}
         const f = finger - 1;
         base = (f - 1.5) * KNUCKLE_STEP;
         len = FINGER_LEN[f];
-        dir = hand.aim + (f - 1.5) * FINGER_SPLAY;
+        // Near-parallel structural fan, plus a fixed irregular offset per
+        // finger — the knuckle origin (`base`) is untouched, so the flat-
+        // density fix from the first version stands; only the AIM diverges.
+        dir = hand.aim + (f - 1.5) * FINGER_SPLAY + FINGER_ANGLE_JITTER[f];
       }
 
       const kx = hand.ox + hand.px * base;
       const ky = hand.oy + hand.py * base;
-      const r = t * len;
+      const fx = Math.cos(dir);
+      const fy = Math.sin(dir);
+      // Perpendicular to THIS digit's own direction, not the hand's — every
+      // digit now has its own dir, so "width" has to follow it.
+      const px2 = -fy;
+      const py2 = fx;
 
-      x = kx + Math.cos(dir) * r + (r4 - 0.5) * 0.018;
-      y = ky + Math.sin(dir) * r + (r5 - 0.5) * 0.018;
-      tip = t * t; // squared, so the falloff into the palm is steep
+      if (r4 < CAP_SHARE) {
+        // Rounded tip cap: a half-disc of radius FINGER_HALF_W centred on
+        // the very tip, bulging only forward (theta confined to ±90° off
+        // the digit's axis) so it can never fatten the shaft it caps.
+        const capR = FINGER_HALF_W * Math.sqrt(r3);
+        const theta = (r5 - 0.5) * Math.PI;
+        const ca = Math.cos(theta);
+        const sa = Math.sin(theta);
+        const tipX = kx + fx * len;
+        const tipY = ky + fy * len;
+        x = tipX + (fx * ca + px2 * sa) * capR;
+        y = tipY + (fy * ca + py2 * sa) * capR;
+        tip = 1;
+      } else {
+        // The shaft: a straight capsule body, half-width FINGER_HALF_W.
+        // Weighted toward the tip exactly as before (t = sqrt(r3)), so
+        // brightness and density still agree; `off` is a true perpendicular
+        // offset within the capsule's width, replacing the old flat jitter.
+        const t = Math.sqrt(r3);
+        const off = (r5 - 0.5) * 2 * FINGER_HALF_W;
+        const r = t * len;
+        x = kx + fx * r + px2 * off;
+        y = ky + fy * r + py2 * off;
+        tip = t * t; // squared, so the falloff into the palm is steep
+      }
     }
 
     positions[i3] = x;

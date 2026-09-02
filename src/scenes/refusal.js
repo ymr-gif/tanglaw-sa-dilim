@@ -39,7 +39,7 @@ import { createSequence } from '../sequence.js';
 import { buildBars } from '../shapes/bars.js';
 import { buildGun } from '../shapes/gun.js';
 import { buildHands } from '../shapes/hands.js';
-import { buildKnife } from '../shapes/knife.js';
+import { buildKitchenKnife } from '../shapes/knife.js';
 import { buildStars } from '../shapes/stars.js';
 import { geometryFor, colorsFor } from './prevention.js';
 import { clearDelays, reshuffle, rgbOf, solid } from './_base.js';
@@ -157,7 +157,7 @@ function weapons() {
   // frame in portrait, where the fit is height-bound and the visible world is
   // barely wider than the mask. This is the largest the pair can be and still
   // fit the narrowest profile the deck supports.
-  buildKnife(buf, { pick: split.allKnife, scale: 0.83, tilt: 0.16 });
+  buildKitchenKnife(buf, { pick: split.allKnife, scale: 1.374, tilt: 0.16 });
   buildGun(buf, { pick: split.allGun, scale: 0.57, tilt: -0.14, flip: true });
   centreOn(buf, split.allKnife, KNIFE_AT[0], KNIFE_AT[1]);
   centreOn(buf, split.allGun, GUN_AT[0], GUN_AT[1]);
