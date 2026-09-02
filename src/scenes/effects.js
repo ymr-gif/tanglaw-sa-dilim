@@ -248,6 +248,42 @@ function splat() {
   return splatBuf;
 }
 
+/** How much of the burst's duration each band waits before it starts moving. */
+const BURST_BANDS = [0, 0.16, 0.34, 0.54];
+
+/**
+ * Per-point burst delay, staged top to bottom instead of swept left to right.
+ *
+ * splat.js's four SPIKES are already ordered top to bottom for exactly this;
+ * banding by each point's own y (rather than trusting shard/spike identity)
+ * means the core and satellites fall into the same bands by simple height,
+ * so the whole splat reads as one sequence and not spikes-plus-a-static-pool.
+ * Four discrete bands, not a smooth gradient, because "fast sequence, top
+ * first, then middle, then bottom" is a set of beats, not a wipe.
+ */
+let splatDelayBuf = null;
+function splatDelay() {
+  if (splatDelayBuf) return splatDelayBuf;
+
+  const target = splat();
+  let minY = Infinity;
+  let maxY = -Infinity;
+  for (let i = 0; i < POINTS; i++) {
+    const y = target[i * 3 + 1];
+    if (y < minY) minY = y;
+    if (y > maxY) maxY = y;
+  }
+  const span = maxY - minY || 1;
+
+  splatDelayBuf = new Float32Array(POINTS);
+  for (let i = 0; i < POINTS; i++) {
+    const norm = (maxY - target[i * 3 + 1]) / span; // 0 at the top, 1 at the bottom
+    const band = Math.min(BURST_BANDS.length - 1, Math.floor(norm * BURST_BANDS.length));
+    splatDelayBuf[i] = BURST_BANDS[band];
+  }
+  return splatDelayBuf;
+}
+
 /**
  * The one non-ash colour in the section, and the only one.
  *
@@ -256,9 +292,6 @@ function splat() {
  * washes out to pink. Lower keeps it red where it matters most.
  */
 const BLOOD = solid(COLOR.blood, 2.4);
-
-/** Half-width of the splat, for normalising the sweep delay. */
-const SPLAT_HALF = 1.2;
 
 /**
  * How far the camera pushes in. The rig computes `position.z = fitZ + offset.z`,
@@ -334,16 +367,16 @@ function burst(ctx) {
   field.sceneOffset.fill(0);
   field.setDrift(0.004);
 
-  // The sweep. The same per-point delay mechanism that lights shards 200ms
-  // apart throws a splatter across the frame: a point's delay is its own
-  // normalised x in the target, so the left edge lands first and the right
-  // edge last. 450ms in total, because the storyboard says "dramatic, sudden"
-  // and anything slower reads as the blood being drawn rather than thrown.
+  // The burst. Four fast bands, top to bottom — see splatDelay() — rather
+  // than a smooth wipe, so the splatter reads as thrown in a sequence of
+  // beats rather than drawn on in one continuous motion. 450ms in total,
+  // because the storyboard says "dramatic, sudden" and anything slower reads
+  // as the blood being drawn rather than thrown.
   const target = splat();
+  const delay = splatDelay();
   for (let i = 0; i < POINTS; i++) {
-    const d = ((target[i * 3] + SPLAT_HALF) / (SPLAT_HALF * 2)) * 0.75;
-    field.posDelay[i] = Math.min(0.9, Math.max(0, d));
-    field.colDelay[i] = field.posDelay[i];
+    field.posDelay[i] = delay[i];
+    field.colDelay[i] = delay[i];
   }
 
   field.morph(target, { duration: TIME.splatForm, ease: 'outExpo' });

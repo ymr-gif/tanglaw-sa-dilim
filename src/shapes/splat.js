@@ -9,7 +9,7 @@
  * audience imagines is worse than what can be rendered at this point density.
  * Same principle as the empty seat this section retired.
  *
- * THREE COMPONENTS, because a single radial spray reads as a firework:
+ * FOUR COMPONENTS, because a single radial spray reads as a firework:
  *
  *   Core        several overlapping blobs of different sizes, merged. NOT a
  *               circle with a noisy radius: a radius function of angle is
@@ -22,6 +22,13 @@
  *               throws that way and the direction of the shot stays legible in
  *               it. Droplets, not single points: one point at this size is a
  *               speck, six together are a drop.
+ *   Spikes      four claw-shaped throws, wide at the core and tapering to a
+ *               point, fanned from up-and-back to down-and-forward. Added
+ *               2026-09-03 because the core+satellites read as a round pool
+ *               at a glance — a stain needs a few pieces big enough to read as
+ *               THROWN, not just a haze of droplets around a blob. The one
+ *               nearest level with the bullet's path is the longest: the main
+ *               thrust follows the shot, the others are what missed it.
  *   Drips       five short tails running down from the core's lower edge, each
  *               thinning as it descends.
  */
@@ -29,8 +36,9 @@
 import { POINTS } from '../theme.js';
 import { seededRandom } from '../noise.js';
 
-const CORE_SHARE = 0.55;
-const SAT_SHARE = 0.3;
+const CORE_SHARE = 0.4;
+const SAT_SHARE = 0.22;
+const SPIKE_SHARE = 0.26;
 /** The rest are drips. */
 
 /**
@@ -82,6 +90,29 @@ const BLOB_CDF = (() => {
 })();
 
 /**
+ * The four spikes: `angle` in degrees (0 is the bullet's own rightward axis,
+ * positive is up), `length` and `width` (base half-width, tapering to a point
+ * at the tip), and a sampling `weight`.
+ *
+ * ORDERED TOP TO BOTTOM ON PURPOSE. `effects.js` reveals the splat in this
+ * same order — topmost spike first, fast, down to the bottom — so this array
+ * is the animation's script as well as the geometry. Reorder one and you
+ * reorder the other; that is intentional, not a trap.
+ *
+ * The one nearest level with the bullet's own line (index 2, close to 0°) is
+ * the longest and thickest: the main thrust follows the shot, the shorter
+ * ones above and below are what missed that exact line.
+ */
+const SPIKES = [
+  { angle: 68, length: 0.3, width: 0.05, weight: 0.8 },
+  { angle: 26, length: 0.4, width: 0.058, weight: 1.0 },
+  { angle: -10, length: 0.55, width: 0.07, weight: 1.3 },
+  { angle: -50, length: 0.36, width: 0.052, weight: 0.9 },
+];
+
+const SPIKE_WEIGHT_TOTAL = SPIKES.reduce((sum, s) => sum + s.weight, 0);
+
+/**
  * Where the drips start. Inside the mass, not at its lowest extent: the core's
  * underside is a different height at every x, so hanging the drips off the
  * deepest point leaves the outer ones floating below a gap.
@@ -94,6 +125,7 @@ export function buildSplat() {
 
   const coreEnd = Math.floor(POINTS * CORE_SHARE);
   const satEnd = coreEnd + Math.floor(POINTS * SAT_SHARE);
+  const spikeEnd = satEnd + Math.floor(POINTS * SPIKE_SHARE);
 
   /* ── Core ─────────────────────────────────────────────────────────────── */
   for (let i = 0; i < coreEnd; i++) {
@@ -146,11 +178,42 @@ export function buildSplat() {
     }
   }
 
+  /* ── Spikes ───────────────────────────────────────────────────────────── */
+  // Wide at the core (t=0), tapering to a point at the tip (t=1) — a flung
+  // streak thins as it goes, unlike a Drip's constant width plus end bead.
+  {
+    let idx = satEnd;
+    for (let s = 0; s < SPIKES.length; s++) {
+      const spike = SPIKES[s];
+      const count = s === SPIKES.length - 1
+        ? spikeEnd - idx
+        : Math.round(((spikeEnd - satEnd) * spike.weight) / SPIKE_WEIGHT_TOTAL);
+
+      const a = (spike.angle * Math.PI) / 180;
+      const dirX = Math.cos(a);
+      const dirY = Math.sin(a);
+      const perpX = -dirY;
+      const perpY = dirX;
+
+      for (let k = 0; k < count && idx < spikeEnd; k++, idx++) {
+        const i3 = idx * 3;
+
+        const t = rand(); // 0 at the core, 1 at the tip
+        const w = spike.width * (1 - t) ** 0.7;
+        const off = (rand() - 0.5) * 2 * w;
+
+        out[i3] = dirX * spike.length * t + perpX * off;
+        out[i3 + 1] = dirY * spike.length * t + perpY * off;
+        out[i3 + 2] = (rand() - 0.5) * 0.06;
+      }
+    }
+  }
+
   /* ── Drips ────────────────────────────────────────────────────────────── */
-  for (let i = satEnd; i < POINTS; i++) {
+  for (let i = spikeEnd; i < POINTS; i++) {
     const i3 = i * 3;
 
-    const d = (i - satEnd) % DRIPS;
+    const d = (i - spikeEnd) % DRIPS;
     // Spread across the core's underside, off-centre so they are not a comb.
     const dx = -0.2 + d * 0.11 + Math.sin(d * 2.7) * 0.04;
     const len = 0.12 + (((d * 37) % 11) / 11) * 0.18;
