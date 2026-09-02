@@ -14,10 +14,12 @@
  *   cyan     REDESIGN    classroom redesign
  *   jade     EMPOWER     peer networks / CPCs
  *
- * LIGHTING IS NOT SEATING. Each shard's colour returns here and shards 0-2 sink
- * home, but shard 3 — the piece that was foreign — lights jade and stays out of
- * place. Its slot is the gap the refusal holds, and it seats only at close-01.
- * That is why close-01 is the first moment all four hues are lit at once.
+ * Each shard's colour returns here, and each shard sinks home as it lights —
+ * shard 3 included. Until 2026-09-03, shard 3 lit jade at prev-04 but stayed
+ * out of place regardless, seating only at close-01 ("lighting is not
+ * seating"); EMPOWER now seats the same beat it lights. `ref-01` reuses
+ * `geometryFor`/`colorsFor`, so Refusal now opens on the whole mask rather
+ * than the near-whole mask with one gap it used to hold — see refusal.js.
  *
  * "Prevention convergence is staggered on purpose. Lights return one at a time.
  *  That *is* the 'early intervention' beat, visually." (§7)
@@ -60,11 +62,6 @@ export function colorsFor(shardOf, lit) {
 }
 
 /**
- * Geometry for a given number of lit shards: a lit shard sinks home, an unlit
- * one stays adrift — and shard 3 stays adrift no matter what, because lighting
- * it is not the same as seating it.
- */
-/**
  * Geometry for a given number of lit shards.
  *
  * Each shard that has been reached flies HOME — from where it broke to, all the
@@ -72,15 +69,18 @@ export function colorsFor(shardOf, lit) {
  * them. That is the whole visual argument of the section: one repair at a time,
  * and you can see each piece arrive.
  *
- * Shard 3 is the exception and stays out of place however many times it has
- * been lit, because lighting is not seating. Its slot is the gap the refusal
- * holds, and it closes only at close-01.
+ * Shard 3 used to be an exception here, staying out of place through all of
+ * Prevention and seating only at close-01 ("lighting is not seating"). That
+ * held from 2026-09-02 to 2026-09-03: EMPOWER now seats at prev-04 same as
+ * the other three. `ref-01` reuses this function for its own hold state, so
+ * Refusal now opens on the whole mask rather than the near-whole mask with
+ * one gap — see the note on `ref-01` in refusal.js.
  */
 export function geometryFor(mask, lit) {
   if (geoCache.has(lit)) return geoCache.get(lit);
 
   const k = [BROKEN, BROKEN, BROKEN, BROKEN];
-  for (let s = 0; s <= lit && s < 3; s++) k[s] = 0;
+  for (let s = 0; s <= lit; s++) k[s] = 0;
 
   const out = mask.shardState(k);
   geoCache.set(lit, out);

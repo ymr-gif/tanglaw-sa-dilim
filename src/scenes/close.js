@@ -4,10 +4,11 @@
  * "Final shard seats, mask completes in full color, rises, dissolves upward
  *  into lantern glow. Loops indefinitely." (CONTEXT.md §6)
  *
- * close-01 is the first moment in the entire deck where all four festival hues
- * are lit at once, at full. Everything before this has been partial. The final
- * shard — the one that was foreign, the one that did not belong — arrives last
- * and seats into the face. Do not point this out. Let it work.
+ * close-01 is the first moment in the entire deck where all four hues are lit
+ * at FULL rather than Prevention's partial brightness — the mask's own true
+ * colours, not the festival diagram. All four shards have been seated since
+ * prev-04 (shard 3, the one that was foreign, seats the same beat it lights);
+ * what arrives new here is the colour, not the geometry.
  *
  * close-02 must be safe to hold through applause, so it never ends: points
  * stream upward, fade, and re-seed at the mask, forever. There is no beat after

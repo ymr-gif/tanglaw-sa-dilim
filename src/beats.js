@@ -400,8 +400,9 @@ export const beats = [
     caption: 'EMPOWER',
     script: `Lastly, we must empower peer networks with anonymous reporting
              channels backed by Child Protection Committees.`,
-    cue: `Jade. Relights the intruder shard — the only one that was foreign
-          is now the one that belongs. Do not point this out. Let it work.`,
+    cue: `Jade. Relights the intruder shard AND seats it — the only one that
+          was foreign now flies home and belongs. Do not point this out. Let
+          it work.`,
   },
 
   // ─────────────────────────────────────────────────────────────────────
@@ -415,14 +416,13 @@ export const beats = [
     id: 'ref-01',
     section: 'refusal',
     scene: 'refusal',
-    state: { mode: 'hold', gap: true },
+    state: { mode: 'hold' },
     speaker: 'CH',
     handoff: true,
     caption: null,
     script: `Do not surrender our generation to despair.`,
-    cue: `>>> CH TAKES OVER. Mask nearly whole, one gap remaining — the exact
-          state Prevention ended on. Nothing moves but the drift. Click on
-          "despair."`,
+    cue: `>>> CH TAKES OVER. Mask whole — the exact state Prevention ended on.
+          Nothing moves but the drift. Click on "despair."`,
   },
   {
     id: 'ref-03',
@@ -494,7 +494,7 @@ export const beats = [
   },
 
   // ─────────────────────────────────────────────────────────────────────
-  // CLOSE — final shard seats. Full festival color. Mask becomes lantern.
+  // CLOSE — full colour, the mask's own. Mask becomes lantern.
   // ─────────────────────────────────────────────────────────────────────
   {
     id: 'close-01',

@@ -316,7 +316,7 @@ Jump key `6`.
 
 **On screen** `EMPOWER` — 1 word, UPPERCASE
 
-**Click cue** Jade. Relights the intruder shard — the only one that was foreign is now the one that belongs. Do not point this out. Let it work.
+**Click cue** Jade. Relights the intruder shard AND seats it — the only one that was foreign now flies home and belongs. Do not point this out. Let it work.
 
 ### Refusal
 
@@ -326,7 +326,7 @@ Jump key `7`.
 
 > **HANDOFF — CH takes over here.**
 
-**Speaker** CH · **Scene** `refusal` · **State** `mode: hold, gap: true`
+**Speaker** CH · **Scene** `refusal` · **State** `mode: hold`
 
 **Says**
 
@@ -334,7 +334,7 @@ Jump key `7`.
 
 **On screen** nothing. The voice carries this beat.
 
-**Click cue** >>> CH TAKES OVER. Mask nearly whole, one gap remaining — the exact state Prevention ended on. Nothing moves but the drift. Click on "despair."
+**Click cue** >>> CH TAKES OVER. Mask whole — the exact state Prevention ended on. Nothing moves but the drift. Click on "despair."
 
 #### <a id="ref-03"></a>21 · `ref-03` — Do not build prisons out of our classrooms.
 

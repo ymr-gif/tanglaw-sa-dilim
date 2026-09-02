@@ -4,7 +4,7 @@
  * The classroom becomes the cage, the cage becomes two weapons, hands close out
  * of the shadows and crush them, and the hands themselves become stars.
  *
- *   hold     the near-whole mask, exactly as Prevention left it. One gap.
+ *   hold     the whole mask, exactly as Prevention left it.
  *   bars     the mask's own points rise into five white prison bars.
  *   weapons  the bars become a knife (left) and the Effects handgun (right).
  *   hands    many yellow hands fade in out of the dark, surrounding both.
@@ -18,10 +18,13 @@
  *
  * Beat `ref-01` holds Prevention's end state and must never drift from it,
  * which is why this file imports Prevention's own geometry and colour rather
- * than rebuilding them. Only that beat uses them.
+ * than rebuilding them. Only that beat uses them. Until 2026-09-03 that end
+ * state was the near-whole mask with one gap (shard 3, EMPOWER, seated only
+ * at close-01); now that `prevention.js` seats shard 3 at prev-04, `ref-01`
+ * holds a complete mask instead. Nothing in this file forced that — it just
+ * follows Prevention's state, as designed.
  *
- * `ref-02` is RETIRED. See beats.js — the gap is deliberate and must not be
- * filled.
+ * `ref-02` is RETIRED. See beats.js — nothing is its honest successor.
  *
  * TRANSITIONS RESHUFFLE. The storyboard's instruction for the whole section is
  * "the dots reshuffling": a straight lerp moves every point on the same clock
@@ -514,7 +517,7 @@ export default {
 
     switch (state.mode) {
       case 'hold': {
-        // All four lit, shard 3 still adrift. Identical to prev-04's end state.
+        // All four lit and seated. Identical to prev-04's end state.
         resetBright();
         field.setUpdate(null);
         field.brightness.fill(1);
