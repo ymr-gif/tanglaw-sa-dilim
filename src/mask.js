@@ -81,15 +81,14 @@ const WHITE_CUT = 247;
  * contributing most of the apparent gap at the rim (roughly rot x radius), so
  * removing it without raising `mag` would have quietly undone the separation.
  *
- * Shard 3 keeps a small tilt — deliberately. It is the one piece that does not
- * belong to this face, and being the only thing askew says that before anyone
- * has to. Set its `rot` to 0 as well if the tilt is unwanted anywhere.
+ * Shard 3's tilt is off (`rot: 0`) — it overlapped shard 0's caption
+ * (weaponized/EMPOWER into bullying/CAPACITATE). Straight-up translation only.
  */
 const FRACTURE = [
   { mag: 0.200, rot: 0, sx: 1.0, sy: 1.0 },
   { mag: 0.200, rot: 0, sx: 1.0, sy: 1.0 },
   { mag: 0.190, rot: 0, sx: 1.0, sy: 1.0 },
-  { mag: 0.340, rot: 0.095, sx: 1.06, sy: 0.95 },
+  { mag: 0.340, rot: 0, sx: 1.06, sy: 0.95 },
 ];
 
 /** Classroom grid used by Effects. 30 desks, ~233 points each. */
