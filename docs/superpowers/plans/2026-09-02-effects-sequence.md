@@ -2,13 +2,40 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Rebuild the Effects section as a literal, cinematic sequence — the broken mask converges into a gun, it fires, the camera tracks the bullet in flight, then pulls back to reveal a blood splat, and the classroom goes dark.
+**Goal:** Rebuild the Effects section as a literal, cinematic sequence — the broken mask converges into a gun, it fires, the camera tracks the bullet in flight, then pushes forward through empty air into a blood splat, and the classroom goes dark.
 
-**Architecture:** The deck's one-Points-object design is unchanged: three new shapes (gun, wind-field, splat) are just more POINTS-long buffers. What is genuinely new is a **camera rig** — until now no scene has ever moved the camera, and this sequence needs shake, tracking and a dolly-back. The rig is added once, owned by `main.js`, and driven by scenes through `ctx`.
+**Architecture:** The deck's one-Points-object design is unchanged: three new shapes (gun, wind-field, splat) are just more POINTS-long buffers. What is genuinely new is a **camera rig** — until now no scene has ever moved the camera, and this sequence needs shake, tracking, recoil and a forward dolly. The rig is added once, owned by `main.js`, and driven by scenes through `ctx`.
 
 **Tech Stack:** Vite 5, Three.js, anime.js, vanilla JS.
 
 **Spec:** `CONTEXT.md` (canonical — **amended by Task 0 of this plan**), `docs/superpowers/specs/2026-09-01-tanglaw-sa-dilim-design.md`
+
+**Storyboard:** [`docs/assets/effects-storyboard.png`](../../assets/effects-storyboard.png) — the author's rough draft. It is the authority on staging; where this document and the storyboard disagree, the storyboard wins.
+
+---
+
+## Storyboard → beats
+
+The storyboard has six frames across four beats. This is the mapping, following
+the drawing's own row grouping (the top row is bracketed as slide 10):
+
+| Frame | Beat | Line spoken | Staging |
+|---|---|---|---|
+| 1 mask | **10** `eff-00` | "Second, we must face the Effects." | starts on the fractured mask |
+| 2 gun | **10** | | shards converge into the handgun |
+| 3 shoot | **10** | | muzzle flash, **recoil tilt up**, screen shake |
+| 4 bullet + wind | **11** `eff-01` | "families lose their loved ones… news that their life was cut short" | tracking shot, **loops** |
+| 5 camera advances | **12** `eff-02` | "mass casualty risks… a single weapon turns a quiet morning into tragedy" | camera pushes forward through empty frame |
+| 6 blood splatter | **12** | | **sudden, dramatic, sweeps left→right** |
+| — | **13** `eff-03` | "contagion of hopelessness… learning stops" | splat disperses into the dark classroom grid |
+
+Beat 11 carries the loop because it is the longest line in the section and the
+one held longest — a looping shot is the only thing safe to sit on for that
+long.
+
+**Frame 5 is a gift, not a gap.** An empty frame with the camera pushing forward
+is the one moment of quiet left in a section that is now the loudest in the
+deck. Do not fill it. It is what makes frame 6 land.
 
 ---
 
@@ -39,6 +66,9 @@ them, because they shape the tuning:
    contrast that used to live *inside* Effects now has to be carried by the
    `B`-key black hold after `eff-03` — see Task 7.
 
+**A content warning was declined.** Raised once, answered "no content warning"
+on the storyboard. Recorded, not re-litigated.
+
 **Two beats are being retired:** the empty seat (`eff-01`) and the propagating
 desk-grid failure (`eff-02`). The empty seat was the quietest and arguably
 strongest image in the deck. Their code is preserved in git history and the
@@ -65,7 +95,7 @@ is a one-line change to the beat's `state`.
 |---|---|---|
 | 10 `eff-00` | "Second, we must face the Effects." | The four mask shards converge into a dense gun. On the click, it fires: muzzle flash, screen shake, shockwave. |
 | 11 `eff-01` | "families lose their loved ones… news that their life was cut short" | Camera locked to the bullet. Wind streaks tear past. **Loops indefinitely** — safe to hold for as long as CH talks. |
-| 12 `eff-02` | "mass casualty risks… a single weapon turns a quiet morning into tragedy" | Camera pulls back and the bullet's flight resolves into a blood splat. |
+| 12 `eff-02` | "mass casualty risks… a single weapon turns a quiet morning into tragedy" | Camera pushes **forward** through an empty frame, then the splat hits — sudden, sweeping left→right. |
 | 13 `eff-03` | "contagion of hopelessness… learning stops" | The splat disperses into the darkened classroom grid. Unchanged in meaning. |
 
 ---
@@ -117,11 +147,15 @@ left.
 ```js
   /**
    * The one non-ash colour permitted in Effects, and the only exception to the
-   * near-monochrome rule outside Prevention onward. Deliberately dark and
-   * desaturated: bright arterial red reads as a video game, this reads as a
-   * stain. If it looks lurid on the projector, darken it — never brighten it.
+   * near-monochrome rule outside Prevention onward.
+   *
+   * The storyboard specifies "vibrant red", which overrides an earlier
+   * recommendation for a dark desaturated stain. Vibrant it is. Note for
+   * tuning: this is emissive against near-black under additive blending, so it
+   * will read brighter on screen than the hex suggests, and brighter again on a
+   * projector that is crushing its blacks.
    */
-  blood: 0x6b1220,
+  blood: 0xe8142a,
 ```
 
 - [ ] **Step 3:** Add the timings to `TIME` in `theme.js`:
@@ -129,8 +163,9 @@ left.
 ```js
   gunForm: 1800,   // shards converge into the weapon
   fire: 140,       // muzzle flash duration
-  splatForm: 900,  // flight resolves into the splat
-  pullBack: 1600,  // camera dolly out on eff-02
+  recoil: 200,     // muzzle kicks up after the shot
+  splatForm: 450,  // "dramatic, sudden" — this is deliberately fast
+  advance: 1700,   // camera pushes FORWARD through frame 5
 ```
 
 - [ ] **Step 4:** Commit. This task is documentation and constants only — no behaviour changes yet.
@@ -218,7 +253,7 @@ export function createCameraRig(camera) {
 **Files:** Create `src/shapes/gun.js`; modify `src/scenes/effects.js`.
 
 **Interfaces:**
-- Produces: `buildGun(shardOf)` → `Float32Array(POINTS * 3)`
+- Produces: `buildGun(shardOf, { tilt = 0 } = {})` → `Float32Array(POINTS * 3)`. `tilt` is radians about the grip pivot; Task 3's recoil calls it with `0.24`.
 
 Built from rectangles and an arc, the same technique as the existing chair
 silhouette in `mask.js`'s `seat()` — proven to read clearly at this point
@@ -250,17 +285,31 @@ const PARTS = {
       [0.80, 0.90, 0.08, 0.28]],                    // muzzle
 };
 
-export function buildGun(shardOf) {
+/** Recoil pivots here — the web of the grip, not the centre of the shape. */
+const PIVOT = [-0.46, -0.30];
+
+export function buildGun(shardOf, { tilt = 0 } = {}) {
+  // Same seed every call, so the recoiled gun is the SAME gun rotated rather
+  // than a fresh scatter. Reseeding here would make the points jump.
   const rand = seededRandom(0x9d17);
   const out = new Float32Array(POINTS * 3);
+
+  const cos = Math.cos(tilt);
+  const sin = Math.sin(tilt);
 
   for (let i = 0; i < POINTS; i++) {
     const i3 = i * 3;
     const rects = PARTS[shardOf[i]];
     const r = rects[(rand() * rects.length) | 0];
 
-    out[i3] = r[0] + rand() * (r[1] - r[0]);
-    out[i3 + 1] = r[2] + rand() * (r[3] - r[2]);
+    const x = r[0] + rand() * (r[1] - r[0]);
+    const y = r[2] + rand() * (r[3] - r[2]);
+
+    const px = x - PIVOT[0];
+    const py = y - PIVOT[1];
+
+    out[i3] = PIVOT[0] + px * cos - py * sin;
+    out[i3 + 1] = PIVOT[1] + px * sin + py * cos;
     out[i3 + 2] = (rand() - 0.5) * 0.05;
   }
   return out;
@@ -321,10 +370,19 @@ function fire(ctx) {
 
   rig.shake(0.06, 520);
 
-  // The shockwave: points blast outward from the muzzle, not from the centre.
-  field.morph(shockwave(), { duration: 620, ease: 'outExpo' });
+  // Recoil: the muzzle kicks UP and stays up. Storyboard frame 3.
+  // `buildGun` is reused with a pivot rotation rather than a second hand-authored
+  // shape, so the recoiled gun can never drift out of agreement with the gun.
+  field.morph(buildGun(shardOf, { tilt: 0.24 }), {
+    duration: TIME.recoil,
+    ease: 'outExpo',
+  });
 }
 ```
+
+**Recoil rotates about the grip, not the centre.** A gun pivoting around its
+middle reads as a spinning object; one pivoting around the hand reads as recoil.
+Pivot at roughly `(-0.46, -0.30)` — the web of the grip.
 
 - [ ] **Step 4:** `apply()` for this state must land **after** the shot: no flash, no shake, gun still present, shockwave settled. A jump into `eff-00` must never fire the gun — the operator would be jumping back to recover from a mistake, and re-firing would be worse than the mistake.
 
@@ -378,7 +436,7 @@ Expected: small-viewport median still at the ~16.7 ms vsync cap. If it rises, cu
 
 ---
 
-### Task 5: Pull back to the splat
+### Task 5: Push forward, then the splat
 
 **Files:** Create `src/shapes/splat.js`; modify `src/scenes/effects.js`.
 
@@ -387,10 +445,34 @@ Expected: small-viewport median still at the ~16.7 ms vsync cap. If it rises, cu
 
 - [ ] **Step 1:** Create `src/shapes/splat.js`. Three components, because a single radial spray reads as a firework rather than a stain:
   - **Core** (~55% of points): dense irregular blob, radius ~0.28, with a noisy edge — never a circle.
-  - **Satellites** (~30%): droplets flung outward, density falling off as `1/r²`, biased along the bullet's travel direction so the direction of the shot is legible in the stain.
+  - **Satellites** (~30%): droplets flung outward, density falling off as `1/r²`, **biased rightward** — the bullet travels left→right, so the stain throws that way and the direction of the shot stays legible in it.
   - **Drips** (~15%): four to six short vertical tails running down from the core's lower edge, each thinning as it descends.
 
-- [ ] **Step 2:** The camera pulls back as the splat forms. In `enter`, animate `rig.setOffset` from the bullet's framing out to `z: +1.4` over `TIME.pullBack` with `ease: 'inOutQuad'`, driving it from an anime.js scalar exactly as the field morphs are driven.
+- [ ] **Step 2:** The camera **advances** — storyboard frame 5. In `enter`, animate `rig.setOffset` forward to `z: -1.6` over `TIME.advance` with `ease: 'inOutQuad'`, driven from an anime.js scalar exactly as the field morphs are.
+
+  Note the sign: the rig computes `camera.position.z = fitZ + offset.z`, so
+  forward is **negative**. With `fitZ` around 2.9 an offset of `-1.6` lands at
+  1.3 — still well clear of the 0.1 near plane.
+
+  The frame is empty while this runs. That emptiness is the point; see the
+  storyboard note above.
+
+- [ ] **Step 2b:** The splat arrives **suddenly, sweeping left→right**. Chain it off the camera move's completion, and get the sweep from the per-point delay buffers the deck already has — `posDelay[i]` set to the point's normalised x in the splat target means left-hand points arrive first:
+
+```js
+// The stagger mechanism that lights shards 200ms apart is the same one that
+// throws a splatter across the frame. Left edge lands first, right edge last.
+for (let i = 0; i < POINTS; i++) {
+  const x = splat[i * 3];
+  field.posDelay[i] = (x - minX) / (maxX - minX) * 0.75;
+  field.colDelay[i] = field.posDelay[i];
+}
+field.morph(splat, { duration: TIME.splatForm, ease: 'outExpo' });
+field.morphColor(solid(COLOR.blood, 1.4), { duration: TIME.splatForm });
+```
+
+`TIME.splatForm` is 450ms on purpose. The storyboard says "dramatic, sudden" —
+anything slower reads as the blood being drawn rather than thrown.
 
 - [ ] **Step 3:** Colour: `solid(COLOR.blood, 3.2)`. **Nothing else in Effects may carry colour.** Check `roots.js`-style discipline: the shot, the bullet and the wind stay ash.
 
@@ -462,31 +544,35 @@ that has had no silence to recover in.
 
 ---
 
-## Open questions for the author
+## Open questions — mostly answered by the storyboard
 
-The plan is buildable as written, with defaults chosen where an answer was
-missing. Answering these will save a round of iteration each:
+Settled by [`effects-storyboard.png`](../../assets/effects-storyboard.png):
 
-1. **Which weapon?** The plan assumes a **handgun** in side profile. The script
-   says "a single weapon" and nothing more. A rifle is a completely different
-   silhouette and would need `PARTS` redrawn.
-2. **How graphic is the splat?** Default is dark, desaturated, with drips —
-   readable as blood without being lurid. Say if you want it heavier or lighter.
-3. **Is there an impact target?** Currently the bullet flies through empty air
-   and the splat simply resolves out of the flight. If it should hit something
-   visible — a desk, a silhouette — that is a fifth shape and roughly another
+| Question | Answer |
+|---|---|
+| Which weapon? | **Handgun**, side profile |
+| Firing direction | **Muzzle right**, bullet travels left→right, wind streaks trail left |
+| How graphic is the splat? | **Vibrant red.** Overrides the earlier dark-desaturated recommendation |
+| Camera on `eff-02` | **Advances forward** — not the pull-back this plan originally assumed |
+| Content warning | **No** |
+| Gun in frame while firing? | **Yes**, and it **recoils tilt-up** and stays up |
+
+Still open, and the only one that changes scope:
+
+1. **Is there an impact target?** The bullet still flies through empty air and
+   the splat resolves out of the flight against nothing. The storyboard's frame
+   5 is an empty frame, which reads as *no target shown* — that is the
+   assumption implemented. If the splat should land on something visible (a
+   desk, a silhouette, a wall plane), that is a fifth shape and roughly another
    task's work.
-4. **Firing direction.** Plan assumes muzzle right, bullet travelling right,
-   wind streaking left. Flip is trivial but the splat's directional bias
-   depends on it.
-5. **Does the gun stay on screen while it fires,** or does the camera push in to
-   the muzzle first? Plan assumes it stays in frame.
-6. **Content warning.** A four-beat depiction of a shooting in front of a school
-   audience that may include people affected by campus violence is worth a
-   spoken line or a title card before the deck starts. Recommended once here;
-   entirely the author's call, and there is no code impact either way.
 
----
+Two judgement calls made in the absence of an instruction, both cheap to flip:
+
+- **Beat 10 carries the whole top row** — mask, gun, and the shot — because the
+  storyboard brackets those three frames together as slide 10. If the shot
+  should instead land on the click *into* beat 11, it is a one-line move.
+- **Splat satellite bias is rightward**, following the bullet. If the stain
+  should read as spraying back toward the camera, invert the bias.
 
 ## Self-Review
 
