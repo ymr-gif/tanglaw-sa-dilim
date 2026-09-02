@@ -6,7 +6,7 @@
 Every beat in speaking order: what the speaker says, where to click, what the
 deck does, and what the audience reads.
 
-**27 beats** · **6 handoffs** · **12 beats with on-screen text** (15 carry none)
+**27 beats** · **6 handoffs** · **11 beats with on-screen text** (16 carry none)
 
 Quote the **id** when a beat needs changes — ids are stable and never
 renumbered, so `roots-02` survives an inserted beat and "slide 7" does not.
@@ -36,7 +36,7 @@ The same id shows in the deck's tracker (bottom right, `H` to toggle).
 | 18 | [`prev-03`](#prev-03) | Prevention | BR | `REDESIGN` |
 | 19 | [`prev-04`](#prev-04) | Prevention | BR | `EMPOWER` |
 | 20 | [`ref-01`](#ref-01) | Refusal | **CH** ⇠ handoff | — |
-| 21 | [`ref-03`](#ref-03) | Refusal | CH | `Do not build prisons out of our classrooms.` |
+| 21 | [`ref-03`](#ref-03) | Refusal | CH | — |
 | 22 | [`ref-04`](#ref-04) | Refusal | CH | — |
 | 23 | [`ref-05`](#ref-05) | Refusal | CH | — |
 | 24 | [`ref-06`](#ref-06) | Refusal | CH | — |
@@ -336,7 +336,7 @@ Jump key `7`.
 
 **Click cue** >>> CH TAKES OVER. Mask whole — the exact state Prevention ended on. Nothing moves but the drift. Click on "despair."
 
-#### <a id="ref-03"></a>21 · `ref-03` — Do not build prisons out of our classrooms.
+#### <a id="ref-03"></a>21 · `ref-03`
 
 **Speaker** CH · **Scene** `refusal` · **State** `mode: bars`
 
@@ -344,9 +344,9 @@ Jump key `7`.
 
 > Do not build prisons out of our classrooms.
 
-**On screen** `Do not build prisons out of our classrooms.` — 8 words, mixed case — **over the 5-word ceiling, deliberately**
+**On screen** nothing. The voice carries this beat.
 
-**Click cue** The mask's own points rise into five white prison bars. Read the caption ALOUD, in sync with the audience reading it. Only beat in the deck where screen and voice say the same words. Click on "classrooms."
+**Click cue** The mask's own points rise into five white prison bars. No caption now — just say the line. Click on "classrooms."
 
 #### <a id="ref-04"></a>22 · `ref-04`
 

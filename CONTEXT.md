@@ -158,11 +158,13 @@ meaning, so it can't also be a default.
 **Hard ceiling: 5 words per beat.** This is live — anything the audience reads
 is attention they are not giving the speaker. Most beats carry `caption: null`.
 
-Two beats break the ceiling, and they are the only two.
+One beat breaks the ceiling now.
 
-`ref-01` — the refusal line, *"Do not build prisons out of our classrooms."* It
-is the strongest sentence in the script and the only moment where screen and
-voice say the same words simultaneously.
+`ref-03` used to, for *"Do not build prisons out of our classrooms."* — the
+strongest sentence in the script, and the only moment where screen and voice
+said the same words simultaneously. Cut 2026-09-03: the white caption sat on
+the white prison bars and was unreadable against them. `ref-03` still speaks
+the line; nothing is on screen for it any more.
 
 `thresh-01` — the three things CH names: *unspoken trauma*, *student isolation*,
 *toxic online spaces*. Seven words, but never seven at once. They arrive one per
@@ -391,16 +393,17 @@ louder than the plan that specified it, and two seconds does not pay for it.
 **Prevention.** The turn. Fragments drift inward, one shard relights per click.
 Festival color enters the deck here for the first time.
 
-**Refusal.** Six beats, one per sentence. The mask holds whole with its gap,
-then its own points rise into prison bars; the bars become a knife and the
-Effects handgun; many hands fade in out of the shadows around them; the hands
-close and the weapons break and scatter; the hands become stars. Every shape is
-made of the same points as the mask — nothing arrives from outside the piece.
-Bars white, weapons bright white, hands and stars yellow. Transitions
-reshuffle rather than lerp. The only full sentence the audience reads sits on
-`ref-03`.
+**Refusal.** Six beats, one per sentence. The mask holds whole, exactly as
+Prevention left it, then its own points rise into prison bars; the bars
+become a knife and the Effects handgun; many hands fade in out of the
+shadows around them; the hands close and the weapons break and scatter; the
+hands become stars. Every shape is made of the same points as the mask —
+nothing arrives from outside the piece. Bars white, weapons bright white,
+hands and stars yellow. Transitions reshuffle rather than lerp. `ref-03` used
+to be the only beat where the audience read a full sentence on screen; its
+caption was cut 2026-09-03 for sitting unreadably on top of the bars.
 
-**Close.** Final shard seats, mask completes in full color, rises, dissolves
+**Close.** Full color, the mask's own — not the festival diagram. Rises, dissolves
 upward into lantern glow. Loops indefinitely. There is nothing after it except
 the Q&A hold.
 

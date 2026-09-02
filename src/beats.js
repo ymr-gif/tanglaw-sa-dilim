@@ -33,10 +33,12 @@
  *   unspoken, diminished, said under the breath. Prevention and Close captions
  *   are uppercase — the light is declarative. Do not normalize these.
  *
- * THE 5-WORD CEILING HAS EXACTLY TWO EXCEPTIONS
- *   `ref-01` and `thresh-01`, both granted deliberately and both documented at
- *   the beat itself. Anything else over five words is a mistake, not a third
- *   exception.
+ * THE 5-WORD CEILING HAS EXACTLY ONE EXCEPTION
+ *   `thresh-01`, granted deliberately and documented at the beat itself.
+ *   `ref-03` used to be the other — its caption was the same sentence CH
+ *   speaks, meant to be read in unison — but it sat on top of the prison
+ *   bars and was unreadable against them, so it was cut 2026-09-03. Anything
+ *   over five words is now a mistake, not a second exception.
  */
 
 export const SPEAKERS = {
@@ -431,12 +433,13 @@ export const beats = [
     state: { mode: 'bars' },
     speaker: 'CH',
     handoff: false,
-    caption: 'Do not build prisons out of our classrooms.',
+    // Caption removed 2026-09-03: the white text sat over the white bars and
+    // was unreadable against them. This was the deck's one beat where screen
+    // and voice said the same words — that device is gone with it.
+    caption: null,
     script: `Do not build prisons out of our classrooms.`,
-    cue: `The mask's own points rise into five white prison bars. Read the
-          caption ALOUD, in sync with the audience reading it. Only beat in
-          the deck where screen and voice say the same words. Click on
-          "classrooms."`,
+    cue: `The mask's own points rise into five white prison bars. No caption
+          now — just say the line. Click on "classrooms."`,
   },
   {
     id: 'ref-04',
