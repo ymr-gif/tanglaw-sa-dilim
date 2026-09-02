@@ -12,7 +12,7 @@
  */
 
 import { COLOR, TIME } from '../theme.js';
-import { solid, clearDelays } from './_base.js';
+import { solid, clearDelays, reshuffle } from './_base.js';
 
 const ASH = solid(COLOR.ash, 8.5);
 
@@ -28,9 +28,15 @@ export default {
 
     // Points arrive slightly apart rather than as one wall — the mask gathers
     // itself instead of switching on.
-    for (let i = 0; i < field.posDelay.length; i++) {
-      field.posDelay[i] = field.noise.roll(i) * 0.34;
-    }
+    //
+    // The spread is wide (0.6, up from 0.34) because of what this beat now
+    // follows: the Threshold hands over a shattered picture with a knife in
+    // it, and the storyboard's last frame says "transition to shuffle like
+    // normal". A wide spread is what makes that read as the wreckage
+    // REDISTRIBUTING into the mask rather than as seven wedges being dragged
+    // into position — and it keeps the title its own moment instead of the
+    // last movement of the shatter.
+    reshuffle(field, 0.6);
 
     field.morph(mask.states.assembled, { duration: TIME.assemble, ease: 'outExpo' });
     field.morphColor(ASH, { duration: TIME.assemble * 0.8 });

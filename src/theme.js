@@ -101,9 +101,6 @@ export const DIM = {
   intruder: COLOR.intruder, // foreign fragment — NVE online
 };
 
-/** A weak lamp, for the warm half of the Threshold. Not a festival hue. */
-export const LAMP = 0x6b5a48;
-
 /** Timing constants (§7). */
 export const TIME = {
   shardLight: 700,
@@ -116,7 +113,6 @@ export const TIME = {
   fracture: 1200,
   settle: 1600,
   stagger: 200, // "~200ms apart reads as choreographed instead of clunky"
-  thresholdDim: 30000, // the warm side is still dimming whenever the click lands
   lantern: 3200,
   seat: 2400,
 

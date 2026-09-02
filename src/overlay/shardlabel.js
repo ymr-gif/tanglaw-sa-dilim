@@ -1,22 +1,39 @@
 /**
- * shardlabel.js — the Roots and Prevention words, anchored to their shards.
+ * shardlabel.js — words anchored to things on screen, rather than centred.
  *
  * "Never position captions by absolute px offsets from a shard. Use
  *  shardlabel.js to project the 3D shard position to screen space each frame,
  *  then clamp the resulting position inside the safe area." (CONTEXT.md §8)
  *
- * Every frame, not every beat: the shards drift constantly and the window can
- * be resized mid-sentence, so a label computed once is wrong almost
- * immediately. Clamping is what keeps a word off the bezel and out of projector
- * overscan on a monitor nobody tested.
+ * Every frame, not every beat: the shards drift constantly, the Threshold's
+ * shadows slither, and the window can be resized mid-sentence, so a label
+ * computed once is wrong almost immediately. Clamping is what keeps a word off
+ * the bezel and out of projector overscan on a monitor nobody tested.
+ *
+ * ONE LABEL OR SEVERAL. Roots and Prevention show a single word on a single
+ * shard; `thresh-01` shows three at once, one on each shadow, arriving in the
+ * order CH names them. Both go through here, and the only difference is who
+ * decides where the anchor is:
+ *
+ *   show(...)      one label, pushed OUT along its shard's own direction from
+ *                  centre far enough to clear the mask. The push is this
+ *                  module's, because clearing the mask is a fact about the mask.
+ *
+ *   showMany(...)  several labels, each projected from the anchor AS GIVEN.
+ *                  The caller placed them, because only the caller knows what
+ *                  its shapes look like. Anchors may be mutated in place
+ *                  between frames — that is how a label tracks a moving thing.
+ *
+ * Elements are pooled and reused rather than created per beat, so a label that
+ * is already on screen stays on screen through a re-show instead of flickering.
  */
 
 import { Vector3 } from 'three';
 
 /**
- * The label is pushed out along its shard's own direction from centre, far
- * enough to clear the mask entirely — a word sitting inside the face is
- * unreadable against the points, and the eye tries to read both at once.
+ * The single-label push. Far enough out to clear the mask entirely — a word
+ * sitting inside the face is unreadable against the points, and the eye tries
+ * to read both at once.
  *
  * The floor matters more than the multiplier: an inner shard (the eye sits only
  * ~0.3 from centre) would otherwise land on top of the face no matter how much
@@ -26,13 +43,53 @@ const OUTWARD = 1.42;
 const MIN_RADIUS = 1.3;
 
 export function createShardLabel(overlayEl) {
-  const el = document.createElement('p');
-  el.className = 'shard-label';
-  el.dataset.tone = 'dark';
-  overlayEl.appendChild(el);
-
+  const els = [];
   const projected = new Vector3();
-  let anchor = null;
+
+  /** One entry per visible label: { el, at, push }. Empty when nothing shows. */
+  let live = [];
+
+  function elementAt(i) {
+    if (!els[i]) {
+      const el = document.createElement('p');
+      el.className = 'shard-label';
+      el.dataset.tone = 'dark';
+      overlayEl.appendChild(el);
+      els[i] = el;
+    }
+    return els[i];
+  }
+
+  /**
+   * @param {{text: string, at: Vector3, tone: 'dark'|'light', delay?: number}[]} items
+   * @param {boolean} immediate  true for apply(), so a jump lands instantly
+   * @param {boolean} push       apply the mask-clearing outward push
+   */
+  function render(items, immediate, push) {
+    live = items.map((item, i) => {
+      const el = elementAt(i);
+      el.textContent = item.text;
+      el.dataset.tone = item.tone;
+
+      // The stagger is a CSS transition-delay, not a timer. It costs nothing,
+      // it cannot leak into the next beat, and apply() clears it by passing
+      // `immediate` — which is exactly the behaviour a jump needs, since an
+      // operator recovering from a mis-click should not have to sit through
+      // three words arriving politely one at a time.
+      el.style.transitionDelay = immediate ? '0ms' : `${item.delay ?? 0}ms`;
+
+      if (immediate) el.classList.add('is-visible');
+      else requestAnimationFrame(() => el.classList.add('is-visible'));
+
+      return { el, at: item.at, push };
+    });
+
+    // Anything left over from a beat that showed more labels than this one.
+    for (let i = items.length; i < els.length; i++) {
+      els[i].style.transitionDelay = '0ms';
+      els[i].classList.remove('is-visible');
+    }
+  }
 
   return {
     /**
@@ -40,52 +97,57 @@ export function createShardLabel(overlayEl) {
      *                        in Prevention, exactly as beats.js has it
      * @param {Vector3} at    the shard's anchor in world space
      * @param {'dark'|'light'} tone
-     * @param {boolean} immediate  true for apply(), so a jump lands instantly
+     * @param {boolean} immediate
      */
     show(text, at, tone, immediate = false) {
-      anchor = at;
-      el.textContent = text;
-      el.dataset.tone = tone;
+      render([{ text, at, tone }], immediate, true);
+    },
 
-      if (immediate) {
-        el.classList.add('is-visible');
-      } else {
-        requestAnimationFrame(() => el.classList.add('is-visible'));
-      }
+    /** Several labels, anchors used as given. See the header. */
+    showMany(items, immediate = false) {
+      render(items, immediate, false);
     },
 
     hide() {
-      anchor = null;
-      el.classList.remove('is-visible');
+      live = [];
+      for (const el of els) {
+        // Reset before hiding, or a staggered label fades out on its delay too
+        // and the last word lingers alone after everything else has gone.
+        el.style.transitionDelay = '0ms';
+        el.classList.remove('is-visible');
+      }
     },
 
     /** Called from the render loop, every frame. */
     update(camera, container) {
-      if (!anchor) return;
-
-      const len = anchor.length() || 1;
-      projected
-        .copy(anchor)
-        .multiplyScalar(Math.max(OUTWARD, MIN_RADIUS / len))
-        .project(camera);
+      if (!live.length) return;
 
       const w = container.clientWidth;
       const h = container.clientHeight;
-
-      let x = (projected.x * 0.5 + 0.5) * w;
-      let y = (-projected.y * 0.5 + 0.5) * h;
 
       // The same safe area the CSS uses: max(6vw, 2rem) / max(4vh, 2rem).
       const padX = Math.max(w * 0.06, 32);
       const padY = Math.max(h * 0.04, 32);
 
-      const lw = el.offsetWidth;
-      const lh = el.offsetHeight;
+      for (const { el, at, push } of live) {
+        projected.copy(at);
+        if (push) {
+          const len = at.length() || 1;
+          projected.multiplyScalar(Math.max(OUTWARD, MIN_RADIUS / len));
+        }
+        projected.project(camera);
 
-      x = Math.min(Math.max(x, padX + lw / 2), w - padX - lw / 2);
-      y = Math.min(Math.max(y, padY + lh / 2), h - padY - lh / 2);
+        let x = (projected.x * 0.5 + 0.5) * w;
+        let y = (-projected.y * 0.5 + 0.5) * h;
 
-      el.style.transform = `translate(${Math.round(x - lw / 2)}px, ${Math.round(y - lh / 2)}px)`;
+        const lw = el.offsetWidth;
+        const lh = el.offsetHeight;
+
+        x = Math.min(Math.max(x, padX + lw / 2), w - padX - lw / 2);
+        y = Math.min(Math.max(y, padY + lh / 2), h - padY - lh / 2);
+
+        el.style.transform = `translate(${Math.round(x - lw / 2)}px, ${Math.round(y - lh / 2)}px)`;
+      }
     },
   };
 }

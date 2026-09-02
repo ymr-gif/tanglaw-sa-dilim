@@ -75,6 +75,25 @@ export function createDeck(ctx) {
   }
 
   function showText(beat, immediate) {
+    // A beat with `labels` shows several words at once, each anchored to its
+    // own moving thing. Only `thresh-01` does this. The scene owns the anchors
+    // — it is the only thing that knows where its shapes are — and mutates
+    // them every frame, so the words track what they name.
+    if (beat.labels) {
+      const scene = SCENES[beat.scene];
+      overlay.caption.clear();
+      overlay.shardlabel.showMany(
+        beat.labels.map((text, i) => ({
+          text,
+          at: scene.labelAnchors[i],
+          tone: scene.labelTone ?? 'dark',
+          delay: i * (scene.labelStagger ?? 0),
+        })),
+        immediate
+      );
+      return;
+    }
+
     if (isShardWord(beat)) {
       overlay.caption.clear();
       overlay.shardlabel.show(

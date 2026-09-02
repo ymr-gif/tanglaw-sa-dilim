@@ -503,19 +503,6 @@ function buildStates(base, shardOf, origin) {
    * splits the points, so each side is the same full shape at half density
    * rather than half a mask each.
    */
-  function split() {
-    const out = buf();
-    const s = 0.46;
-    for (let i = 0; i < POINTS; i++) {
-      const i3 = i * 3;
-      const side = i % 2 === 0 ? -0.53 : 0.53;
-      out[i3] = base[i3] * s + side;
-      out[i3 + 1] = base[i3 + 1] * s + 0.02;
-      out[i3 + 2] = base[i3 + 2] * s;
-    }
-    return out;
-  }
-
   /** Effects: outward velocity plus curl, or it looks like a balloon (§7). */
   function shattered() {
     const out = buf();
@@ -625,8 +612,9 @@ function buildStates(base, shardOf, origin) {
 
   return {
     void: scatter(1.7, 1.0, 0.7),
-    drift: scatter(1.55, 0.9, 0.6, 1),
-    split: split(),
+    // `drift` and `split` were retired 2026-09-02 with the Threshold rewrite:
+    // cold-02 now resolves into the student and slide 3 is three beats of
+    // shadows, knife and wreckage. Neither state has a caller any more.
     assembled,
     complete: assembled, // identical geometry; the difference at close-01 is light
     fractured: shardState([1, 1, 1, 1]),

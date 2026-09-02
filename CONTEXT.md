@@ -158,10 +158,19 @@ meaning, so it can't also be a default.
 **Hard ceiling: 5 words per beat.** This is live — anything the audience reads
 is attention they are not giving the speaker. Most beats carry `caption: null`.
 
-Exactly one beat breaks the ceiling: the refusal line, *"Do not build prisons
-out of our classrooms."* It is the strongest sentence in the script and the only
-moment where screen and voice say the same words simultaneously. It earns the
-exception by being the only one.
+Two beats break the ceiling, and they are the only two.
+
+`ref-01` — the refusal line, *"Do not build prisons out of our classrooms."* It
+is the strongest sentence in the script and the only moment where screen and
+voice say the same words simultaneously.
+
+`thresh-01` — the three things CH names: *unspoken trauma*, *student isolation*,
+*toxic online spaces*. Seven words, but never seven at once. They arrive one per
+shadow, ~700ms apart, each anchored to the thing it names, so the reading is
+spread across the sentence being spoken instead of dumped into it. A beat whose
+text works this way carries `labels` in beats.js rather than `caption`.
+
+Anything else over five words is a mistake, not a third exception.
 
 ### Mask art
 
@@ -236,13 +245,17 @@ tanglaw/
 ├── public/
 │   └── fonts/
 ├── src/
-│   ├── main.js             boot, renderer, loop
+│   ├── main.js             boot, renderer, resize contract, loop
 │   ├── deck.js             beat index, key handling
 │   ├── beats.js            ← THE MANIFEST. everything lives here
 │   ├── theme.js            palette, type scale, timing constants
 │   ├── mask.js             mask geometry, sampled point states
+│   ├── pointfield.js       the one THREE.Points object, and the morph engine
+│   ├── camera-rig.js       the only writer of camera.position
+│   ├── sequence.js         explicit stages, for a beat with more than one
+│   ├── noise.js            seeded RNG and the per-point drift
 │   ├── scenes/
-│   │   ├── _base.js        scene contract
+│   │   ├── _base.js        scene contract, colour and stagger helpers
 │   │   ├── coldopen.js
 │   │   ├── threshold.js
 │   │   ├── title.js
@@ -252,11 +265,25 @@ tanglaw/
 │   │   ├── refusal.js
 │   │   ├── close.js
 │   │   └── qna.js          Q&A hold state
+│   ├── shapes/             everything the field is asked to become
+│   │   ├── student.js      the child, cold-02 and slide 3
+│   │   ├── shadow.js       the three demonic shadows
+│   │   ├── cracks.js       the composition, broken around a point
+│   │   ├── knife.js        the cleaver — Refusal, and stood up in Threshold
+│   │   ├── gun.js          Effects and Refusal
+│   │   ├── wind.js         the bullet's tracking shot
+│   │   ├── splat.js        eff-02
+│   │   ├── bars.js         the classroom as a cage
+│   │   ├── hands.js        the hands that close on the weapons
+│   │   └── stars.js        what the hands become
 │   └── overlay/
 │       ├── caption.js      the on-screen words
-│       └── shardlabel.js   labels anchored to 3D positions
+│       ├── shardlabel.js   labels anchored to 3D positions (one, or three)
+│       └── tracker.js      review chrome. H toggles; hidden in fullscreen
+├── tools/
+│   └── runsheet.mjs        generates docs/RUNSHEET.md from beats.js
 └── assets/
-    └── mask.svg
+    └── mask-art.png
 ```
 
 Eight scene files for the narrative, one for Q&A. Sub-beats are handled *inside*
@@ -326,11 +353,21 @@ correctly: the piece that was foreign is the one that now belongs.
 
 ### Section notes
 
-**Cold open.** No structure, no face, no color. Drift never resolves, so it can
-hold for any length. Voice does everything.
+**Cold open.** No structure, no face, no color. `cold-01` is the rule in full:
+drift never resolves, so it can hold for any length, and voice does everything.
+From 2026-09-02, `cold-02` alone breaks it — the field gathers into a student
+standing alone, ready for the sentence about the classrooms it ends on. That is
+a change to the second beat only; the silence after "are you afraid of the
+darkness?" must still land on nothing.
 
-**Threshold.** Two point clouds, identical silhouette, one warm and one drained.
-Warm side dims across CH's paragraph.
+**Threshold.** From 2026-09-02 this section is three beats, one per sentence,
+replacing the earlier two-cloud staging ("identical silhouette, one warm and one
+drained, warm side dims across CH's paragraph"). Three demonic shadows come out
+of the student's own back and are named — *unspoken trauma*, *student
+isolation*, *toxic online spaces*, staggered, the deck's second and last
+exception to the five-word ceiling. A knife falls into the middle of the picture
+and shatters it. The wreckage holds, and only the shadows' eyes still move.
+Recorded in `docs/superpowers/plans/2026-09-02-threshold-sequence.md`.
 
 **Title.** First sight of the mask — outline only, unlit, hollow eyes.
 

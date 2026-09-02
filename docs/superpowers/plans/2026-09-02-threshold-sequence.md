@@ -1,6 +1,6 @@
 # Threshold Sequence (slides 2–3) — Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [x]`) syntax for tracking.
 
 **Goal:** A student stands alone. Three demonic shadows slither in behind them and are named. A knife pierces the picture and shatters it, and stays standing in the wreckage.
 
@@ -121,7 +121,7 @@ it means each label lands on the thing it names.
 code, so the doc and the deck never contradict each other — the same discipline
 the Effects plan follows.
 
-- [ ] **Step 1:** In §3, replace the near-monochrome rule with:
+- [x] **Step 1:** In §3, replace the near-monochrome rule with:
 
 ```markdown
 **First rule, as amended 2026-09-02.** The deck's colour argument is
@@ -144,9 +144,9 @@ What is still forbidden anywhere before prev-01: the festival hues themselves
 earns.
 ```
 
-- [ ] **Step 2:** Update the same rule where it is restated — `src/theme.js`'s header comment and `README.md`'s "Three rules the code enforces" — so all three agree.
+- [x] **Step 2:** Update the same rule where it is restated — `src/theme.js`'s header comment and `README.md`'s "Three rules the code enforces" — so all three agree.
 
-- [ ] **Step 3:** Commit. Documentation only.
+- [x] **Step 3:** Commit. Documentation only.
 
 ---
 
@@ -154,9 +154,9 @@ earns.
 
 **Files:** Modify `src/beats.js`, `src/theme.js`; regenerate `docs/RUNSHEET.md`.
 
-- [ ] **Step 1:** Split `thresh-01` into `thresh-01`, `thresh-02`, `thresh-03`, one sentence each per the mapping table. `thresh-01` keeps its id honestly — same position, same speaker, same handoff, same opening sentence. `speaker: 'CH'` throughout, `handoff: true` on `thresh-01` only.
+- [x] **Step 1:** Split `thresh-01` into `thresh-01`, `thresh-02`, `thresh-03`, one sentence each per the mapping table. `thresh-01` keeps its id honestly — same position, same speaker, same handoff, same opening sentence. `speaker: 'CH'` throughout, `handoff: true` on `thresh-01` only.
 
-- [ ] **Step 2:** Add the palette to `theme.js`:
+- [x] **Step 2:** Add the palette to `theme.js`:
 
 ```js
 /**
@@ -175,11 +175,11 @@ export const THRESHOLD = {
 };
 ```
 
-- [ ] **Step 3:** The knife reuses **`COLOR.blood`**, the Effects red, rather than adding a near-duplicate. That is deliberate and worth keeping: the same red is the knife here and the blood there — the threat named on slide 3, realised in Effects. Update `blood`'s doc comment to say it now appears in both sections.
+- [x] **Step 3:** The knife reuses **`COLOR.blood`**, the Effects red, rather than adding a near-duplicate. That is deliberate and worth keeping: the same red is the knife here and the blood there — the threat named on slide 3, realised in Effects. Update `blood`'s doc comment to say it now appears in both sections.
 
-- [ ] **Step 4:** Write the `cue` field for each new beat — where in the sentence to click, and what happens.
+- [x] **Step 4:** Write the `cue` field for each new beat — where in the sentence to click, and what happens.
 
-- [ ] **Step 5:** Regenerate and verify.
+- [x] **Step 5:** Regenerate and verify.
 
 ```bash
 npm run runsheet
@@ -192,9 +192,9 @@ console.log('handoffs:', beats.filter(b => b.handoff).length, '(expect 6)');
 "
 ```
 
-- [ ] **Step 6:** Verify the deck runs with the old visuals at the new count. Tracker reads the new total; `2` still jumps to Threshold; `←` walks back through all three.
+- [x] **Step 6:** Verify the deck runs with the old visuals at the new count. Tracker reads the new total; `2` still jumps to Threshold; `←` walks back through all three.
 
-- [ ] **Step 7:** Commit. Ships alone.
+- [x] **Step 7:** Commit. Ships alone.
 
 ---
 
@@ -209,7 +209,7 @@ body. Keep it that simple. A more detailed figure would fight the mask, which is
 the deck's only detailed form, and simplicity is what makes it read as *a child*
 rather than as a specific person.
 
-- [ ] **Step 1:** Create `src/shapes/student.js`.
+- [x] **Step 1:** Create `src/shapes/student.js`.
 
 ```js
 import { POINTS } from '../theme.js';
@@ -246,13 +246,13 @@ export function buildStudent({ scale = 1, offset = [0, 0] } = {}) {
 }
 ```
 
-- [ ] **Step 2:** Wire `cold-02`. The drifting field gathers into the student — `reshuffle(field)` then morph over ~2400ms, `ease: 'outExpo'`. Slow: this is the first shape the deck ever resolves into, and it should feel like something coming into focus rather than snapping on.
+- [x] **Step 2:** Wire `cold-02`. The drifting field gathers into the student — `reshuffle(field)` then morph over ~2400ms, `ease: 'outExpo'`. Slow: this is the first shape the deck ever resolves into, and it should feel like something coming into focus rather than snapping on.
 
-- [ ] **Step 3:** Colour `THRESHOLD.student`, bright. Keep `cold-01` exactly as it is — scattered, formless, and silent.
+- [x] **Step 3:** Colour `THRESHOLD.student`, bright. Keep `cold-01` exactly as it is — scattered, formless, and silent.
 
-- [ ] **Step 4:** Verify the figure reads as a child standing alone, and that the frame still feels empty around them. If it reads as crowded, shrink `scale`; the loneliness is the image.
+- [x] **Step 4:** Verify the figure reads as a child standing alone, and that the frame still feels empty around them. If it reads as crowded, shrink `scale`; the loneliness is the image.
 
-- [ ] **Step 5:** Commit.
+- [x] **Step 5:** Commit.
 
 ---
 
@@ -271,21 +271,21 @@ not have to be anatomically convincing — it has to be a dark mass with a face.
 `eyeness` marks the points belonging to eyes and mouth so the scene can light
 those and leave the body nearly black.
 
-- [ ] **Step 1:** Create `src/shapes/shadow.js`. Each shadow is a thick sinuous curve — a cubic through four control points, points scattered along it with the thickness falling off toward the tail — plus two eye discs and a jagged mouth near the head end.
+- [x] **Step 1:** Create `src/shapes/shadow.js`. Each shadow is a thick sinuous curve — a cubic through four control points, points scattered along it with the thickness falling off toward the tail — plus two eye discs and a jagged mouth near the head end.
 
-- [ ] **Step 2:** Three instances, arranged as the storyboard draws them: one entering from the left, one from the right, one rising behind the student's head. All three originate **behind the student's position** and travel outward, so the reading is that they came from the child, not at them.
+- [x] **Step 2:** Three instances, arranged as the storyboard draws them: one entering from the left, one from the right, one rising behind the student's head. All three originate **behind the student's position** and travel outward, so the reading is that they came from the child, not at them.
 
-- [ ] **Step 3:** `arrived: false` places each shadow off-frame along its entry vector; `arrived: true` is the settled pose. Same seed for both so beat 1's morph moves the same points.
+- [x] **Step 3:** `arrived: false` places each shadow off-frame along its entry vector; `arrived: true` is the settled pose. Same seed for both so beat 1's morph moves the same points.
 
-- [ ] **Step 4:** Colour: body `THRESHOLD.shadow` — vivid neon violet, not a dark mass. Eyes and mouth `THRESHOLD.shadowEye` brighter still, applied through the `brightness` buffer via `eyeness`, so the faces read first and the bodies read as the thing carrying them.
+- [x] **Step 4:** Colour: body `THRESHOLD.shadow` — vivid neon violet, not a dark mass. Eyes and mouth `THRESHOLD.shadowEye` brighter still, applied through the `brightness` buffer via `eyeness`, so the faces read first and the bodies read as the thing carrying them.
 
-- [ ] **Step 5:** The student stays lit and unchanged through this beat. The shadows arrive around them; nothing happens to the child yet.
+- [x] **Step 5:** The student stays lit and unchanged through this beat. The shadows arrive around them; nothing happens to the child yet.
 
-- [ ] **Step 6:** Slither: a per-frame `sin(absolute time)` wave along each body's length, out of phase per shadow. Time-derived, so `apply()` reproduces it.
+- [x] **Step 6:** Slither: a per-frame `sin(absolute time)` wave along each body's length, out of phase per shadow. Time-derived, so `apply()` reproduces it.
 
-- [ ] **Step 7:** Verify they read as demonic rather than as smoke. If they do not, the fix is almost always the eyes — make them smaller, brighter and closer together, not the body bigger.
+- [x] **Step 7:** Verify they read as demonic rather than as smoke. If they do not, the fix is almost always the eyes — make them smaller, brighter and closer together, not the body bigger.
 
-- [ ] **Step 8:** Commit.
+- [x] **Step 8:** Commit.
 
 ---
 
@@ -295,17 +295,17 @@ those and leave the body nearly black.
 
 The word-limit exception is granted, so this task is in scope. Seven words across three labels, staggered.
 
-- [ ] **Step 1:** Generalise `shardlabel.js` from one element to a small pool. It already projects a world position to screen space each frame and clamps into the safe area; the change is to hold up to three of those at once, each with its own anchor and text.
+- [x] **Step 1:** Generalise `shardlabel.js` from one element to a small pool. It already projects a world position to screen space each frame and clamps into the safe area; the change is to hold up to three of those at once, each with its own anchor and text.
 
-- [ ] **Step 2:** Anchor one label to each shadow's head, so a label tracks its shadow as it slithers. Never a fixed pixel offset — the existing clamping rules apply unchanged.
+- [x] **Step 2:** Anchor one label to each shadow's head, so a label tracks its shadow as it slithers. Never a fixed pixel offset — the existing clamping rules apply unchanged.
 
-- [ ] **Step 3:** Stagger the three arrivals ~700 ms apart, in the order CH says them: *unspoken trauma*, *student isolation*, *toxic online spaces*.
+- [x] **Step 3:** Stagger the three arrivals ~700 ms apart, in the order CH says them: *unspoken trauma*, *student isolation*, *toxic online spaces*.
 
-- [ ] **Step 4:** Case: lowercase. Threshold sits in the deck's dark half, and §4's rule for the darkness is lowercase — *"the darkness is unspoken, diminished, said under the breath"*, which is precisely what these three are.
+- [x] **Step 4:** Case: lowercase. Threshold sits in the deck's dark half, and §4's rule for the darkness is lowercase — *"the darkness is unspoken, diminished, said under the breath"*, which is precisely what these three are.
 
-- [ ] **Step 5:** Verify all three stay inside the safe area at 5:4 and portrait, where there is least horizontal room and the labels are most likely to collide with each other.
+- [x] **Step 5:** Verify all three stay inside the safe area at 5:4 and portrait, where there is least horizontal room and the labels are most likely to collide with each other.
 
-- [ ] **Step 6:** Commit.
+- [x] **Step 6:** Commit.
 
 ---
 
@@ -325,22 +325,22 @@ cracks wander. That is exactly this, applied to the frame instead of the face.
 Refusal plan's `reshuffle` is not the right tool here, because a shatter should
 look like breakage, not redistribution.
 
-- [ ] **Step 1:** Create `src/shapes/cracks.js`: take the current composition, assign every point to one of ~7 jagged wedges around the knife's entry point, and displace each wedge outward and slightly rotated — small displacement, so the picture reads as *cracked* rather than as scattered. The Effects plan learned this the hard way; large displacement stops reading as a break.
+- [x] **Step 1:** Create `src/shapes/cracks.js`: take the current composition, assign every point to one of ~7 jagged wedges around the knife's entry point, and displace each wedge outward and slightly rotated — small displacement, so the picture reads as *cracked* rather than as scattered. The Effects plan learned this the hard way; large displacement stops reading as a break.
 
-- [ ] **Step 2:** Three stages via `createSequence`:
+- [x] **Step 2:** Three stages via `createSequence`:
   1. **Pierce** (~260ms) — the knife drops in from above and embeds. `rig.shake(0.05, 420)` on impact.
   2. **Crack** (~180ms) — the wedges separate. Fast; a slow crack reads as melting.
   3. **Settle** (~900ms, `ease: 'outExpo'`) — the pieces drift slightly and stop.
 
-- [ ] **Step 3:** **The knife stays upright and whole through all of it.** The storyboard is explicit: it is embedded in the middle while everything around it is in pieces. It must not crack, drift or dim with the rest.
+- [x] **Step 3:** **The knife stays upright and whole through all of it.** The storyboard is explicit: it is embedded in the middle while everything around it is in pieces. It must not crack, drift or dim with the rest.
 
-- [ ] **Step 4:** Colour `COLOR.blood` — the same red as the Effects splat, on purpose. The student and shadows keep their colours into the wreckage; the picture broke, it did not change palette.
+- [x] **Step 4:** Colour `COLOR.blood` — the same red as the Effects splat, on purpose. The student and shadows keep their colours into the wreckage; the picture broke, it did not change palette.
 
-- [ ] **Step 5:** `apply()` is `beat.settle(ctx)` — knife embedded, picture cracked, everything at rest.
+- [x] **Step 5:** `apply()` is `beat.settle(ctx)` — knife embedded, picture cracked, everything at rest.
 
-- [ ] **Step 6:** Verify the composition is still legible after the break. If the student can no longer be found in the wreckage, the displacement is too large.
+- [x] **Step 6:** Verify the composition is still legible after the break. If the student can no longer be found in the wreckage, the displacement is too large.
 
-- [ ] **Step 7:** Commit.
+- [x] **Step 7:** Commit.
 
 ---
 
@@ -350,29 +350,29 @@ look like breakage, not redistribution.
 
 *"When a place of learning becomes a ground of fear, darkness has settled in."*
 
-- [ ] **Step 1:** `thresh-03` holds the shattered picture. No new geometry — the wedges settle further and the drift drops to near-stillness. The line is about something having *settled*, and the image should agree.
+- [x] **Step 1:** `thresh-03` holds the shattered picture. No new geometry — the wedges settle further and the drift drops to near-stillness. The line is about something having *settled*, and the image should agree.
 
-- [ ] **Step 2:** The shadows' eyes keep moving. Everything else stops. It is the one thing in frame still alive, and it should be the thing the audience cannot look away from while CH lands the line.
+- [x] **Step 2:** The shadows' eyes keep moving. Everything else stops. It is the one thing in frame still alive, and it should be the thing the audience cannot look away from while CH lands the line.
 
-- [ ] **Step 3:** Hand off to the title. The storyboard's last frame says *"transition to shuffle like normal"* — so call `reshuffle(field, 0.6)` at the top of `title.js`'s entry, and the wreckage redistributes into the mask.
+- [x] **Step 3:** Hand off to the title. The storyboard's last frame says *"transition to shuffle like normal"* — so call `reshuffle(field, 0.6)` at the top of `title.js`'s entry, and the wreckage redistributes into the mask.
 
-- [ ] **Step 4:** Verify the handoff on the real click, and confirm the title beat still lands its own moment — it is the first sight of the mask and must not feel like a continuation of the shatter.
+- [x] **Step 4:** Verify the handoff on the real click, and confirm the title beat still lands its own moment — it is the first sight of the mask and must not feel like a continuation of the shatter.
 
-- [ ] **Step 5:** Commit.
+- [x] **Step 5:** Commit.
 
 ---
 
 ### Task 7: Full verification
 
-- [ ] **Step 1:** All 24 beats forward, `←` back to 0, every number key, `Q` in and out. Zero console errors.
-- [ ] **Step 2:** Tracker reads `/24`.
-- [ ] **Step 3:** Jump safety — press `2` from cold. No knife, no shake, no shatter; the section start must be the shadows' settled pose.
-- [ ] **Step 4:** Mid-sequence interruption — click into `thresh-02` and click again 200 ms in, mid-pierce. Must land cleanly on `thresh-03`.
-- [ ] **Step 5:** Seven-profile device matrix, phone DPR 3 through 4K.
-- [ ] **Step 6:** **Colour audit.** Threshold may use `THRESHOLD.*` and `COLOR.blood`. Confirm **no festival hue** (`rose`, `ember`, `gold`, `fuchsia`, `radiance`) appears anywhere before `prev-01` — that half of the rule is unchanged and is the half Prevention still depends on.
-- [ ] **Step 7:** Confirm `CONTEXT.md` §3, `theme.js`'s header and `README.md` all state the amended rule and agree with each other.
-- [ ] **Step 8:** Caption audit — three labels, lowercase, staggered.
-- [ ] **Step 8:** Frame cost at 1920×1080 and 320×180; small viewport holds the vsync cap.
+- [x] **Step 1:** All 24 beats forward, `←` back to 0, every number key, `Q` in and out. Zero console errors.
+- [x] **Step 2:** Tracker reads `/24`.
+- [x] **Step 3:** Jump safety — press `2` from cold. No knife, no shake, no shatter; the section start must be the shadows' settled pose.
+- [x] **Step 4:** Mid-sequence interruption — click into `thresh-02` and click again 200 ms in, mid-pierce. Must land cleanly on `thresh-03`.
+- [x] **Step 5:** Seven-profile device matrix, phone DPR 3 through 4K.
+- [x] **Step 6:** **Colour audit.** Threshold may use `THRESHOLD.*` and `COLOR.blood`. Confirm **no festival hue** (`rose`, `ember`, `gold`, `fuchsia`, `radiance`) appears anywhere before `prev-01` — that half of the rule is unchanged and is the half Prevention still depends on.
+- [x] **Step 7:** Confirm `CONTEXT.md` §3, `theme.js`'s header and `README.md` all state the amended rule and agree with each other.
+- [x] **Step 8:** Caption audit — three labels, lowercase, staggered.
+- [x] **Step 8:** Frame cost at 1920×1080 and 320×180; small viewport holds the vsync cap.
 
 ---
 
@@ -412,3 +412,65 @@ every other state in the deck.
 against a rule the docs still forbid. Task 1 is the beat split and also ships
 alone. Everything from Task 2 depends on the Refusal plan's `knife.js` and
 `reshuffle`, and on the Effects plan's `createSequence` and camera rig.
+
+
+---
+
+## As built — 2026-09-03
+
+Every task above is implemented and verified. Five things came out different
+from the plan, and all five were decided at the screen rather than on paper.
+
+**The shadows needed heads.** The plan built each one as a tapered body with
+eyes and a mouth at the thin end, and said that if they read as smoke the fix
+was the eyes, not the body. On screen they read as neither — they read as
+*tentacles*, because features floating at the tip of a taper have no face under
+them to belong to. `shadow.js` gained `HEAD_FRAC`, a filled disc at the end of
+the curve, and `HEAD_THICK` dropped from 0.145 to 0.085 so the silhouette steps
+in at the neck and back out at the face. The eyes were left exactly as
+specified. With a head beneath them they read as demonic immediately.
+
+**The knife had to be restruck.** `knife.js` draws a broad cleaver with a
+squared tip, which is right lying beside the gun in the Refusal and wrong stood
+on its point: rotated ninety degrees it is a red slab with a handle, and that is
+what the first version of `thresh-02` put through the middle of the picture.
+`threshold.js` now narrows it toward its own centreline and tapers the last
+fifth to a point (`sharpen`). Done there rather than in `knife.js`, because the
+Refusal depends on the cleaver being a cleaver and this is a fact about standing
+one up, not a fact about knives.
+
+**The broken picture dims.** Not in the plan, and forced by the storyboard's own
+staging: the knife lands exactly where the child is, and under additive blending
+a full-intensity yellow child inside a full-intensity red blade averages to an
+orange smear in which neither shape survives. The picture drops to 42% at the
+break — same palette, less light, which is the deck's existing vocabulary for a
+thing breaking. The shadows' eyes are exempt and keep every bit of their
+brightness, because `thresh-03` is built on them being the last thing alive.
+
+**The label stagger is CSS, not a timer.** Task 4 Step 3 asked for three
+arrivals ~700ms apart. That is a `transition-delay` per label, cleared when
+`immediate` is set, so a jump into slide 3 shows all three at once instead of
+making an operator recovering from a mis-click sit through them arriving
+politely one at a time. `shardlabel.js` became a pooled `showMany` alongside the
+existing single-label `show`; the two differ only in who places the anchor.
+
+**Beat count is 28, not 24.** The plan predicted 22 -> 24 and flagged that the
+Refusal plan also moves the count. Refusal landed first, at +4, so the deck went
+26 -> 28. Nothing else changed; the tracker reads `totalBeats`.
+
+Three things the rewrite orphaned were removed with it: `LAMP`,
+`TIME.thresholdDim`, and `mask.states.split` with its builder — all of them
+existed only for the two-cloud Threshold. (`mask.states.converged` is also
+unreferenced, but it was already unreferenced before this work and is left
+alone.)
+
+**Verified.** 28 beats forward and back to `cold-01`; all eight jump keys; `Q`
+in and out; zero console errors. `2` from cold lands on the settled shadows with
+all three labels immediate and no knife, shake or shatter. A second click 200ms
+into the pierce lands cleanly on `thresh-03`. Seven display profiles from phone
+at DPR 3 to 4K: no overflow, no label leaving the safe area, no two labels
+overlapping — including 5:4 and portrait, where there is least room. Colour
+audit: the dark half uses only `ash`, the `DIM` tints, `THRESHOLD.*` and
+`blood`; no festival hue appears before `prev-01`. `CONTEXT.md` §3, §4's text
+budget, §6's section notes, `theme.js`'s header and `README.md` all state the
+amended rule and agree with each other.

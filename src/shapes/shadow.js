@@ -63,6 +63,14 @@ const CURVES = [
 ];
 
 /**
+ * Where each shadow's face ends up. Exported because the Threshold's three
+ * labels anchor to them: a word that names a shadow has to sit beside that
+ * shadow, and it has to keep sitting beside it while the thing slithers.
+ * Read-only — this is the same array the curves are built from.
+ */
+export const SHADOW_HEADS = CURVES.map((c) => c[3]);
+
+/**
  * Not-arrived pose: collapse each curve toward its own tail (already sitting
  * behind the student) and push it further back in z. Retreating ALONG the
  * same curve, rather than sliding it off to some screen edge, is what keeps
@@ -99,9 +107,19 @@ function bezierTangent(p0, p1, p2, p3, t) {
   ];
 }
 
-/** Share of each shadow's points spent on each feature. Rest is body. */
+/**
+ * Share of each shadow's points spent on each feature. Rest is body.
+ *
+ * `HEAD_FRAC` is a filled disc at the end of the curve, and it was added after
+ * looking at the first version on screen. Without it the eyes and the mouth
+ * float at the thin end of a taper and the whole thing reads as a tentacle
+ * with something stuck on the tip. A face needs a face-shaped mass under it
+ * before the features on top of it mean anything.
+ */
 const EYE_FRAC = 0.035; // per eye
 const MOUTH_FRAC = 0.05;
+const HEAD_FRAC = 0.19;
+const HEAD_R = 0.14;
 
 // Small and close together, on purpose: this is the parameter that decides
 // demonic-vs-smoke, not the body. See the header comment.
@@ -115,9 +133,12 @@ const MOUTH_TEETH = 5;
 const MOUTH_JAG = 0.05;
 
 // Body taper: near-nothing at the tail (it came from the child, not a solid
-// object), thickening toward the head where the mass actually reads.
+// object), thickening toward the head. It stops well short of the head disc's
+// own width, so the silhouette steps IN at the neck and back OUT at the face —
+// the same notch knife.js needs between blade and handle, and for the same
+// reason: without it the body and the head merge into one smooth cone.
 const TAIL_THICK = 0.016;
-const HEAD_THICK = 0.145;
+const HEAD_THICK = 0.085;
 
 function triWave(u) {
   const f = u - Math.floor(u);
@@ -163,6 +184,18 @@ export function buildShadows({ arrived }) {
       y = c3[1] + MOUTH_Y - tooth * MOUTH_JAG + (rand() - 0.5) * 0.012;
       z = c3[2] + (rand() - 0.5) * 0.02;
       eyeness[i] = 1;
+    } else if (roll < EYE_FRAC * 2 + MOUTH_FRAC + HEAD_FRAC) {
+      // The head itself: a filled disc for the features to sit on. Left
+      // body-coloured, so the eyes and the mouth stay the only lit things on it.
+      let hx, hy;
+      do {
+        hx = rand() * 2 - 1;
+        hy = rand() * 2 - 1;
+      } while (hx * hx + hy * hy > 1);
+      x = c3[0] + hx * HEAD_R;
+      y = c3[1] + hy * HEAD_R;
+      z = c3[2] + (rand() - 0.5) * 0.05;
+      eyeness[i] = 0;
     } else {
       const t = rand();
       const p = bezierPoint(c0, c1, c2, c3, t);
