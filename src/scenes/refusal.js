@@ -64,8 +64,8 @@ const HAND_SHARE = 0.45;
  * Must stay in step with `WEAPON_X` in shapes/hands.js — the hands ring these
  * exact points.
  */
-const KNIFE_AT = [-0.74, 0];
-const GUN_AT = [0.74, 0];
+const KNIFE_AT = [-0.71, 0];
+const GUN_AT = [0.71, 0];
 
 const split = (() => {
   const rand = seededRandom(0x5e1f);
@@ -140,17 +140,22 @@ function weapons() {
   if (geo.weapons) return geo.weapons;
 
   const buf = new Float32Array(POINTS * 3);
-  // Scales chosen so the two come out at the SAME LENGTH and within about ten
-  // percent on filled area. Equal length alone is not enough — unequal density
-  // is how one of two silhouettes starts reading as an afterthought.
+  // Scales chosen so the two come out at the same FILLED AREA — within a few
+  // percent — and within about a sixth on length. Both cannot be matched at
+  // once, and area is the one that matters: each weapon gets half the field, so
+  // area IS density, and the sparser of two silhouettes is the one that starts
+  // reading as an afterthought.
+  //
+  // RETUNE THESE WHENEVER gun.js CHANGES SHAPE. They are not free parameters;
+  // they are solved against that file's own extent and filled area.
   //
   // The pair is also sized to survive the device matrix. A wider, more
   // present staging looked better at 16:9 and put both weapons half off the
   // frame in portrait, where the fit is height-bound and the visible world is
   // barely wider than the mask. This is the largest the pair can be and still
   // fit the narrowest profile the deck supports.
-  buildKnife(buf, { pick: split.allKnife, scale: 0.88, tilt: 0.16 });
-  buildGun(buf, { pick: split.allGun, scale: 0.66, tilt: -0.14, flip: true });
+  buildKnife(buf, { pick: split.allKnife, scale: 0.83, tilt: 0.16 });
+  buildGun(buf, { pick: split.allGun, scale: 0.57, tilt: -0.14, flip: true });
   centreOn(buf, split.allKnife, KNIFE_AT[0], KNIFE_AT[1]);
   centreOn(buf, split.allGun, GUN_AT[0], GUN_AT[1]);
 

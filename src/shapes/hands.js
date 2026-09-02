@@ -39,7 +39,7 @@ import { seededRandom } from '../noise.js';
 const PER_WEAPON = 5;
 
 /** Where the two weapons sit. The hands ring these. */
-const WEAPON_X = [-0.74, 0.74];
+const WEAPON_X = [-0.71, 0.71];
 
 /**
  * The ring is an ellipse, taller than it is wide. A circular ring puts a hand

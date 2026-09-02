@@ -611,6 +611,21 @@ point indices, because the field is split between the weapons and the hands:
 their shard identity, so shard 0 is still the grip and shard 3 still the trigger
 and muzzle.
 
+**Refusal's weapon scales are COUPLED to `src/shapes/gun.js`.** That file was
+rewritten by the Effects work after this section was first tuned — a raked grip,
+a trigger guard, a slimmer barrel — which made the gun 31% longer than the knife
+at the scales then in use and pushed the pair off the frame in portrait. The
+scales in `weapons()` are solved against that file's own extent and filled area,
+not chosen by eye, so **retune them whenever `gun.js` changes shape**:
+
+```
+knife scale 0.83, gun scale 0.57, centres +-0.71   (against the raked-grip gun)
+```
+
+Match filled AREA first and length second. Each weapon gets half the field, so
+area is density, and the sparser of the two silhouettes is the one that reads as
+an afterthought. `WEAPON_X` in `shapes/hands.js` must move with the centres.
+
 **Frame cost was measured under software GL** (`--use-angle=swiftshader`), which
 is not representative: ~49ms median at 1920×1080, ~17ms at 320×180. The small
 viewport holds the vsync cap. The large one needs a re-measure on the real
