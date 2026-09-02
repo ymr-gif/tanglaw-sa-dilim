@@ -1,17 +1,18 @@
 /**
- * effects.js — beats 10-13. The literal sequence.
+ * effects.js — beats 10-12. The literal sequence.
  *
  * The mask's four shards converge into a handgun, it fires, the camera tracks
  * the bullet, then pushes forward through an empty frame into a blood splat.
  * It ends there.
  *
- * FORMING AND FIRING ARE TWO CLICKS, NOT ONE. Until 2026-09-03 the gun fired
- * itself, ~1.8s after the click that formed it, with no further input — the
- * deck decided when the room had sat with it long enough. That is now the
- * operator's call: `eff-00` forms the gun and holds; `eff-04` fires it. Same
- * two animations, same durations, just no longer chained by a timer across
- * the boundary. See `beats.js`'s note on why the new beat is `eff-04` and not
- * a renumbering of anything.
+ * FORMING IS ITS OWN CLICK; FIRING IS NOT. Until 2026-09-03 the gun fired
+ * itself, ~1.8s after the click that formed it, with no further input. The
+ * hold before the shot is now the operator's call — `eff-00` forms the gun
+ * and holds. Firing briefly got its own beat too (`eff-04`), but a shot that
+ * waits for a second click before it goes anywhere reads as dead air, not
+ * suspense, so it was folded back into `eff-01`: one click on `eff-01` fires
+ * the gun AND carries straight into the bullet pan. `eff-04` is retired, like
+ * `eff-03` before it — the id does not come back.
  *
  * THIS SECTION USED TO BE THE OPPOSITE OF WHAT IT IS NOW. It was "least motion,
  * least color, most silence" — a shatter, an empty seat, and a grid of desks
@@ -34,8 +35,7 @@
  * key: four full seconds of black after `eff-02`, before Prevention.
  *
  *   gun-form  the shards converge into the weapon and hold, unfired
- *   gun-fire  the shot: flash, screen shake, the muzzle kicks up and stays up
- *   bullet    the tracking shot. Loops indefinitely
+ *   bullet    fires the gun, then locks onto the bullet. Loops indefinitely
  *   splat     the camera advances through nothing, then the blood, then the
  *             camera withdraws off it
  *
@@ -122,13 +122,13 @@ function formGun(ctx) {
   field.morphColor(GUN_ASH, { duration: TIME.gunForm });
 }
 
-/* ── Beat 04: the gun fires ─────────────────────────────────────────────── */
+/* ── Beat 11: the shot, then the tracking shot ──────────────────────────── */
 
 /**
- * Formerly stage two of a single timed sequence (see git history on this
- * file for the pre-2026-09-03 version); now its own click-triggered beat
- * (`eff-04`), so it starts from wherever the field is actually sitting
- * rather than trusting a timer to have landed on the formed gun.
+ * The bang. Plays as stage one of `beat01` below — one click on `eff-01`
+ * fires the gun AND carries on into the bullet pan, with no second click
+ * in between. It briefly had its own beat (`eff-04`); that added a pause
+ * the storyboard never asked for, so it was folded back in here.
  */
 function fire(ctx) {
   const { field, mask, rig, flash } = ctx;
@@ -156,8 +156,6 @@ function fire(ctx) {
   // about the hand reads as recoil.
   field.morph(gun(mask.shardOf, RECOIL_TILT), { duration: TIME.recoil, ease: 'outExpo' });
 }
-
-/* ── Beat 11: the tracking shot ─────────────────────────────────────────── */
 
 let windCache = null;
 function wind() {
@@ -202,6 +200,45 @@ function windColors() {
   windColorCache = out;
   return windColorCache;
 }
+
+function panToBullet(ctx) {
+  const { field } = ctx;
+  field.setDrift(0.003);
+  resetWind(wind());
+  field.morph(wind().positions, { duration: 900, ease: 'outExpo' });
+  field.morphColor(windColors(), { duration: 900 });
+  field.setUpdate((dt, time) => stepWind(field, wind(), dt, time));
+}
+
+function settleBullet(ctx) {
+  const { field } = ctx;
+  field.setDrift(0.003);
+  resetWind(wind());
+  field.snap(wind().positions, windColors());
+  field.setUpdate((dt, time) => stepWind(field, wind(), dt, time));
+}
+
+/**
+ * `eff-01` is one click, two stages: the bang, then the pan. `field.finish()`
+ * runs pending completions, so an operator clicking mid-chain would kick off
+ * the pan exactly as the next beat is entering — the same reason `beat12`
+ * uses this instead of a nested `onComplete`.
+ *
+ * `settle` (what `apply()` calls) skips straight to the looping bullet shot —
+ * a jump into `eff-01` must never replay the bang.
+ */
+const beat01 = createSequence([
+  {
+    ms: TIME.recoil,
+    play: fire,
+    done: (ctx) => darken(ctx.flash),
+  },
+  {
+    ms: 900,
+    play: panToBullet,
+    done: settleBullet,
+  },
+]);
 
 /* ── Beat 12: the camera advances, then the bullet bursts ───────────────── */
 
@@ -412,6 +449,7 @@ const beat12 = createSequence([
  * clicked away from must not keep running its stages into the next one.
  */
 function stopAll(ctx) {
+  beat01.stop();
   beat12.stop();
   dollyAnim?.pause();
   darken(ctx.flash);
@@ -463,20 +501,14 @@ export default {
         break;
       }
 
-      case 'gun-fire': {
-        field.setUpdate(null);
-        fire(ctx);
-        break;
-      }
-
       case 'bullet': {
         // Drift stays low: the wind is already carrying all the motion this
-        // beat can take, and a wobbling bullet reads as a loose one.
+        // beat can take, and a wobbling bullet reads as a loose one. Set here
+        // rather than inside `panToBullet` so it's already in effect for the
+        // bang that precedes it.
         field.setDrift(0.003);
-        resetWind(wind());
-        field.morph(wind().positions, { duration: 900, ease: 'outExpo' });
-        field.morphColor(windColors(), { duration: 900 });
-        field.setUpdate((dt, time) => stepWind(field, wind(), dt, time));
+        field.setUpdate(null);
+        beat01.start(ctx);
         break;
       }
 
@@ -562,18 +594,10 @@ export default {
         field.sceneOffset.fill(0);
         field.snap(gun(mask.shardOf), GUN_ASH);
         break;
-      case 'gun-fire':
-        field.setDrift(0.006);
+      case 'bullet':
         field.setUpdate(null);
         field.sceneOffset.fill(0);
-        darken(ctx.flash);
-        field.snap(gun(mask.shardOf, RECOIL_TILT), GUN_ASH);
-        break;
-      case 'bullet':
-        field.setDrift(0.003);
-        resetWind(wind());
-        field.snap(wind().positions, windColors());
-        field.setUpdate((dt, time) => stepWind(field, wind(), dt, time));
+        beat01.settle(ctx);
         break;
       case 'splat':
         beat12.settle(ctx);

@@ -111,7 +111,7 @@ Six speaker changes. These are the only moments that cannot be fixed in code.
 |---|---|---|
 | `thresh-01` | BR → **CH** | on "morning bell" |
 | `title-01` | CH → **BR** | with the title, not before it |
-| `eff-00` | BR → **CH** | on "Effects" — gun forms and holds; click `eff-04` to fire |
+| `eff-00` | BR → **CH** | on "Effects" — gun forms and holds; next click (`eff-01`) fires it and pans to the bullet |
 | `prev-00` | CH → **BR** | on "Prevention" |
 | `ref-01` | BR → **CH** | read the caption aloud, in sync with the room |
 | `close-01` | CH → **BR** | final shard seats on "bringing the light" |

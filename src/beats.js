@@ -253,12 +253,13 @@ export const beats = [
   // EFFECTS — the literal sequence. The mask's shards become a gun, it fires,
   // the camera tracks the bullet, and the blood arrives. It ENDS THERE.
   //
-  // The gun's formation and its shot used to be one beat (`eff-00`) that fired
-  // itself ~1.8s after the click, unattended. Split 2026-09-03 into two clicks
-  // — `eff-00` forms and holds, `eff-04` fires — so the operator decides when
-  // the room is ready for the shot instead of the deck deciding for them.
-  // `eff-04` is a fresh id, not a renumbering: `eff-01`/`eff-02` keep the ids
-  // they always had (see the FIELDS note on `id` above).
+  // The gun's formation used to fire itself ~1.8s after the click, unattended.
+  // Split 2026-09-03 so `eff-00` forms and holds — the operator decides when
+  // the room is ready. The shot itself briefly got its own beat (`eff-04`) too,
+  // but that added a THIRD click where the storyboard only wants two: the
+  // shot and the bullet pan are one continuous action, so `eff-01`'s click now
+  // fires the gun and carries straight on into the tracking shot. `eff-04` is
+  // retired, not reused — like `eff-03` before it, its id is never coming back.
   //
   // There used to be a fourth beat after the blood, in which the stain
   // dispersed into a darkened grid of desks. Cut 2026-09-03: it did not connect
@@ -283,21 +284,8 @@ export const beats = [
     script: `Second, we must face the Effects.`,
     cue: `>>> CH TAKES OVER. Click on "Effects." The four shards of the mask
           converge into a handgun over ~1.8s and HOLD THERE, formed but not
-          fired. Wait for your next click before the shot.`,
-  },
-  {
-    id: 'eff-04',
-    section: 'effects',
-    scene: 'effects',
-    state: { mode: 'gun-fire' },
-    speaker: 'CH',
-    handoff: false,
-    caption: null,
-    script: ``,
-    cue: `No new line — you are still silent from "Effects." Click when the
-          room has sat with the gun long enough. THEN IT FIRES — flash, screen
-          shake, the muzzle kicks up and stays up. Do not talk over it; let the
-          room have it, then begin "Left unchecked" on eff-01.`,
+          fired. Wait for your next click — it fires the gun AND carries
+          straight into the bullet shot below, no second click needed.`,
   },
   {
     id: 'eff-01',
@@ -310,10 +298,12 @@ export const beats = [
     script: `Left unchecked, families lose their loved ones — parents send their
              children to learn, only to receive news that their life was cut
              short.`,
-    cue: `Click on "Left unchecked." The camera locks to the bullet and the
-          wind tears past it. THIS BEAT LOOPS FOREVER — it is the one safe
-          place to sit in the section, so take the whole line at your own pace
-          and do not hurry to the click.`,
+    cue: `Click on "Left unchecked." THE SHOT FIRES FIRST — flash, screen
+          shake, the muzzle kicks up — and then, with no further click, the
+          camera locks to the bullet and the wind tears past it. THIS BEAT
+          LOOPS FOREVER once the bullet lands — it is the one safe place to
+          sit in the section, so take the whole line at your own pace and do
+          not hurry to the click.`,
   },
   {
     id: 'eff-02',

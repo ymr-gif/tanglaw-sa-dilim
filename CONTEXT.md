@@ -366,9 +366,12 @@ decision of the author, recorded in
 `docs/superpowers/plans/2026-09-02-effects-sequence.md`.
 
 Forming and firing were one beat, timed to fire itself ~1.8s after the click,
-until 2026-09-03. Split into `eff-00` (forms, holds) and `eff-04` (fires) so
-the operator decides when the room has sat with the gun long enough, rather
-than the deck deciding for them.
+until 2026-09-03. `eff-00` now forms the gun and holds, so the operator
+decides when the room has sat with it long enough. Firing briefly got its own
+beat too (`eff-04`), but the shot and the bullet pan are one continuous
+action, not two clicks with a hold in between — so it was folded into
+`eff-01`, which now fires the gun and carries straight into the tracking
+shot. `eff-04` is retired, not reused.
 
 **It ends on the splat.** A fourth beat followed it until 2026-09-03, in which
 the stain dispersed into a darkened grid of desks; it was cut for not connecting
