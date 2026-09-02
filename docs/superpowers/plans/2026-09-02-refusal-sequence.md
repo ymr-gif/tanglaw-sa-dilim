@@ -23,14 +23,14 @@ for roughly twenty-five seconds — **the longest holds in the deck**, on a near
 frozen image. Splitting it six ways is not only a visual upgrade; it is the fix
 for the worst pacing problem in the piece.
 
-| # | Sentence | Image |
-|---|---|---|
-| 1 | "Do not surrender our generation to despair." | The near-whole mask, held. The gap where the last shard belongs breathes. |
-| 2 | "Do not build prisons out of our classrooms." | The mask's own points rise into **prison bars**. |
-| 3 | "When a child turns to violence, society failed them long before they picked up a weapon." | The bars become **a knife (left) and a handgun (right)**. |
-| 4 | "Refuse the cheap comfort of vengeance." | **Many hands fade in out of the shadows**, fingers splayed, surrounding both weapons. |
-| 5 | "Fix the toxic environments poisoning our youth and hold the line for healing" | The hands **close into fists**, thumbs up. The weapons break and scatter — denser at the crush. |
-| 6 | "because treating children as lost causes surrenders the future." | The hands **become stars**; the debris fades away. |
+| # | Id | Sentence | Image |
+|---|---|---|---|
+| 1 | `ref-01` | "Do not surrender our generation to despair." | The near-whole mask, held. The gap where the last shard belongs breathes. |
+| 2 | `ref-03` | "Do not build prisons out of our classrooms." | The mask's own points rise into **prison bars**. |
+| 3 | `ref-04` | "When a child turns to violence, society failed them long before they picked up a weapon." | The bars become **a knife (left) and a handgun (right)**. |
+| 4 | `ref-05` | "Refuse the cheap comfort of vengeance." | **Many hands fade in out of the shadows**, fingers splayed, surrounding both weapons. |
+| 5 | `ref-06` | "Fix the toxic environments poisoning our youth and hold the line for healing" | The hands **close into fists**, thumbs up. The weapons break and scatter — denser at the crush. |
+| 6 | `ref-07` | "because treating children as lost causes surrenders the future." | The hands **become stars**; the debris fades away. |
 
 **The through-line to protect:** every shape in this section is made of the same
 points as the mask. The classroom becomes the cage becomes the weapons becomes
@@ -75,43 +75,59 @@ Call it before every `morph` in this section. Nothing else changes.
 
 ---
 
-## Two decisions to make before Task 1
+## Decisions — settled
 
-### 1. Beat ids
+### Beat ids
 
-`CONTEXT.md` says ids are stable and never renumbered, and the tracker and
-README both tell you to quote the id rather than the number. That convention now
-collides with a genuine re-cut.
+**`ref-01` is kept. `ref-02` is retired. The five new beats are `ref-03` … `ref-07`.**
 
-**Recommended:** keep `ref-01`, **retire `ref-02`**, and number the five new
-beats `ref-03` … `ref-07`.
+| Beat | Id | Sentence |
+|---|---|---|
+| 1 | `ref-01` | "Do not surrender our generation to despair." |
+| 2 | `ref-03` | "Do not build prisons out of our classrooms." |
+| 3 | `ref-04` | "When a child turns to violence, society failed them long before they picked up a weapon." |
+| 4 | `ref-05` | "Refuse the cheap comfort of vengeance." |
+| 5 | `ref-06` | "Fix the toxic environments poisoning our youth and hold the line for healing —" |
+| 6 | `ref-07` | "— because treating children as lost causes surrenders the future." |
 
-- `ref-01` survives honestly: same position, same speaker, same handoff, same
-  opening sentence. It only loses its second sentence and its caption.
-- `ref-02` held four sentences that are now spread across five beats. There is
-  no honest successor, so nothing inherits the name.
-- The gap at `ref-02` is a deliberate scar. Anyone who finds an old note saying
-  "`ref-02` needs work" will look it up, find nothing, and go read this document
-  — which is the correct outcome.
+`ref-01` survives honestly — same position, same speaker, same handoff, same
+opening sentence. It only loses its second sentence and its caption.
 
-**Alternative if you would rather have clean sequential ids:** renumber
-`ref-01`…`ref-06` and accept that both names change meaning. Cheaper to read,
-and the only cost is that notes written before today point at the wrong beats.
-Say which you want; the plan works either way.
+`ref-02` held four sentences now spread across five beats. There is no honest
+successor, so nothing inherits the name. **The gap is deliberate.** An old note
+saying "`ref-02` needs work" will fail to resolve and send the reader here,
+which is the correct outcome — far better than silently pointing at the wrong
+beat, which is exactly what `CONTEXT.md`'s never-renumber rule exists to prevent.
 
-### 2. Captions
+**Do not fill the gap later.** A future `ref-02` would mean two different things
+across the project's history.
 
-**Recommended: one caption in the whole section, on beat 2.**
+### Captions
 
-`ref-01` currently carries `Do not build prisons out of our classrooms.` — the
-single sanctioned exception to the 5-word ceiling, and the one beat in the deck
-where the screen and the speaker say the same words at the same time. Under the
-re-cut that sentence gets its own beat, so the caption moves with it to beat 2.
+**One caption in the entire section, on `ref-03`.**
 
-Every other beat in the section runs `caption: null`. The point of the re-cut is
-that the images carry the argument; adding five more captions would put the
-audience back to reading instead of watching, and would cost the section its one
-genuinely arresting text moment by making it ordinary.
+```
+ref-01  null
+ref-03  "Do not build prisons out of our classrooms."
+ref-04  null
+ref-05  null
+ref-06  null
+ref-07  null
+```
+
+That sentence is the deck's single sanctioned exception to the 5-word ceiling,
+and the only beat where the screen and the speaker say the same words at the
+same time. It moves from `ref-01` to `ref-03` along with its sentence, and it
+brings `ref-01`'s old cue with it: *read it aloud, in sync with the room.*
+
+Five more captions would put the audience back to reading instead of watching,
+and would cost this one its force by making it ordinary.
+
+### Debris colour
+
+**White, like the weapons.** The storyboard draws the scatter in red pen for
+visibility only; it is not an instruction. `blood` stays confined to Effects and
+the colour rule takes no second exception.
 
 ---
 
@@ -151,7 +167,7 @@ every later task depends on the beats existing.
 
 **Files:** Modify `src/beats.js`; regenerate `docs/RUNSHEET.md`.
 
-- [ ] **Step 1:** Replace the two Refusal entries with six, following the decisions above. Speaker is `CH` throughout; `handoff: true` on the first beat only — the section is still one continuous CH passage, so the handoff count stays at six for the whole deck.
+- [ ] **Step 1:** Replace the two Refusal entries with six: `ref-01`, `ref-03`, `ref-04`, `ref-05`, `ref-06`, `ref-07`. **`ref-02` is retired and must not be reused.** Speaker is `CH` throughout; `handoff: true` on `ref-01` only — the section is still one continuous CH passage, so the deck's handoff count stays at six.
 
 - [ ] **Step 2:** Split the script verbatim, one sentence per beat. Do not reword. The em-dash before "because" in the source becomes the join between beats 5 and 6 — beat 5's script ends `…hold the line for healing —` and beat 6's begins `— because treating children…`, matching how `roots-00`/`roots-01` already handle a sentence broken across a click.
 
@@ -167,6 +183,10 @@ console.log('total:', totalBeats, '(expect 26)');
 console.log('refusal:', beats.filter(b => b.section === 'refusal').length, '(expect 6)');
 console.log('handoffs:', beats.filter(b => b.handoff).length, '(expect 6)');
 console.log('captions in refusal:', beats.filter(b => b.section === 'refusal' && b.caption).length, '(expect 1)');
+const ids = beats.filter(b => b.section === 'refusal').map(b => b.id).join(',');
+console.log('ids:', ids);
+console.log('expect: ref-01,ref-03,ref-04,ref-05,ref-06,ref-07');
+console.log('ref-02 must be absent:', !ids.includes('ref-02'));
 "
 ```
 
@@ -508,12 +528,11 @@ its existing call kept working, because Effects depends on it.
 | Stale `ref-02` references after the re-cut | Decisions | Id retired rather than reused, so a lookup fails loudly instead of silently pointing at the wrong beat |
 | Caption unreadable against the bars | Task 2 | Widen bar spacing, never special-case the caption's position |
 
-**Open.** Only the two decisions at the top — beat ids and the single-caption
-recommendation. Everything else is settled by the storyboard.
+**Open.** Nothing. Ids, captions and debris colour are settled above; the
+storyboard settles the rest. This section is handoff-ready.
 
-One thing worth a second look during Task 5: the storyboard draws the scattered
-debris in red pen, but red is `blood`, which this plan and `CONTEXT.md` confine
-to Effects. Read as annotation ink rather than an instruction, so the debris is
-specified as the weapons' own white breaking up and dimming. If actual red was
-meant there, say so — it is a one-line change and a deliberate second exception
-to the colour rule rather than an accident.
+**Sequencing note for whoever picks this up:** Task 1 is the structural change
+and ships alone — it is independently correct, it takes the deck from 22 beats
+to 26, and rehearsal can start on the real structure while the visuals are
+built. Everything after it depends on the Effects plan's camera rig and gun
+shape, so build that plan's Tasks 1 and 2 first or extract those two pieces.
