@@ -199,7 +199,7 @@ export const beats = [
     id: 'eff-00',
     section: 'effects',
     scene: 'effects',
-    state: { mode: 'shatter' },
+    state: { mode: 'gun' },
     speaker: 'CH',
     handoff: true,
     caption: null,

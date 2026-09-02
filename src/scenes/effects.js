@@ -23,6 +23,7 @@
 import { COLOR, TIME } from '../theme.js';
 import { POINTS } from '../theme.js';
 import { DESKS } from '../mask.js';
+import { buildGun } from '../shapes/gun.js';
 import { solid, clearDelays, swirl } from './_base.js';
 
 const GRID_COLS = 6;
@@ -35,6 +36,19 @@ const SEAT_ASH = solid(COLOR.ash, 7.0);
 const GRID_LIT = solid(COLOR.ash, 8.0);
 const GRID_FAILED = solid(COLOR.ash, 2.2);
 const GRID_DARK = solid(COLOR.ash, 1.0);
+
+/** The weapon is the same ash as the mask it was made of. It is not lit. */
+const GUN_ASH = solid(COLOR.ash, 8.0);
+
+/**
+ * Built once. The gun is a pure function of the shard map, and rebuilding it
+ * per entry would reseed the scatter and make the points jump on a re-entry.
+ */
+let gunBuf = null;
+function gun(shardOf) {
+  if (!gunBuf) gunBuf = buildGun(null, { shardOf });
+  return gunBuf;
+}
 
 /** Per-point delay in 0..1, by how far that point's desk is from the origin. */
 let deskDelay = null;
@@ -75,6 +89,13 @@ export default {
     clearDelays(field);
 
     switch (state.mode) {
+      case 'gun': {
+        field.setDrift(0.006);
+        field.morph(gun(mask.shardOf), { duration: TIME.gunForm, ease: 'inOutQuad' });
+        field.morphColor(GUN_ASH, { duration: TIME.gunForm });
+        break;
+      }
+
       case 'shatter': {
         field.setDrift(0.02);
         // Irregular in time as well as in space, so the break has grain.
@@ -125,6 +146,12 @@ export default {
     clearDelays(field);
 
     switch (state.mode) {
+      case 'gun':
+        field.setDrift(0.006);
+        field.setUpdate(null);
+        field.sceneOffset.fill(0);
+        field.snap(gun(mask.shardOf), GUN_ASH);
+        break;
       case 'shatter':
         field.setDrift(0.02);
         field.setUpdate(null);
