@@ -20,11 +20,14 @@
  * the empty shape where someone should be.
  */
 
+import { animate } from 'animejs';
+
 import { COLOR, TIME } from '../theme.js';
 import { POINTS } from '../theme.js';
 import { DESKS } from '../mask.js';
 import { buildGun } from '../shapes/gun.js';
 import { BULLET, VAPOUR, buildWind, resetWind, stepWind } from '../shapes/wind.js';
+import { buildSplat } from '../shapes/splat.js';
 import { createSequence } from '../sequence.js';
 import { rgbOf, solid, clearDelays, swirl } from './_base.js';
 
@@ -175,12 +178,154 @@ function windColors() {
   return windColorCache;
 }
 
+/* ── Beat 12: the camera advances, then the bullet bursts ───────────────── */
+
+let splatBuf = null;
+function splat() {
+  if (!splatBuf) splatBuf = buildSplat();
+  return splatBuf;
+}
+
+/**
+ * The one non-ash colour in the section, and the only one.
+ *
+ * 2.4, not the 3.2 the plan suggested: these points are emissive under additive
+ * blending, and where the core is densest the channels saturate and the red
+ * washes out to pink. Lower keeps it red where it matters most.
+ */
+const BLOOD = solid(COLOR.blood, 2.4);
+
+/** Half-width of the splat, for normalising the sweep delay. */
+const SPLAT_HALF = 1.2;
+
+/**
+ * How far the camera pushes in. The rig computes `position.z = fitZ + offset.z`,
+ * so forward is NEGATIVE; with fitZ around 2.9 this lands at about 1.3, well
+ * clear of the 0.1 near plane.
+ */
+const ADVANCE_Z = -1.6;
+
+/**
+ * What the frame looks like while the camera is advancing: nothing.
+ *
+ * The wind goes out entirely and the bullet is left as a faint mote. THE FRAME
+ * STAYS EMPTY AND THAT IS THE BEAT — it is the one moment of quiet left in a
+ * section that is now the loudest in the deck, and it is what makes the splat
+ * land. Do not fill it.
+ *
+ * The bullet is not taken all the way to nothing only because it is the thing
+ * that becomes the blood; a stain arriving from an entirely empty frame would
+ * be a stain from nowhere.
+ */
+let emptyColorCache = null;
+function emptyColors() {
+  if (emptyColorCache) return emptyColorCache;
+
+  const w = wind();
+  const out = new Float32Array(POINTS * 3);
+
+  for (let i = 0; i < POINTS; i++) {
+    const intensity = w.role[i] === BULLET ? 1.6 : w.role[i] === VAPOUR ? 0.25 : 0.1;
+    const [r, g, b] = rgbOf(COLOR.ash, intensity);
+    out[i * 3] = r;
+    out[i * 3 + 1] = g;
+    out[i * 3 + 2] = b;
+  }
+
+  emptyColorCache = out;
+  return emptyColorCache;
+}
+
+/** The dolly, driven the same way every morph in the deck is: a scalar. */
+const dolly = { z: 0 };
+let dollyAnim = null;
+
+function advanceCamera(ctx) {
+  const { field, rig } = ctx;
+
+  field.setDrift(0.003);
+  field.morphColor(emptyColors(), { duration: TIME.advance, ease: 'inOutQuad' });
+
+  dollyAnim?.pause();
+  dolly.z = 0;
+  dollyAnim = animate(dolly, { z: ADVANCE_Z, duration: TIME.advance, ease: 'inOutQuad' });
+
+  // The wind keeps running under the fade rather than freezing, so the frame
+  // empties out instead of stopping dead.
+  field.setUpdate((dt, time) => {
+    stepWind(field, wind(), dt, time);
+    rig.setOffset(0, 0, dolly.z);
+  });
+}
+
+function burst(ctx) {
+  const { field, rig } = ctx;
+
+  dollyAnim?.pause();
+  dolly.z = ADVANCE_Z;
+  rig.setOffset(0, 0, ADVANCE_Z);
+
+  // The wind lives in sceneOffset; fold it in so the burst starts from where
+  // the points visibly are rather than from the seeded layout.
+  field.setUpdate(null);
+  field.bakeOffsets();
+  field.sceneOffset.fill(0);
+  field.setDrift(0.004);
+
+  // The sweep. The same per-point delay mechanism that lights shards 200ms
+  // apart throws a splatter across the frame: a point's delay is its own
+  // normalised x in the target, so the left edge lands first and the right
+  // edge last. 450ms in total, because the storyboard says "dramatic, sudden"
+  // and anything slower reads as the blood being drawn rather than thrown.
+  const target = splat();
+  for (let i = 0; i < POINTS; i++) {
+    const d = ((target[i * 3] + SPLAT_HALF) / (SPLAT_HALF * 2)) * 0.75;
+    field.posDelay[i] = Math.min(0.9, Math.max(0, d));
+    field.colDelay[i] = field.posDelay[i];
+  }
+
+  field.morph(target, { duration: TIME.splatForm, ease: 'outExpo' });
+  field.morphColor(BLOOD, { duration: TIME.splatForm });
+}
+
+function snapSplat(ctx) {
+  const { field, rig } = ctx;
+
+  dollyAnim?.pause();
+  dolly.z = ADVANCE_Z;
+  rig.setOffset(0, 0, ADVANCE_Z);
+
+  field.setUpdate(null);
+  field.sceneOffset.fill(0);
+  field.setDrift(0.004);
+  clearDelays(field);
+  field.snap(splat(), BLOOD);
+}
+
+const beat12 = createSequence([
+  {
+    ms: TIME.advance,
+    play: advanceCamera,
+    done: (ctx) => {
+      ctx.rig.setOffset(0, 0, ADVANCE_Z);
+      dolly.z = ADVANCE_Z;
+    },
+  },
+  {
+    ms: TIME.splatForm,
+    play: burst,
+    done: snapSplat,
+  },
+]);
+
 /**
  * Every entry and every apply passes through here first. A beat the operator
  * clicked away from must not keep running its stages into the next one.
  */
 function stopAll(ctx) {
   beat10.stop();
+  beat12.stop();
+  dollyAnim?.pause();
   darken(ctx.flash);
 }
 
@@ -238,6 +383,11 @@ export default {
         field.morph(wind().positions, { duration: 900, ease: 'outExpo' });
         field.morphColor(windColors(), { duration: 900 });
         field.setUpdate((dt, time) => stepWind(field, wind(), dt, time));
+        break;
+      }
+
+      case 'splat': {
+        beat12.start(ctx);
         break;
       }
 
@@ -303,6 +453,9 @@ export default {
         resetWind(wind());
         field.snap(wind().positions, windColors());
         field.setUpdate((dt, time) => stepWind(field, wind(), dt, time));
+        break;
+      case 'splat':
+        beat12.settle(ctx);
         break;
       case 'shatter':
         field.setDrift(0.02);

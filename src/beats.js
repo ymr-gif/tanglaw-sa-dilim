@@ -225,7 +225,7 @@ export const beats = [
     id: 'eff-02',
     section: 'effects',
     scene: 'effects',
-    state: { mode: 'grid-fail' },
+    state: { mode: 'splat' },
     speaker: 'CH',
     handoff: false,
     caption: null,
