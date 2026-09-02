@@ -41,6 +41,18 @@ export const COLOR = {
   radiance: 0xfff0c2,
 
   intruder: 0x6b8f3a, // NVE shard. deliberately off-palette, sickly
+
+  /**
+   * The one non-ash colour permitted in Effects, and the only exception to the
+   * near-monochrome rule outside Prevention onward.
+   *
+   * The storyboard specifies "vibrant red", which overrides an earlier
+   * recommendation for a dark desaturated stain. Vibrant it is. Note for
+   * tuning: this is emissive against near-black under additive blending, so it
+   * will read brighter on screen than the hex suggests, and brighter again on a
+   * projector that is crushing its blacks.
+   */
+  blood: 0xe8142a,
 };
 
 /**
@@ -75,6 +87,30 @@ export const TIME = {
   thresholdDim: 30000, // the warm side is still dimming whenever the click lands
   lantern: 3200,
   seat: 2400,
+
+  /* The Effects sequence (beats 10-13). See
+     docs/superpowers/plans/2026-09-02-effects-sequence.md */
+  gunForm: 1800, // shards converge into the weapon
+  fire: 140, // muzzle flash duration
+  recoil: 200, // muzzle kicks up after the shot
+  splatForm: 450, // "dramatic, sudden" — this is deliberately fast
+  advance: 1700, // camera pushes FORWARD through frame 5
+};
+
+/**
+ * Camera parallax.
+ *
+ * A fixed camera in front of a point field reads as a photograph of one. A very
+ * slow sway gives the field parallax and the audience depth, and it costs
+ * nothing — it is a pure function of elapsed time, so it never has to be
+ * reproduced by apply().
+ *
+ * Keep it small. Anything the audience can consciously see is too much.
+ */
+export const SWAY = {
+  amount: 0.035,
+  rateX: 0.11,
+  rateY: 0.17,
 };
 
 /** Easing. Ease out on entry, ease in on exit (§7). anime.js v4 naming. */
