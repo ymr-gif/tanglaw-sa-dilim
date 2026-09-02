@@ -3,12 +3,23 @@
  *
  * THE COLOUR RULE (CONTEXT.md §3), restated because breaking it costs the piece:
  *
- *   Darkness sections are near-monochrome. Festival colour appears only as
- *   light, and only in Prevention onward.
+ *   The deck's colour argument is TEMPERATURE, not saturation. Festival colour
+ *   — the mask's own WARM hues — appears only as light, and only in Prevention
+ *   onward.
  *
- * Cold open, Threshold, Title, Roots and Effects may use `void`, `ash`, the
- * three DIM tints, and `intruder`. Nothing else. The four festival hues are
- * first allowed at prev-01 and are always emissive light, never flat fill.
+ * Cold open, Title, Roots and Effects may use `void`, `ash`, the three DIM
+ * tints, and `intruder`. Two documented exceptions sit before prev-01, both
+ * COLD and both earned by what they depict:
+ *
+ *   THRESHOLD (slides 2-3) — vivid by decision. That beat is symbolic and has
+ *   to read across a lit room, so it uses the `THRESHOLD` block below: yellow
+ *   student, electric-violet shadows, and `blood` for the knife.
+ *
+ *   EFFECTS — `blood` again, on the splat at eff-02.
+ *
+ * The four festival hues (`rose`, `ember`, `gold`, `fuchsia`) plus `radiance`
+ * are first allowed at prev-01 and are always emissive light, never flat fill.
+ * That half of the rule is unchanged and is the half Prevention depends on.
  */
 
 import { Color } from 'three';

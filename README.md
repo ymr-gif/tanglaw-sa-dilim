@@ -149,11 +149,15 @@ and lifts — that repetition is what carries the narrative.
 
 Three rules the code enforces, and any change has to keep:
 
-1. **Festival colour appears only in Prevention onward.** Cold open, Threshold,
-   Title, Roots and Effects are near-monochrome. Only `prevention.js`,
-   `refusal.js`, `close.js` and `qna.js` may write a festival hue. Effects has
-   exactly one documented exception, `COLOR.blood` on `eff-02`, and it is gone
-   again by the end of `eff-03` — no festival hue ever appears there.
+1. **The colour argument is temperature, not saturation.** Festival colour —
+   the mask's own warm pinks and golds — appears only in Prevention onward.
+   Only `prevention.js`, `refusal.js`, `close.js` and `qna.js` may write a
+   festival hue. Two sections before that carry colour anyway, both cold and
+   both documented: **Threshold** uses the `THRESHOLD` palette (yellow student,
+   electric-violet shadows, red knife) because slide 3 is symbolic and has to
+   read across a lit room, and **Effects** uses `COLOR.blood` on `eff-02`, gone
+   again by the end of `eff-03`. Cold open, Title and Roots stay
+   near-monochrome, and no festival hue ever appears before `prev-01`.
 2. **Caption case is load-bearing.** Lowercase in the darkness, uppercase in the
    light. Text renders verbatim from `beats.js`; there is no `text-transform`
    anywhere in the project.

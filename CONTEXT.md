@@ -62,18 +62,37 @@ shifts toward the call to action, revisit this.
 
 ## 3. The rule that keeps the theme from being tone-deaf
 
-> **Darkness sections are near-monochrome. Festival color appears only as
-> light, and only in Prevention onward.**
+> **First rule, as amended 2026-09-02. The deck's colour argument is
+> TEMPERATURE, not saturation.**
 
-The deck opens drained — deep indigo, ash gray, one weak lamp glow. It stays
-cold through Roots and Effects. Prevention lets the four festival hues back in,
-one per solution. By the close, the mask is in full color.
+Threshold (slides 2-3) carries vivid colour — a yellow student, neon purple
+shadows, a red knife — because that beat is symbolic and has to read across a
+lit room. Those hues are COLD and violent by design: electric violet, hard red.
+Title, Roots and Effects then drain to near-monochrome, and the festival palette
+— the mask's own WARM pinks and golds — still appears only from Prevention
+onward.
 
-Color becomes hope, structurally. The audience feels the deck warming before
+So the shape is vivid, drained, vivid again: the Threshold shows what is at
+stake, the deck desaturates as the analysis gets bleak, and colour returns when
+solutions arrive. The contrast at `prev-01` is measured against Effects, not
+against slide 3, and is unaffected.
+
+What is still forbidden anywhere before `prev-01`: the festival hues themselves
+(`rose`, `ember`, `gold`, `fuchsia`, `radiance`). Warmth is what Prevention
+earns.
+
+Colour becomes hope, structurally. The audience feels the deck warming before
 they consciously register why, and the metaphor never has to be explained out
-loud. This is the single most important constraint in the project. Breaking it
-anywhere — a stray magenta in Roots, a warm accent in Effects — costs the entire
-effect.
+loud. This is still the single most important constraint in the project — what
+changed is which axis it runs along. A stray festival magenta in Roots, or a
+warm accent in Effects, costs the entire effect exactly as it always did.
+
+**What the amendment cost, and what it bought.** An earlier draft of this rule
+argued that saturated colour in the Threshold would leave Prevention's turn with
+nothing to be. That was overstated: Title, Roots and Effects still drain to
+near-monochrome *between* the two, roughly fourteen beats of it, and local
+contrast is what an audience actually feels. What the deck lost is a tidy
+sentence in its own documentation. What it gained is a better arc.
 
 **Second rule:** it is always the same mask. Assembling, cracking, shattering,
 relighting. The repetition is what carries the narrative.
