@@ -136,9 +136,16 @@ export function buildKnife(
  * as a blade rather than a wedge. NECK is the waist before the handle.
  * [x0, x1, l0, l1, h0, h1], same convention as PARTS above.
  */
-const KITCHEN_TIP = [-0.4, -0.3, -0.005, -0.045, 0.005, 0.055];
-const KITCHEN_BODY = [-0.3, 0.0, -0.045, -0.1, 0.055, 0.09];
-const KITCHEN_NECK = [0.0, 0.04, -0.03, -0.03, 0.03, 0.03];
+/**
+ * The SPINE (top edge, h0/h1) stays nearly flat across both parts — it barely
+ * rises from tip to heel. The CUTTING EDGE (bottom edge, l0/l1) does almost
+ * all of the tapering. Symmetric tapering on both edges was tried first and
+ * read as an arrowhead/dart, not a knife: a real blade's back is straight
+ * and only the edge curves up into the point.
+ */
+const KITCHEN_TIP = [-0.46, -0.34, -0.008, -0.05, 0.01, 0.06];
+const KITCHEN_BODY = [-0.34, 0.0, -0.05, -0.16, 0.06, 0.07];
+const KITCHEN_NECK = [0.0, 0.03, -0.035, -0.035, 0.035, 0.035];
 
 /**
  * The handle is a CAPSULE — a rectangle with two rounded end-caps, not an
@@ -148,9 +155,15 @@ const KITCHEN_NECK = [0.0, 0.04, -0.03, -0.03, 0.03, 0.03];
  * (only the outward-facing half of each), the same technique the tip caps
  * in shapes/hands.js use — a full disc at each end would double-cover the
  * rectangle's own corners.
+ *
+ * Sized so the BLADE carries roughly two-thirds of the filled area, the
+ * handle the other third. An earlier pass sized the handle nearly as large
+ * as the blade and it read as a harpoon — a shaft with a bulb on the end —
+ * rather than a knife, on screen at real point density. A knife's silhouette
+ * has to be blade-dominant to read as one.
  */
-const CAP_R = 0.1;
-const RECT_LEN = 0.2;
+const CAP_R = 0.075;
+const RECT_LEN = 0.12;
 const LEFT_CAP_CX = KITCHEN_NECK[1] + CAP_R;
 const RECT_X0 = LEFT_CAP_CX;
 const RECT_X1 = RECT_X0 + RECT_LEN;
