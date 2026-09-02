@@ -46,6 +46,13 @@ const caseOf = (caption) => {
   return 'mixed case';
 };
 
+/**
+ * What the audience actually reads on a beat: one centred caption, or several
+ * labels each anchored to its own thing on screen. A beat has one or the
+ * other, never both.
+ */
+const onScreen = (beat) => beat.caption ?? (beat.labels ? beat.labels.join(' · ') : null);
+
 const sectionLabel = (id) => SECTIONS.find((s) => s.id === id)?.label ?? id;
 const sectionKey = (id) => SECTIONS.find((s) => s.id === id)?.key ?? '?';
 
@@ -62,9 +69,10 @@ w();
 w('Every beat in speaking order: what the speaker says, where to click, what the');
 w('deck does, and what the audience reads.');
 w();
+const withText = beats.filter((b) => onScreen(b)).length;
 w(`**${totalBeats} beats** · **${beats.filter((b) => b.handoff).length} handoffs** · ` +
-  `**${beats.filter((b) => b.caption).length} beats with on-screen text** ` +
-  `(${totalBeats - beats.filter((b) => b.caption).length} carry none)`);
+  `**${withText} beats with on-screen text** ` +
+  `(${totalBeats - withText} carry none)`);
 w();
 w('Quote the **id** when a beat needs changes — ids are stable and never');
 w('renumbered, so `roots-02` survives an inserted beat and "slide 7" does not.');
@@ -80,7 +88,8 @@ w('|---|---|---|---|---|');
 
 beats.forEach((beat, i) => {
   const speaker = beat.handoff ? `**${beat.speaker}** ⇠ handoff` : beat.speaker;
-  const caption = beat.caption ? `\`${beat.caption}\`` : '—';
+  const text = onScreen(beat);
+  const caption = text ? `\`${text}\`` : '—';
   w(`| ${i + 1} | [\`${beat.id}\`](#${beat.id}) | ${sectionLabel(beat.section)} | ${speaker} | ${caption} |`);
 });
 
@@ -116,7 +125,7 @@ beats.forEach((beat, i) => {
     w();
   }
 
-  const title = beat.caption ? ` — ${beat.caption}` : '';
+  const title = onScreen(beat) ? ` — ${onScreen(beat)}` : '';
   w(`#### <a id="${beat.id}"></a>${i + 1} · \`${beat.id}\`${title}`);
   w();
 
@@ -134,7 +143,16 @@ beats.forEach((beat, i) => {
   w(`> ${flat(beat.script)}`);
   w();
 
-  if (beat.caption) {
+  if (beat.labels) {
+    // Several words at once, each anchored to its own moving thing. The word
+    // count is the TOTAL, because the ceiling is about what the audience is
+    // asked to read at this beat, not about any one label.
+    const total = beat.labels.reduce((n, l) => n + wordCount(l), 0);
+    w(`**On screen** ${beat.labels.map((l) => `\`${l}\``).join(', ')} — ` +
+      `${beat.labels.length} labels, staggered, ${total} words total, ` +
+      `${caseOf(beat.labels.join(' '))}` +
+      `${total > 5 ? ' — **over the 5-word ceiling, deliberately**' : ''}`);
+  } else if (beat.caption) {
     w(`**On screen** \`${beat.caption}\` — ${wordCount(beat.caption)} word` +
       `${wordCount(beat.caption) === 1 ? '' : 's'}, ${caseOf(beat.caption)}` +
       `${wordCount(beat.caption) > 5 ? ' — **over the 5-word ceiling, deliberately**' : ''}`);

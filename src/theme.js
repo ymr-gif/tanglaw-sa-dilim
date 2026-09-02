@@ -54,8 +54,13 @@ export const COLOR = {
   intruder: 0x6b8f3a, // NVE shard. deliberately off-palette, sickly
 
   /**
-   * The one non-ash colour permitted in Effects, and the only exception to the
-   * near-monochrome rule outside Prevention onward.
+   * Used TWICE, and deliberately not duplicated into two near-identical reds.
+   *
+   * It is the knife on `thresh-02` — "stabbings shatter our peace" — and the
+   * splat on `eff-02`. Same red, because it is the same thing: the threat named
+   * on slide 3, realised in Effects. A second, slightly different red would
+   * quietly break that link and nobody would be able to say why the sections
+   * stopped rhyming.
    *
    * The storyboard specifies "vibrant red", which overrides an earlier
    * recommendation for a dark desaturated stain. Vibrant it is. Note for
@@ -64,6 +69,22 @@ export const COLOR = {
    * projector that is crushing its blacks.
    */
   blood: 0xe8142a,
+};
+
+/**
+ * Threshold palette (slides 2-3). Vivid by decision — this beat is symbolic and
+ * has to carry across a lit room. See the amended §3 rule in the header.
+ *
+ * Kept COLD against the festival palette's warmth, so the two never read as one
+ * colour system: electric violet rather than `fuchsia`'s warm pink-violet, and
+ * a hard red. The student is the single warm thing in frame, which is the
+ * deck's existing language for the one living thing in a scene — and it is why
+ * the image works at all.
+ */
+export const THRESHOLD = {
+  student: 0xffe23d, // yellow. purer and brighter than `gold`'s amber
+  shadow: 0x8f3dff, // neon violet — electric, cold, nothing like `fuchsia`
+  shadowEye: 0xd9b3ff, // near-white violet, so the eyes read at distance
 };
 
 /**
@@ -98,6 +119,15 @@ export const TIME = {
   thresholdDim: 30000, // the warm side is still dimming whenever the click lands
   lantern: 3200,
   seat: 2400,
+
+  /* The Threshold sequence (slides 2-3). See
+     docs/superpowers/plans/2026-09-02-threshold-sequence.md */
+  gather: 2400, // the drifting field resolves into the student
+  slither: 2600, // the three shadows arrive out of the child's own back
+  shadowStagger: 700, // between shadows, and between their three labels
+  pierce: 260, // the knife falls and embeds
+  crack: 180, // the wedges separate. fast — a slow crack reads as melting
+  wreck: 900, // the pieces drift out and stop
 
   /* The Effects sequence (beats 10-13). See
      docs/superpowers/plans/2026-09-02-effects-sequence.md */

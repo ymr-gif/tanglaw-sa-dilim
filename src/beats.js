@@ -21,14 +21,22 @@
  *   handoff   true when the speaker changes at this beat. The operator's
  *             most important column.
  *   caption   on-screen text, or null. HARD CEILING: 5 words.
+ *   labels    OPTIONAL. Several words at once, each anchored to its own moving
+ *             thing on screen rather than centred. Only `thresh-01` uses it.
+ *             A beat has `caption` or `labels`, never both.
  *   script    what the speaker says. Presenter view only.
  *   cue       staging note to self. Presenter view only.
  *   section   used by the 1-8 jump keys.
  *
  * CAPTION CASE IS LOAD-BEARING
- *   Roots and Effects captions are lowercase — the darkness is unspoken,
- *   diminished, said under the breath. Prevention and Close captions are
- *   uppercase — the light is declarative. Do not normalize these.
+ *   Threshold, Roots and Effects captions are lowercase — the darkness is
+ *   unspoken, diminished, said under the breath. Prevention and Close captions
+ *   are uppercase — the light is declarative. Do not normalize these.
+ *
+ * THE 5-WORD CEILING HAS EXACTLY TWO EXCEPTIONS
+ *   `ref-01` and `thresh-01`, both granted deliberately and both documented at
+ *   the beat itself. Anything else over five words is a mistake, not a third
+ *   exception.
  */
 
 export const SPEAKERS = {
@@ -69,7 +77,7 @@ export const beats = [
     id: 'cold-02',
     section: 'coldopen',
     scene: 'coldopen',
-    state: { mode: 'drift' },
+    state: { mode: 'student' },
     speaker: 'BR',
     handoff: false,
     caption: null,
@@ -77,31 +85,80 @@ export const beats = [
              or the hallway when the lights went out. We were taught that
              daylight brings safety. But today, a far more dangerous darkness
              clouds classrooms across the Philippines.`,
-    cue: `Points begin drifting. Scene loops indefinitely — take as long
-          as you want here.`,
+    cue: `Click on "When we were children". The scattered field gathers into
+          a child standing alone — slowly, over about the whole first half of
+          the paragraph. It is finished and holding well before you reach
+          "a far more dangerous darkness", which is the line it illustrates.
+          Hold as long as you like; the figure drifts but never resolves
+          further.`,
   },
 
   // ─────────────────────────────────────────────────────────────────────
-  // THRESHOLD — the childhood door vs. the school corridor.
+  // THRESHOLD — what settles into a school. Three beats, one per sentence.
+  //
+  // The paragraph was one beat until 2026-09-02 and the storyboard split it:
+  // the three things CH names ARE the three shadows, and "stabbings shatter
+  // our peace" IS the knife. The re-cut is the words already having beats in
+  // them, not a re-cut imposed on the words.
+  // See docs/superpowers/plans/2026-09-02-threshold-sequence.md.
   // ─────────────────────────────────────────────────────────────────────
   {
     id: 'thresh-01',
     section: 'threshold',
     scene: 'threshold',
-    state: { mode: 'split' },
+    state: { mode: 'shadows' },
     speaker: 'CH',
     handoff: true,
     caption: null,
+    /**
+     * The deck's SECOND sanctioned exception to the 5-word ceiling, after
+     * `ref-01`. Seven words, but never seven at once: one label arrives with
+     * each shadow, in the order CH says them, so the reading is spread across
+     * the sentence instead of dumped into it. Lowercase — §4's rule for the
+     * dark half, and these three are exactly what it describes: unspoken,
+     * diminished, said under the breath.
+     *
+     * Anchored to the shadows themselves, not to the centre, so each word
+     * lands on the thing it names and tracks it as it moves.
+     */
+    labels: ['unspoken trauma', 'student isolation', 'toxic online spaces'],
     script: `It is a darkness that doesn't vanish at the morning bell. It creeps
              through corridors as unspoken trauma, student isolation, and toxic
-             online spaces exploiting young minds. It is the darkness of rising
-             campus violence — where hostility replaces healing, stabbings
-             shatter our peace, and the threat of extreme aggression lingers
-             over every desk. When a place of learning becomes a ground of
-             fear, darkness has settled in.`,
-    cue: `>>> CH TAKES OVER. Two clouds, same silhouette: one warm, one
-          drained. Warm side dims steadily across the paragraph. Land
-          "darkness has settled in" as the warm side finishes going out.`,
+             online spaces exploiting young minds.`,
+    cue: `>>> CH TAKES OVER. Click on "morning bell". Three shadows come out
+          of the child's own back and take up position, one every ~0.7s, each
+          bringing its word. Name them as they land — "unspoken trauma" on the
+          first, and so on. The child stays lit; nothing happens to them yet.`,
+  },
+  {
+    id: 'thresh-02',
+    section: 'threshold',
+    scene: 'threshold',
+    state: { mode: 'shatter' },
+    speaker: 'CH',
+    handoff: false,
+    caption: null,
+    script: `It is the darkness of rising campus violence — where hostility
+             replaces healing, stabbings shatter our peace, and the threat of
+             extreme aggression lingers over every desk.`,
+    cue: `Click ON the word "stabbings". A knife falls into the middle of the
+          picture, the frame jolts, and the whole image cracks apart around it.
+          It is fast — under a second — so do not click early and then wait.`,
+  },
+  {
+    id: 'thresh-03',
+    section: 'threshold',
+    scene: 'threshold',
+    state: { mode: 'wreckage' },
+    speaker: 'CH',
+    handoff: false,
+    caption: null,
+    script: `When a place of learning becomes a ground of fear, darkness has
+             settled in.`,
+    cue: `Click, then say the line into a still frame. Everything stops except
+          the shadows' eyes. Let the stillness sit for a beat before you hand
+          back to BR — the line is about something having settled, and the
+          image is agreeing with it.`,
   },
 
   // ─────────────────────────────────────────────────────────────────────

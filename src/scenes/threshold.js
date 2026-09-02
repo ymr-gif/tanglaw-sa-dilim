@@ -11,6 +11,12 @@
  * The warm side dims over ~30s and is deliberately still dimming whenever the
  * operator clicks. Nothing here is a timer that advances anything; the beat
  * ends when CH lands "darkness has settled in", not when a clock says so.
+ *
+ * INTERIM STATE, 2026-09-02. `thresh-01` has just been split into three beats
+ * ('shadows', 'shatter', 'wreckage') and this file has not been rewritten yet,
+ * so all three still draw the two-cloud visual. That is deliberate: the beat
+ * split ships on its own so the re-cut can be walked and timed before any new
+ * geometry lands. Task 3 of the Threshold plan replaces this file.
  */
 
 import { COLOR, LAMP, TIME } from '../theme.js';
