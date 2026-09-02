@@ -223,6 +223,13 @@ export function createPointField() {
       driftScale = scale;
     },
 
+    /** Point size as a multiple of BASE_POINT_SIZE. Reset by resetSceneMods,
+     *  same as drift — a scene that wants bigger points asks for the beat it
+     *  needs them, not for the rest of the deck. */
+    setSize(mult) {
+      material.size = BASE_POINT_SIZE * mult;
+    },
+
     /** Per-frame scene hook: fn(dt, time, field). Cleared on unmount. */
     setUpdate(fn) {
       updateHook = fn ?? null;
@@ -236,6 +243,7 @@ export function createPointField() {
       colDelay.fill(0);
       updateHook = null;
       driftScale = DEFAULT_DRIFT;
+      material.size = BASE_POINT_SIZE;
     },
 
     /**

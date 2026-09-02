@@ -285,7 +285,7 @@ export const beats = [
     caption: null,
     script: `Second, we must face the Effects.`,
     cue: `>>> CH TAKES OVER. Click on "Effects." The four shards of the mask
-          converge into a handgun over ~1.8s and HOLD THERE, formed but not
+          converge into a handgun over ~1.4s and HOLD THERE, formed but not
           fired. Wait for your next click — it fires the gun AND carries
           straight into the bullet shot below, no second click needed.`,
   },
@@ -321,7 +321,7 @@ export const beats = [
              classrooms turn into spaces of constant fear, shattering trust in
              our schools.`,
     cue: `Click on "We face." The camera pushes FORWARD through an empty frame
-          for ~1.7s — nothing is there, and that is the point. Do not fill the
+          for ~1.3s — nothing is there, and that is the point. Do not fill the
           silence. The blood then bursts in fast, top to bottom; time your
           click so it lands on "tragedy."
 

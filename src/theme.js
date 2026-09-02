@@ -126,12 +126,14 @@ export const TIME = {
   wreck: 900, // the pieces drift out and stop
 
   /* The Effects sequence (beats 10-13). See
-     docs/superpowers/plans/2026-09-02-effects-sequence.md */
-  gunForm: 1800, // shards converge into the weapon
-  fire: 140, // muzzle flash duration
-  recoil: 200, // muzzle kicks up after the shot
-  splatForm: 450, // "dramatic, sudden" — this is deliberately fast
-  advance: 1700, // camera pushes FORWARD through frame 5
+     docs/superpowers/plans/2026-09-02-effects-sequence.md
+     Sped up ~20-25% across the board 2026-09-03 — keep the same ratios if
+     retuning any one of these again. */
+  gunForm: 1400, // shards converge into the weapon
+  fire: 115, // muzzle flash duration
+  recoil: 160, // muzzle kicks up after the shot
+  splatForm: 360, // "dramatic, sudden" — this is deliberately fast
+  advance: 1300, // camera pushes FORWARD through frame 5
 };
 
 /**

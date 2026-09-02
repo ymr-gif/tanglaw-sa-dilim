@@ -201,12 +201,16 @@ function windColors() {
   return windColorCache;
 }
 
+/** Kept in sync with `beat01`'s second stage `ms` below — that's how long
+ *  the sequencer waits before calling `settleBullet`. */
+const BULLET_PAN_MS = 700;
+
 function panToBullet(ctx) {
   const { field } = ctx;
   field.setDrift(0.003);
   resetWind(wind());
-  field.morph(wind().positions, { duration: 900, ease: 'outExpo' });
-  field.morphColor(windColors(), { duration: 900 });
+  field.morph(wind().positions, { duration: BULLET_PAN_MS, ease: 'outExpo' });
+  field.morphColor(windColors(), { duration: BULLET_PAN_MS });
   field.setUpdate((dt, time) => stepWind(field, wind(), dt, time));
 }
 
@@ -234,7 +238,7 @@ const beat01 = createSequence([
     done: (ctx) => darken(ctx.flash),
   },
   {
-    ms: 900,
+    ms: BULLET_PAN_MS,
     play: panToBullet,
     done: settleBullet,
   },
@@ -273,6 +277,14 @@ function splatExtent() {
 const CENTER_MARGIN = 0.02;
 /** Kept away from the visible left/top/bottom edges, in the same sense. */
 const EDGE_MARGIN = 0.025;
+
+/**
+ * The splat's own footprint is already scaled to the largest size that stays
+ * left of centre — there is no more room to grow WIDER without breaking that
+ * rule. Bigger, bolder particles read as a bigger, denser mass without
+ * moving the boundary at all.
+ */
+const SPLAT_POINT_SIZE = 1.5;
 
 /**
  * How much to grow the splat, and how far left to shift it, so it fills the
@@ -446,12 +458,13 @@ function burst(ctx) {
   field.bakeOffsets();
   field.sceneOffset.fill(0);
   field.setDrift(0.004);
+  field.setSize(SPLAT_POINT_SIZE);
 
   // The burst. Four fast bands, top to bottom — see splatDelay() — rather
   // than a smooth wipe, so the splatter reads as thrown in a sequence of
-  // beats rather than drawn on in one continuous motion. 450ms in total,
-  // because the storyboard says "dramatic, sudden" and anything slower reads
-  // as the blood being drawn rather than thrown.
+  // beats rather than drawn on in one continuous motion. TIME.splatForm ms in
+  // total, because the storyboard says "dramatic, sudden" and anything
+  // slower reads as the blood being drawn rather than thrown.
   const target = positionedSplat(scaleX, scaleY, shiftX);
   const delay = splatDelay();
   for (let i = 0; i < POINTS; i++) {
@@ -474,6 +487,7 @@ function snapSplat(ctx) {
   field.setUpdate(null);
   field.sceneOffset.fill(0);
   field.setDrift(0.004);
+  field.setSize(SPLAT_POINT_SIZE);
   clearDelays(field);
   field.snap(positionedSplat(scaleX, scaleY, shiftX), BLOOD);
 }
@@ -556,12 +570,18 @@ const beat12 = createSequence([
 /**
  * Every entry and every apply passes through here first. A beat the operator
  * clicked away from must not keep running its stages into the next one.
+ *
+ * The size reset belongs here rather than only in unmount: the operator can
+ * step BACKWARD from `splat` into `bullet` without leaving this scene, and
+ * unmount only runs on a scene change. `splat`'s own handling sets its size
+ * back up after this runs.
  */
 function stopAll(ctx) {
   beat01.stop();
   beat12.stop();
   dollyAnim?.pause();
   darken(ctx.flash);
+  ctx.field.setSize(1);
 }
 
 /** Per-point delay in 0..1, by how far that point's desk is from the origin. */
