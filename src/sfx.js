@@ -206,3 +206,75 @@ export function windWoosh() {
     },
   };
 }
+
+/**
+ * A low, whispering ambience under slide 3 (`thresh-01`) while the three
+ * shadows are named. It is not words — it is the hush of many mouths, a quiet
+ * band-passed hiss with a slow breath cycle so it reads as breathing rather
+ * than a frozen static. Loops seamlessly; returns a handle for `stop()`.
+ */
+export function whisper() {
+  arm();
+  if (!audio || audio.state !== 'running') return null;
+
+  const ctx = audio;
+
+  const seconds = 4;
+  const total = Math.ceil(ctx.sampleRate * seconds);
+  const xf = Math.ceil(ctx.sampleRate * 0.25);
+  const noise = ctx.createBuffer(1, total, ctx.sampleRate);
+  const data = noise.getChannelData(0);
+
+  for (let i = 0; i < total; i++) data[i] = Math.random() * 2 - 1;
+  for (let i = 0; i < xf; i++) {
+    const f = i / xf;
+    data[i] = data[i] * f + data[total - xf + i] * (1 - f);
+  }
+  for (let i = 0; i < xf; i++) data[total - xf + i] = data[i];
+
+  const src = ctx.createBufferSource();
+  src.buffer = noise;
+  src.loop = true;
+  src.playbackRate.value = 0.9;
+
+  const gain = ctx.createGain();
+  gain.gain.value = 0;
+  gain.gain.setValueAtTime(0.0, ctx.currentTime);
+
+  // The sibilance lives around 2.5k-4k — the "shh" of a chorus of whispers.
+  const hiss = ctx.createBiquadFilter();
+  hiss.type = 'bandpass';
+  hiss.frequency.value = 3200;
+  hiss.Q.value = 0.7;
+
+  // A slow LFO breathes the volume in and out, faintly — spoken breath, the
+  // room never quite settling into a flat hiss.
+  const breath = ctx.createOscillator();
+  breath.frequency.value = 0.35;
+  const breathAmp = ctx.createGain();
+  breathAmp.gain.value = 0.06;
+  breath.connect(breathAmp).connect(gain.gain);
+
+  hiss.connect(gain).connect(ctx.destination);
+  src.connect(hiss);
+
+  src.start();
+  breath.start();
+  gain.gain.linearRampToValueAtTime(0.16, ctx.currentTime + 0.4);
+
+  return {
+    stop() {
+      try {
+        const t = ctx.currentTime;
+        gain.gain.cancelScheduledValues(t);
+        gain.gain.setValueAtTime(gain.gain.value, t);
+        gain.gain.linearRampToValueAtTime(0.0001, t + 0.3);
+        src.stop(t + 0.35);
+        breath.stop(t + 0.35);
+      } catch {
+        src.stop();
+        breath.stop();
+      }
+    },
+  };
+}
