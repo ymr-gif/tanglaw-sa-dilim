@@ -198,14 +198,16 @@ export function windWoosh() {
   taper.type = 'lowpass';
   taper.frequency.value = 1400;
 
-  band.connect(taper).connect(gain).connect(master);
+  band.connect(taper).connect(gain).connect(ctx.destination);
 
   src.connect(band);
   src.start();
 
-  // Reach full level smoothly after start so there is no initial pop. Raised
-  // 2026-09-03 so the tracking-shot wind registers across a live room too.
-  gain.gain.linearRampToValueAtTime(0.7, ctx.currentTime + 0.15);
+  // Reach full level smoothly after start so there is no initial pop. The wind
+  // BYPASSES the master gain and sits at its exact original level — the whoosh
+  // was already right, and only the shot and the splat needed the push. This
+  // keeps its sustained level identical to before the master-gain change.
+  gain.gain.linearRampToValueAtTime(0.5, ctx.currentTime + 0.15);
 
   return {
     stop() {
