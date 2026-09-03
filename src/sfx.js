@@ -9,6 +9,17 @@
  */
 
 let audio = null;
+let master = null;
+
+/**
+ * Everything runs through one master gain so the whole mix can be pushed past
+ * normal room level in one place. Tuned for a live presentation room —
+ * 2026-09-03. The gunshot is the loudest moment in the deck and the operator
+ * and both speakers stand well back from any speakers, so the master sits
+ * comfortably above unity; per-sound gains below still keep the balance
+ * (shot > splat > wind).
+ */
+const MASTER = 2.2;
 
 /**
  * Create the context on the first real user gesture. Called from the deck's
@@ -21,6 +32,9 @@ export function arm() {
     const AC = window.AudioContext || window.webkitAudioContext;
     if (!AC) return;
     audio = new AC();
+    master = audio.createGain();
+    master.gain.value = MASTER;
+    master.connect(audio.destination);
   }
   if (audio.state === 'suspended') audio.resume();
 }
@@ -38,7 +52,7 @@ export function gunshot() {
   const t = ctx.currentTime;
 
   const play = (source, out, stopAt) => {
-    source.connect(out).connect(ctx.destination);
+    source.connect(out).connect(master);
     source.start(t);
     source.stop(stopAt);
   };
@@ -55,7 +69,7 @@ export function gunshot() {
 
   const burstGain = ctx.createGain();
   // Pushed above unity; the report is the crack of the shot.
-  burstGain.gain.setValueAtTime(1.4, t);
+  burstGain.gain.setValueAtTime(1.55, t);
   burstGain.gain.exponentialRampToValueAtTime(0.001, t + duration);
 
   const reportLow = ctx.createBiquadFilter();
@@ -94,7 +108,7 @@ export function waterSplat() {
   const t = ctx.currentTime;
 
   const play = (source, out, stopAt) => {
-    source.connect(out).connect(ctx.destination);
+    source.connect(out).connect(master);
     source.start(t);
     source.stop(stopAt);
   };
@@ -110,7 +124,7 @@ export function waterSplat() {
   src.playbackRate.setValueAtTime(1.1, t);
 
   const splashGain = ctx.createGain();
-  splashGain.gain.setValueAtTime(0.9, t);
+  splashGain.gain.setValueAtTime(1.15, t);
   splashGain.gain.exponentialRampToValueAtTime(0.001, t + duration);
 
   const wet = ctx.createBiquadFilter();
@@ -184,13 +198,14 @@ export function windWoosh() {
   taper.type = 'lowpass';
   taper.frequency.value = 1400;
 
-  band.connect(taper).connect(gain).connect(ctx.destination);
+  band.connect(taper).connect(gain).connect(master);
 
   src.connect(band);
   src.start();
 
-  // Reach full level smoothly after start so there is no initial pop.
-  gain.gain.linearRampToValueAtTime(0.5, ctx.currentTime + 0.15);
+  // Reach full level smoothly after start so there is no initial pop. Raised
+  // 2026-09-03 so the tracking-shot wind registers across a live room too.
+  gain.gain.linearRampToValueAtTime(0.7, ctx.currentTime + 0.15);
 
   return {
     stop() {
