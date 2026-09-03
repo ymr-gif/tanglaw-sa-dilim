@@ -329,30 +329,30 @@ function slitherAt(field, time, facesOnly) {
 /* ── The labels ─────────────────────────────────────────────────────────── */
 
 /**
- * One anchor per shadow, in the open ground below the tails rather than
- * pushed out past the heads.
+ * One anchor per shadow, straight above its own head.
  *
- * Pushing radially past the head (the original scheme) worked while the
- * three heads sat spread out at roughly shoulder height. It stopped working
- * 2026-09-03 when the curves were hooked and grown: all three heads now
- * cluster together up near the top of the loom, so "push further along the
- * same ray from the child" pushes all three labels toward the same patch of
- * sky and they land on top of each other and on the heads themselves. The
- * ground below the tails (nothing sits lower than the feet, around y=-0.40)
- * is open for the whole width of the frame, so the labels moved there
- * instead — spread left-to-right in the same order as their shadows, wide
- * enough apart that even the longest label ("toxic online spaces") clears
- * its neighbours.
+ * Two earlier schemes tried and dropped, both 2026-09-03: pushing radially
+ * past the head (the original) worked only while the three heads sat spread
+ * out at roughly shoulder height, and broke the moment the curves hooked and
+ * the heads clustered near the top — all three labels landed in the same
+ * patch of sky. Moving them below the tails instead avoided the heads but
+ * put the words nowhere near the shadows they name, on a slide about naming
+ * three specific things. Now that the heads themselves are spread wide
+ * (CURVES again), sitting a fixed gap directly above each one's own x gives
+ * every label the shortest path to the thing it names with no overlap risk
+ * baked in from the geometry — shardlabel.js's own collision pass (see
+ * overlay/shardlabel.js) is still there as a backstop, not the plan.
  *
  * These are MUTATED every frame by the slither, in place. deck.js hands the
  * same Vector3 objects to the label pool, which re-projects them each frame —
- * so a word still tracks its shadow's own motion rather than marking where
- * it once was, even though it no longer tracks the head's position itself.
+ * so a word tracks its shadow's motion, this time including the head's own
+ * position again (x and a fixed y-offset off it).
  */
-const LABEL_Y = -0.68;
-const LABEL_X = [-1.05, 0.85, -0.1]; // left, right, rising — CURVES order
+const LABEL_ABOVE = 0.4; // clears the HEAD_R=0.2 disc with margin for the glow
 
-export const labelAnchors = SHADOW_HEADS.map((_, i) => new Vector3(LABEL_X[i], LABEL_Y, 0));
+export const labelAnchors = SHADOW_HEADS.map(
+  ([x, y]) => new Vector3(x, y + LABEL_ABOVE, 0)
+);
 
 const LABEL_BASE = labelAnchors.map((v) => v.clone());
 

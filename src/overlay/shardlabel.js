@@ -64,12 +64,19 @@ export function createShardLabel(overlayEl) {
    * @param {{text: string, at: Vector3, tone: 'dark'|'light', delay?: number}[]} items
    * @param {boolean} immediate  true for apply(), so a jump lands instantly
    * @param {boolean} push       apply the mask-clearing outward push
+   * @param {boolean} compact    smaller type. `show()`'s one-at-a-time labels use
+   *                             the full distance-legible size; `showMany()`'s
+   *                             several-at-once labels don't have the room —
+   *                             three words at that size, spread across shapes
+   *                             that only span half the frame, run into each
+   *                             other and into the faces they're naming.
    */
-  function render(items, immediate, push) {
+  function render(items, immediate, push, compact) {
     live = items.map((item, i) => {
       const el = elementAt(i);
       el.textContent = item.text;
       el.dataset.tone = item.tone;
+      el.classList.toggle('shard-label--compact', !!compact);
 
       // The stagger is a CSS transition-delay, not a timer. It costs nothing,
       // it cannot leak into the next beat, and apply() clears it by passing
@@ -100,12 +107,12 @@ export function createShardLabel(overlayEl) {
      * @param {boolean} immediate
      */
     show(text, at, tone, immediate = false) {
-      render([{ text, at, tone }], immediate, true);
+      render([{ text, at, tone }], immediate, true, false);
     },
 
     /** Several labels, anchors used as given. See the header. */
     showMany(items, immediate = false) {
-      render(items, immediate, false);
+      render(items, immediate, false, true);
     },
 
     hide() {

@@ -174,6 +174,15 @@ body.idle {
   opacity: 1;
 }
 
+/* Threshold's three-at-once labels only (shardlabel.js's showMany). The
+   single-label size above is tuned for distance legibility with the whole
+   frame to itself; three of them at that size, each centred over its own
+   shadow's head, run into their neighbours and into the faces they name
+   before shardlabel.js's own collision pass ever gets a chance to help. */
+.shard-label--compact {
+  font-size: clamp(0.9rem, 1.6vw, 1.7rem);
+}
+
 /* One bright weight for Roots and Prevention alike. The old distinction —
    dim `#9c9ab0` under the breath vs brighter `--paper` — is gone: distance
    legibility wins over the dim-to-bright gradation. Case still carries the

@@ -47,8 +47,14 @@ const SEED = 0x5ade0001;
  * before `c2`/head curl it back IN over the shoulder. A monotonic tail to
  * head reads as an arm held out straight; a hook that bulges past its own
  * head and doubles back is what makes it look like it is slithering rather
- * than posing, and it also seats the face closer to the student it is
- * looming over instead of stranded out at arm's length.
+ * than posing.
+ *
+ * WIDENED the same day: the first hooked pass curled the heads back in far
+ * enough that all three sat close together over the student, cramped in the
+ * middle of a frame with a lot of unused space at either side. The heads now
+ * land much further out — the hook still bulges past them on the way there,
+ * so the motion reads the same, but it no longer pulls the face back toward
+ * centre once it gets there.
  *
  * The right-hand curve is intentionally smaller than the left and the left is
  * intentionally not a mirror of it — three identical, symmetric loops would
@@ -58,16 +64,16 @@ const CURVES = [
   // left — "unspoken trauma"
   [
     [-0.05, -0.40, -0.16],
-    [-0.62, -0.08, -0.05],
-    [-0.78, 0.58, 0.04],
-    [-0.46, 0.92, 0.08],
+    [-1.05, -0.06, -0.05],
+    [-1.32, 0.55, 0.04],
+    [-1.1, 0.88, 0.08],
   ],
   // right — "student isolation" — tighter, lower; asymmetric on purpose
   [
     [0.06, -0.40, -0.16],
-    [0.48, -0.14, -0.05],
-    [0.58, 0.32, 0.04],
-    [0.33, 0.60, 0.08],
+    [0.88, -0.12, -0.05],
+    [1.08, 0.32, 0.04],
+    [0.9, 0.56, 0.08],
   ],
   // rising behind the head — "toxic online spaces"
   [
