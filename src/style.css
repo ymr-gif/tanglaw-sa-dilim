@@ -183,6 +183,25 @@ body.idle {
   font-size: clamp(0.9rem, 1.6vw, 1.7rem);
 }
 
+/* Slide 3's shadow labels sit on moving, neon-edged shapes, so they get a
+   hard black outline — layered text-shadows, offset in all eight directions —
+   on top of the shared glow. This is the one place in the deck that pays for
+   emphasis with an outline rather than brightness: the words name the
+   shadows, and the outline keeps them legible as the shadow it names stays
+   in motion under them. */
+.shard-label--compact {
+  text-shadow:
+    2px 0 0 #000,
+    -2px 0 0 #000,
+    0 2px 0 #000,
+    0 -2px 0 #000,
+    1px 1px 0 #000,
+    -1px 1px 0 #000,
+    1px -1px 0 #000,
+    -1px -1px 0 #000,
+    0 2px 6px rgba(0, 0, 0, 0.9);
+}
+
 /* One bright weight for Roots and Prevention alike. The old distinction —
    dim `#9c9ab0` under the breath vs brighter `--paper` — is gone: distance
    legibility wins over the dim-to-bright gradation. Case still carries the
