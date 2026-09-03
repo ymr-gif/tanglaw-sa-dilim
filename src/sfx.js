@@ -12,6 +12,13 @@ let audio = null;
 let master = null;
 
 /**
+ * Lift this to bring every sound back. 2026-09-03 the venue removed all audio,
+ * so all three sounds are gated off here rather than deleted — every sound's
+ * tuning below is intact, and flipping this one flag restores the whole mix.
+ */
+const MUTED = true;
+
+/**
  * Everything runs through one master gain so the whole mix can be pushed past
  * normal room level in one place. Tuned for a live presentation room —
  * 2026-09-03. The gunshot is the loudest moment in the deck and the operator
@@ -28,6 +35,8 @@ const MASTER = 2.2;
  * Safe to call repeatedly.
  */
 export function arm() {
+  // Muted: never create or resume an AudioContext at all, so nothing can play.
+  if (MUTED) return;
   if (!audio) {
     const AC = window.AudioContext || window.webkitAudioContext;
     if (!AC) return;
