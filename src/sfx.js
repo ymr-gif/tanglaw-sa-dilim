@@ -3,68 +3,80 @@
  *
  * The deck runs with no audio files anywhere; the one sound it needs (the
  * shot on `eff-01`) is synthesized here. Browsers gate AudioContext behind a
- * user gesture, and every beat advance is one, so the context is created
- * lazily on the first play() and resumed on every subsequent one.
+ * user gesture, so the context is created (and resumed) from the first
+ * pointer/key interaction — see `arm()`, which deck.js and the scene deadlines
+ * are guaranteed to sit inside a real gesture.
  */
 
 let audio = null;
 
-/** Lazily create (or resume) the shared AudioContext. */
-function ensure() {
+/**
+ * Create the context on the first real user gesture. Called from the deck's
+ * global pointer/key handlers, and again from every scene playback, so an
+ * AudioContext exists long before the shot and is never created mid-frame.
+ * Safe to call repeatedly.
+ */
+export function arm() {
   if (!audio) {
     const AC = window.AudioContext || window.webkitAudioContext;
-    if (!AC) return null;
+    if (!AC) return;
     audio = new AC();
   }
   if (audio.state === 'suspended') audio.resume();
-  return audio;
 }
 
 /**
  * A gunshot: a sharp broadband report under a fast-decaying noise burst,
- * layered over a low-frequency thump that carries the weight.
+ * layered over a low-frequency thump that carries the weight. Created to be
+ * unmistakable in a quiet, live room — this is the loudest moment in the deck.
  */
 export function gunshot() {
-  const ctx = ensure();
-  if (!ctx) return;
+  arm();
+  if (!audio || audio.state !== 'running') return;
 
+  const ctx = audio;
   const t = ctx.currentTime;
 
-  // The report — dense white noise, brutal attack, gone in ~0.9s.
-  const duration = 0.9;
-  const noise = ctx.createBuffer(1, ctx.sampleRate * duration, ctx.sampleRate);
+  const play = (source, out, stopAt) => {
+    source.connect(out).connect(ctx.destination);
+    source.start(t);
+    source.stop(stopAt);
+  };
+
+  // The report — dense white noise, brutal attack, gone in under a second.
+  const duration = 0.8;
+  const noise = ctx.createBuffer(1, Math.ceil(ctx.sampleRate * duration), ctx.sampleRate);
   const data = noise.getChannelData(0);
   for (let i = 0; i < data.length; i++) data[i] = Math.random() * 2 - 1;
 
   const src = ctx.createBufferSource();
   src.buffer = noise;
-  src.playbackRate.setValueAtTime(0.7, t);
+  src.playbackRate.setValueAtTime(0.6, t);
 
-  // Shape the burst: instant attack, fast exponential decay.
   const burstGain = ctx.createGain();
-  burstGain.gain.setValueAtTime(1.0, t);
+  // Pushed above unity; the report is the crack of the shot.
+  burstGain.gain.setValueAtTime(1.4, t);
   burstGain.gain.exponentialRampToValueAtTime(0.001, t + duration);
 
   const reportLow = ctx.createBiquadFilter();
   reportLow.type = 'lowpass';
-  reportLow.frequency.setValueAtTime(1200, t);
-  reportLow.frequency.exponentialRampToValueAtTime(200, t + duration);
+  reportLow.frequency.setValueAtTime(1600, t);
+  reportLow.frequency.exponentialRampToValueAtTime(180, t + duration);
+  reportLow.Q.value = 1.2;
 
-  src.connect(reportLow).connect(burstGain).connect(ctx.destination);
-  src.start(t);
-  src.stop(t + duration);
+  reportLow.connect(burstGain);
+  play(src, reportLow, t + duration);
 
-  // The thump — a low sine that carries the physical weight, ~0.35s.
+  // The body — a low sine carrying the physical weight, ~0.4s.
   const thump = ctx.createOscillator();
   thump.type = 'sine';
-  thump.frequency.setValueAtTime(160, t);
-  thump.frequency.exponentialRampToValueAtTime(45, t + 0.35);
+  thump.frequency.setValueAtTime(150, t);
+  thump.frequency.exponentialRampToValueAtTime(42, t + 0.4);
 
   const thumpGain = ctx.createGain();
-  thumpGain.gain.setValueAtTime(0.9, t);
-  thumpGain.gain.exponentialRampToValueAtTime(0.001, t + 0.35);
+  thumpGain.gain.setValueAtTime(1.1, t);
+  thumpGain.gain.exponentialRampToValueAtTime(0.001, t + 0.4);
 
-  thump.connect(thumpGain).connect(ctx.destination);
-  thump.start(t);
-  thump.stop(t + 0.35);
+  thump.connect(thumpGain);
+  play(thump, thumpGain, t + 0.4);
 }

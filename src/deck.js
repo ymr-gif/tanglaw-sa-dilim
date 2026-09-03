@@ -22,6 +22,7 @@
  */
 
 import { beats, QNA, SECTIONS, sectionStart } from './beats.js';
+import { arm } from './sfx.js';
 
 import coldopen from './scenes/coldopen.js';
 import threshold from './scenes/threshold.js';
@@ -212,6 +213,7 @@ export function createDeck(ctx) {
 
   window.addEventListener('keydown', (event) => {
     const key = event.key;
+    arm(); // unlock audio on the first real gesture
 
     if (key === 'ArrowRight' || key === ' ' || key === 'Spacebar') {
       event.preventDefault();
@@ -257,6 +259,7 @@ export function createDeck(ctx) {
   // Click advances. The operator may be working from a presenter remote, which
   // most often reports as a click or as the arrow keys.
   window.addEventListener('pointerdown', (event) => {
+    arm(); // unlock audio on the first real gesture
     if (event.button === 0) deck.next();
   });
 
