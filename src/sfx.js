@@ -137,10 +137,10 @@ export function waterSplat() {
 }
 
 /**
- * A quick knife slash — the blade cutting through air as it embeds on
- * `thresh-02`. A short, resonant hiss that sweeps down fast and cuts off
- * abruptly, with a thock on impact. Drier and sharper than the splash, and
- * over far faster than the gunshot; it is a single strike, not a report.
+ * A knife slash — the blade cutting through air as it embeds on `thresh-02`.
+ * A resonant hiss that sweeps down and sustains, with a thock landing at the
+ * end. Longer than the original so the swing reads as one continuous motion
+ * rather than a single click; still a single strike, not a report.
  */
 export function knifeSlash() {
   arm();
@@ -155,46 +155,50 @@ export function knifeSlash() {
     source.stop(stopAt);
   };
 
-  // The swoosh — dense noise whose band sweeps down fast, reading as the blade
-  // moving through still air. Stripped of low end so it is a hiss, not a thud.
-  const duration = 0.28;
+  // The swoosh — dense noise whose band sweeps down slowly, reading as the
+  // blade arcing through still air. Stripped of low end so it is a hiss, not
+  // a thud, and long enough to track the swing.
+  const duration = 0.62;
   const noise = ctx.createBuffer(1, Math.ceil(ctx.sampleRate * duration), ctx.sampleRate);
   const data = noise.getChannelData(0);
   for (let i = 0; i < data.length; i++) data[i] = Math.random() * 2 - 1;
 
   const src = ctx.createBufferSource();
   src.buffer = noise;
-  src.playbackRate.setValueAtTime(1.25, t);
+  src.playbackRate.setValueAtTime(0.8, t);
 
   const swooshGain = ctx.createGain();
   swooshGain.gain.setValueAtTime(0.0001, t);
-  // Sharp attack into a fast decay: the cut happens at once and is gone.
+  // Sharp attack, then a slower decay that stays alive through the swing and
+  // only fades right at the end — the sound outlasts the arm movement.
   swooshGain.gain.exponentialRampToValueAtTime(0.55, t + 0.015);
+  swooshGain.gain.exponentialRampToValueAtTime(0.35, t + 0.25);
   swooshGain.gain.exponentialRampToValueAtTime(0.001, t + duration);
 
   const swoosh = ctx.createBiquadFilter();
   swoosh.type = 'bandpass';
-  swoosh.frequency.setValueAtTime(4600, t);
-  swoosh.frequency.exponentialRampToValueAtTime(1500, t + duration);
-  swoosh.Q.value = 1.1;
+  swoosh.frequency.setValueAtTime(4200, t);
+  swoosh.frequency.exponentialRampToValueAtTime(900, t + duration);
+  swoosh.Q.value = 1.0;
 
   swoosh.connect(swooshGain);
   play(src, swoosh, t + duration);
 
-  // The thock — a short, woody click at the moment of impact. Low-mid energy
-  // gives it weight where the hiss has none, so it lands rather than passes.
+  // The thock — a short, woody click at the moment of impact, landing after
+  // the swing has fully travelled. Low-mid energy gives it weight where the
+  // hiss has none, so it lands rather than passes.
   const thock = ctx.createOscillator();
   thock.type = 'triangle';
-  thock.frequency.setValueAtTime(220, t);
-  thock.frequency.exponentialRampToValueAtTime(70, t + 0.09);
+  thock.frequency.setValueAtTime(200, t + duration);
+  thock.frequency.exponentialRampToValueAtTime(65, t + duration + 0.1);
 
   const thockGain = ctx.createGain();
-  thockGain.gain.setValueAtTime(0.0, t);
-  thockGain.gain.setValueAtTime(0.5, t + 0.002);
-  thockGain.gain.exponentialRampToValueAtTime(0.001, t + 0.1);
+  thockGain.gain.setValueAtTime(0.0, t + duration);
+  thockGain.gain.setValueAtTime(0.5, t + duration + 0.002);
+  thockGain.gain.exponentialRampToValueAtTime(0.001, t + duration + 0.12);
 
   thock.connect(thockGain);
-  play(thock, thockGain, t + 0.12);
+  play(thock, thockGain, t + duration + 0.14);
 }
 
 /**
