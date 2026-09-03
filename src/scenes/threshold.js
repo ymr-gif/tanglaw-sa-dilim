@@ -39,7 +39,6 @@ import { Vector3 } from 'three';
 import { COLOR, POINTS, THRESHOLD, TIME } from '../theme.js';
 import { rgbOf, clearDelays, delayFraction } from './_base.js';
 import { createSequence } from '../sequence.js';
-import { whisper } from '../sfx.js';
 import { buildStudent } from '../shapes/student.js';
 import { buildShadows, SHADOW_HEADS } from '../shapes/shadow.js';
 import { buildCracks } from '../shapes/cracks.js';
@@ -471,12 +470,7 @@ function stopAll() {
   arrive.stop();
   stab.stop();
   dropT = 0;
-  whisperHandle?.stop();
-  whisperHandle = null;
 }
-
-/** The whispering ambience, held so a beat change can end it. One at a time. */
-let whisperHandle = null;
 
 export default {
   /** Read by deck.js when a beat carries `labels` instead of a `caption`. */
@@ -499,7 +493,6 @@ export default {
         trackLabels(time, 'bodies');
       });
       arrive.start(ctx);
-      if (!whisperHandle) whisperHandle = whisper();
       return;
     }
 
@@ -543,7 +536,6 @@ export default {
       // pose, because an operator recovering from a mis-click wants the state,
       // not the performance of reaching it.
       arrive.settle(ctx);
-      if (!whisperHandle) whisperHandle = whisper();
       return;
     }
 
