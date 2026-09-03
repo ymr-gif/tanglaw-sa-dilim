@@ -329,20 +329,30 @@ function slitherAt(field, time, facesOnly) {
 /* ── The labels ─────────────────────────────────────────────────────────── */
 
 /**
- * One anchor per shadow, pushed a little further out along the direction the
- * head already sits from the child, so the word clears the face it names
- * instead of sitting on it.
+ * One anchor per shadow, in the open ground below the tails rather than
+ * pushed out past the heads.
+ *
+ * Pushing radially past the head (the original scheme) worked while the
+ * three heads sat spread out at roughly shoulder height. It stopped working
+ * 2026-09-03 when the curves were hooked and grown: all three heads now
+ * cluster together up near the top of the loom, so "push further along the
+ * same ray from the child" pushes all three labels toward the same patch of
+ * sky and they land on top of each other and on the heads themselves. The
+ * ground below the tails (nothing sits lower than the feet, around y=-0.40)
+ * is open for the whole width of the frame, so the labels moved there
+ * instead — spread left-to-right in the same order as their shadows, wide
+ * enough apart that even the longest label ("toxic online spaces") clears
+ * its neighbours.
  *
  * These are MUTATED every frame by the slither, in place. deck.js hands the
  * same Vector3 objects to the label pool, which re-projects them each frame —
- * so a word tracks its shadow rather than marking where it once was.
+ * so a word still tracks its shadow's own motion rather than marking where
+ * it once was, even though it no longer tracks the head's position itself.
  */
-const LABEL_PUSH = 0.55;
+const LABEL_Y = -0.68;
+const LABEL_X = [-1.05, 0.85, -0.1]; // left, right, rising — CURVES order
 
-export const labelAnchors = SHADOW_HEADS.map(([x, y]) => {
-  const len = Math.hypot(x, y) || 1;
-  return new Vector3(x + (x / len) * LABEL_PUSH, y + (y / len) * LABEL_PUSH, 0);
-});
+export const labelAnchors = SHADOW_HEADS.map((_, i) => new Vector3(LABEL_X[i], LABEL_Y, 0));
 
 const LABEL_BASE = labelAnchors.map((v) => v.clone());
 

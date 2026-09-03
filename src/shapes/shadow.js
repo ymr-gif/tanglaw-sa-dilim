@@ -29,10 +29,26 @@ const SEED = 0x5ade0001;
 /**
  * Settled control points [tail, c1, c2, head], hand-placed against the
  * storyboard: left and right flank the student near shoulder height, the
- * third rises behind the head. Every tail sits within a few hundredths of the
- * student's own centreline, and every tail's z is pulled slightly negative —
+ * third rises behind the head. Every tail's z is pulled slightly negative —
  * "behind" the student in camera depth — so the origin reads as the child's
  * own back rather than empty air beside them.
+ *
+ * Tails moved down to the student's own feet 2026-09-03 (BODY.yBot in
+ * student.js, offset, lands around y = -0.40) rather than the centreline —
+ * these come UP OUT of the ground the child stands on, not out of their
+ * back, and every other control point grew to match: a shadow anchored at
+ * the feet needs far more reach to loom over the child at all, and reach is
+ * what an imposing shadow is. The three are still not mirrors of each
+ * other — left biggest, right smaller and tighter, the rising one tallest
+ * of all since it looms directly behind the head.
+ *
+ * HOOKED, not a straight diagonal reach, as of 2026-09-03 (reference art
+ * supplied by the storyboard): `c1` swings each body OUT past the student
+ * before `c2`/head curl it back IN over the shoulder. A monotonic tail to
+ * head reads as an arm held out straight; a hook that bulges past its own
+ * head and doubles back is what makes it look like it is slithering rather
+ * than posing, and it also seats the face closer to the student it is
+ * looming over instead of stranded out at arm's length.
  *
  * The right-hand curve is intentionally smaller than the left and the left is
  * intentionally not a mirror of it — three identical, symmetric loops would
@@ -41,24 +57,24 @@ const SEED = 0x5ade0001;
 const CURVES = [
   // left — "unspoken trauma"
   [
-    [-0.04, 0.06, -0.16],
-    [-0.32, 0.32, -0.05],
-    [-0.68, 0.20, 0.04],
-    [-0.92, 0.44, 0.05],
+    [-0.05, -0.40, -0.16],
+    [-0.62, -0.08, -0.05],
+    [-0.78, 0.58, 0.04],
+    [-0.46, 0.92, 0.08],
   ],
   // right — "student isolation" — tighter, lower; asymmetric on purpose
   [
-    [0.05, -0.02, -0.16],
-    [0.32, 0.20, -0.05],
-    [0.62, 0.05, 0.04],
-    [0.86, 0.24, 0.05],
+    [0.06, -0.40, -0.16],
+    [0.48, -0.14, -0.05],
+    [0.58, 0.32, 0.04],
+    [0.33, 0.60, 0.08],
   ],
   // rising behind the head — "toxic online spaces"
   [
-    [0.0, 0.32, -0.16],
-    [-0.16, 0.62, -0.05],
-    [0.12, 0.86, 0.04],
-    [0.05, 1.04, 0.06],
+    [0.0, -0.38, -0.16],
+    [-0.32, 0.10, -0.05],
+    [-0.02, 0.68, 0.04],
+    [0.02, 0.95, 0.08],
   ],
 ];
 
@@ -116,21 +132,29 @@ function bezierTangent(p0, p1, p2, p3, t) {
  * with something stuck on the tip. A face needs a face-shaped mass under it
  * before the features on top of it mean anything.
  */
-const EYE_FRAC = 0.035; // per eye
-const MOUTH_FRAC = 0.05;
-const HEAD_FRAC = 0.19;
-const HEAD_R = 0.14;
+const EYE_FRAC = 0.04; // per eye
+const MOUTH_FRAC = 0.065;
+const HEAD_FRAC = 0.22;
+// Grown 0.14 -> 0.20 2026-09-03, per the reference art's much bigger, more
+// dominant heads — the body is texture, the face is the point, and a small
+// head on a now-larger hooked body read as an afterthought.
+const HEAD_R = 0.2;
 
-// Small and close together, on purpose: this is the parameter that decides
-// demonic-vs-smoke, not the body. See the header comment.
-const EYE_R = 0.032;
-const EYE_SEP = 0.075;
-const EYE_UP = 0.045;
+// Close together relative to HEAD_R, on purpose: this is the parameter that
+// decides demonic-vs-smoke, not the body. See the header comment. Scaled up
+// with HEAD_R so the face keeps the same proportions on the bigger head.
+const EYE_R = 0.042;
+const EYE_SEP = 0.1;
+const EYE_UP = 0.06;
 
-const MOUTH_HALF_W = 0.095;
-const MOUTH_Y = -0.045;
+// Wider and sharper 2026-09-03 to match: fewer, bigger teeth cut deeper reads
+// as a sinister grin at a distance — the first pass (7 teeth, JAG 0.075) blurred
+// into a soft smear under bloom at normal viewing distance, same problem the
+// header warns about with the body. Big, unambiguous zigzags over a wider arc.
+const MOUTH_HALF_W = 0.16;
+const MOUTH_Y = -0.07;
 const MOUTH_TEETH = 5;
-const MOUTH_JAG = 0.05;
+const MOUTH_JAG = 0.11;
 
 // Body taper: near-nothing at the tail (it came from the child, not a solid
 // object), thickening toward the head. It stops well short of the head disc's
@@ -138,7 +162,7 @@ const MOUTH_JAG = 0.05;
 // the same notch knife.js needs between blade and handle, and for the same
 // reason: without it the body and the head merge into one smooth cone.
 const TAIL_THICK = 0.016;
-const HEAD_THICK = 0.085;
+const HEAD_THICK = 0.11;
 
 function triWave(u) {
   const f = u - Math.floor(u);
