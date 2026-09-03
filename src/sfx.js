@@ -80,3 +80,129 @@ export function gunshot() {
   thump.connect(thumpGain);
   play(thump, thumpGain, t + 0.4);
 }
+
+/**
+ * A wet splat — the blood bursting against the frame on `eff-02`. Wet and
+ * splashy (band-passed noise, a rising whistle on impact) where the gunshot
+ * was dry and low. Shorter and faster than the shot; the impact is sudden.
+ */
+export function waterSplat() {
+  arm();
+  if (!audio || audio.state !== 'running') return;
+
+  const ctx = audio;
+  const t = ctx.currentTime;
+
+  const play = (source, out, stopAt) => {
+    source.connect(out).connect(ctx.destination);
+    source.start(t);
+    source.stop(stopAt);
+  };
+
+  // The splash — dense noise with a band-pass that sweeps down, reading wet.
+  const duration = 0.4;
+  const noise = ctx.createBuffer(1, Math.ceil(ctx.sampleRate * duration), ctx.sampleRate);
+  const data = noise.getChannelData(0);
+  for (let i = 0; i < data.length; i++) data[i] = Math.random() * 2 - 1;
+
+  const src = ctx.createBufferSource();
+  src.buffer = noise;
+  src.playbackRate.setValueAtTime(1.1, t);
+
+  const splashGain = ctx.createGain();
+  splashGain.gain.setValueAtTime(0.9, t);
+  splashGain.gain.exponentialRampToValueAtTime(0.001, t + duration);
+
+  const wet = ctx.createBiquadFilter();
+  wet.type = 'bandpass';
+  wet.frequency.setValueAtTime(2400, t);
+  wet.frequency.exponentialRampToValueAtTime(400, t + duration);
+  wet.Q.value = 1.6;
+
+  wet.connect(splashGain);
+  play(src, wet, t + duration);
+
+  // The whistle — a short rising tone on impact, the squeeze of liquid out.
+  const whine = ctx.createOscillator();
+  whine.type = 'sine';
+  whine.frequency.setValueAtTime(300, t);
+  whine.frequency.exponentialRampToValueAtTime(1200, t + 0.15);
+
+  const whineGain = ctx.createGain();
+  whineGain.gain.setValueAtTime(0.12, t);
+  whineGain.gain.exponentialRampToValueAtTime(0.001, t + 0.18);
+
+  whine.connect(whineGain);
+  play(whine, whineGain, t + 0.2);
+}
+
+/**
+ * A seamless, looping wind — the bullet tearing through the air on `eff-01`'s
+ * tracking shot, which holds indefinitely. A broad band-passed noise with no
+ * attack or release: it just is, then stops when the beat leaves.
+ *
+ * The loop is made click-free by crossfading the buffer's head into its tail,
+ * so the last samples equal the first and the jump from the end back to the
+ * start is continuous. Returns a handle for the caller to `stop()`.
+ */
+export function windWoosh() {
+  arm();
+  if (!audio || audio.state !== 'running') return null;
+
+  const ctx = audio;
+
+  const seconds = 2;
+  const total = Math.ceil(ctx.sampleRate * seconds);
+  const xf = Math.ceil(ctx.sampleRate * 0.25); // 250ms crossfade at the seam
+  const noise = ctx.createBuffer(1, total, ctx.sampleRate);
+  const data = noise.getChannelData(0);
+
+  for (let i = 0; i < total; i++) data[i] = Math.random() * 2 - 1;
+
+  // Equal-power head/tail crossfade so the loop never clicks.
+  for (let i = 0; i < xf; i++) {
+    const f = i / xf;
+    data[i] = data[i] * f + data[total - xf + i] * (1 - f);
+  }
+  for (let i = 0; i < xf; i++) data[total - xf + i] = data[i];
+
+  const src = ctx.createBufferSource();
+  src.buffer = noise;
+  src.loop = true;
+  src.playbackRate.value = 1;
+
+  const gain = ctx.createGain();
+  gain.gain.value = 0;
+  gain.gain.setValueAtTime(0.0, ctx.currentTime);
+
+  const band = ctx.createBiquadFilter();
+  band.type = 'bandpass';
+  band.frequency.value = 900;
+  band.Q.value = 0.8;
+
+  const taper = ctx.createBiquadFilter();
+  taper.type = 'lowpass';
+  taper.frequency.value = 1400;
+
+  band.connect(taper).connect(gain).connect(ctx.destination);
+
+  src.connect(band);
+  src.start();
+
+  // Reach full level smoothly after start so there is no initial pop.
+  gain.gain.linearRampToValueAtTime(0.5, ctx.currentTime + 0.15);
+
+  return {
+    stop() {
+      try {
+        const t = ctx.currentTime;
+        gain.gain.cancelScheduledValues(t);
+        gain.gain.setValueAtTime(gain.gain.value, t);
+        gain.gain.linearRampToValueAtTime(0.0001, t + 0.15);
+        src.stop(t + 0.2);
+      } catch {
+        src.stop();
+      }
+    },
+  };
+}

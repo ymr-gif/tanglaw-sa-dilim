@@ -36,10 +36,13 @@
  *
  *   gun-form  the shards converge into the weapon and hold, unfired
  *   bullet    fires the gun, then locks onto the bullet. Loops indefinitely
- *             (the one beat in the deck with sound — a procedural gunshot,
- *             synthesized in sfx.js, no audio file)
+ *             (the procedural gunshot, synthesized in sfx.js, no audio file)
  *   splat     the camera advances through nothing, then the blood, then the
  *             camera withdraws off it
+ *
+ *   The sounds live in sfx.js, synthesized, no audio files: the shot on
+ *   `bullet`, the looping wind that rides the tracking shot, and the wet
+ *   splat when the blood lands on `splat`.
  *
  * THE SPLAT IS THE END OF THE SECTION, AND OF THE DARK HALF OF THE DECK.
  * `grid-dark` — the stain dispersing into a darkened grid of desks — was a
@@ -69,7 +72,7 @@ import { buildGun } from '../shapes/gun.js';
 import { BULLET, VAPOUR, buildWind, resetWind, stepWind } from '../shapes/wind.js';
 import { buildSplat } from '../shapes/splat.js';
 import { createSequence } from '../sequence.js';
-import { gunshot } from '../sfx.js';
+import { gunshot, waterSplat, windWoosh } from '../sfx.js';
 import { rgbOf, solid, clearDelays, swirl } from './_base.js';
 
 const GRID_COLS = 6;
@@ -213,6 +216,14 @@ function windColors() {
  *  the sequencer waits before calling `settleBullet`. */
 const BULLET_PAN_MS = 700;
 
+/** The looping wind's handle, stopped in `stopAll`. One at a time. */
+let wooshHandle = null;
+
+function stopWoosh() {
+  wooshHandle?.stop();
+  wooshHandle = null;
+}
+
 function panToBullet(ctx) {
   const { field } = ctx;
   field.setDrift(0.003);
@@ -220,6 +231,10 @@ function panToBullet(ctx) {
   field.morph(wind().positions, { duration: BULLET_PAN_MS, ease: 'outExpo' });
   field.morphColor(windColors(), { duration: BULLET_PAN_MS });
   field.setUpdate((dt, time) => stepWind(field, wind(), dt, time));
+
+  // The wind sound rides the tracking shot and loops for as long as the beat
+  // holds. `settle` (a jump into this beat) starts it below too.
+  if (!wooshHandle) wooshHandle = windWoosh();
 }
 
 function settleBullet(ctx) {
@@ -228,6 +243,8 @@ function settleBullet(ctx) {
   resetWind(wind());
   field.snap(wind().positions, windColors());
   field.setUpdate((dt, time) => stepWind(field, wind(), dt, time));
+
+  if (!wooshHandle) wooshHandle = windWoosh();
 }
 
 /**
@@ -471,6 +488,8 @@ function burst(ctx) {
   const { field, rig } = ctx;
   const { scaleX, scaleY, shiftX } = splatFraming(ctx);
 
+  waterSplat();
+
   dollyAnim?.pause();
   dolly.z = ADVANCE_Z;
   rig.setOffset(0, 0, ADVANCE_Z);
@@ -604,6 +623,7 @@ function stopAll(ctx) {
   beat12.stop();
   dollyAnim?.pause();
   darken(ctx.flash);
+  stopWoosh();
   ctx.field.setSize(1);
 }
 
