@@ -138,12 +138,14 @@ function bezierTangent(p0, p1, p2, p3, t) {
  * with something stuck on the tip. A face needs a face-shaped mass under it
  * before the features on top of it mean anything.
  */
-const EYE_FRAC = 0.04; // per eye
-const MOUTH_FRAC = 0.065;
-const HEAD_FRAC = 0.22;
+const EYE_FRAC = 0.055; // per eye — denser so the bloodshot faces read at distance
+const MOUTH_FRAC = 0.085;
+const HEAD_FRAC = 0.30;
 // Grown 0.14 -> 0.20 2026-09-03, per the reference art's much bigger, more
 // dominant heads — the body is texture, the face is the point, and a small
 // head on a now-larger hooked body read as an afterthought.
+// Grown again to 0.22 by 0.30 2026-09-03: the bloodshot faces need more points
+// to read as a solid red mass against the violet body.
 const HEAD_R = 0.2;
 
 // Close together relative to HEAD_R, on purpose: this is the parameter that

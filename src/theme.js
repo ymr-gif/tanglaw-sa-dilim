@@ -84,7 +84,7 @@ export const COLOR = {
 export const THRESHOLD = {
   student: 0xffe23d, // yellow. purer and brighter than `gold`'s amber
   shadow: 0x8f3dff, // neon violet — electric, cold, nothing like `fuchsia`
-  shadowEye: 0xd9b3ff, // near-white violet, so the eyes read at distance
+  shadowEye: 0xcc2233, // bloodshot red — sinister, reads at distance against violet
 };
 
 /**
