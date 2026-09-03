@@ -14,6 +14,19 @@
  * way: past a certain distance a "crack" stops reading as breakage in one
  * picture and starts reading as several unrelated pieces drifting apart. The
  * composition has to stay findable as itself, only broken.
+ *
+ * TWO CALLERS, ONE SHATTER.
+ *
+ *   Threshold (`thresh-02`) breaks the WHOLE picture about the knife's entry
+ *   point: `buildCracks(ARRIVED, ORIGIN)` with every point.
+ *
+ *   Refusal (`ref-06`) breaks a single WEAPON about its grip. That is a
+ *   smaller, tighter crack — a thing being torn apart in a hand, not a whole
+ *   picture breaking — so it passes `pick` (that weapon's point subset) to
+ *   leave the rest of the field alone, and lower displacement / rotation so
+ *   the shards read as breaking OUT of the grip rather than as the whole
+ *   frame shattering. Same wedge machinery underneath; only the scope and
+ *   violence differ.
  */
 
 import { POINTS } from '../theme.js';
@@ -43,28 +56,56 @@ const ROT_MAX = 0.095;
 /** "crack" — fixed so the same knife strike produces the same break every run. */
 const SEED = 0xc4ac0001;
 
-export function buildCracks(source, origin) {
+/**
+ * @param {Float32Array} source  the intact shape the shards come out of
+ * @param {[number, number]|[number]} origin  the crack's hinge point
+ * @param {object} [opts]
+ * @param {ArrayLike<number>} [opts.pick]  point indices to crack; default all.
+ *        Unpicked points are copied through untouched, so a single weapon can
+ *        be taken apart while the rest of the field holds.
+ * @param {number} [opts.wedges]  wedge count for THIS call — defaults to WEDGES
+ * @param {number} [opts.displace]  defaults to DISPLACE — the local (Refusal)
+ *        tear uses a smaller value, because a weapon breaking in a grip is not
+ *        the whole frame shattering
+ * @param {number} [opts.rot]  defaults to ROT_MAX — same reason, scaled down
+ */
+export function buildCracks(source, origin, opts = {}) {
   const ox = origin.x ?? origin[0] ?? 0;
   const oy = origin.y ?? origin[1] ?? 0;
+  const pick = opts.pick ?? null;
+  const wedges = opts.wedges ?? WEDGES;
+  const displace = opts.displace ?? DISPLACE;
+  const rotMax = opts.rot ?? ROT_MAX;
 
-  const rand = seededRandom(SEED);
+  // A different seed per call, so two weapons split apart independently rather
+  // than as rotational copies of each other. Within one call it is fixed, so
+  // the same weapon makes the same break every run. The Threshold's single-call
+  // usage gets exactly the old SEED, so its break does not move.
+  const seed = opts.seed ?? (pick && pick.length ? 0x7e3a8001 + (pick.length & 0xff) : SEED);
+  const rand = seededRandom(seed);
 
   // Per-wedge outward direction (its own angular bisector), rotation and
   // reach — decided once so every point in a wedge moves as one rigid piece,
   // the way mask.js's FRACTURE table drives its four shards.
   const wedge = [];
-  for (let w = 0; w < WEDGES; w++) {
-    const mid = (w + 0.5) * (TAU / WEDGES);
+  for (let w = 0; w < wedges; w++) {
+    const mid = (w + 0.5) * (TAU / wedges);
     wedge.push({
       dir: [Math.cos(mid), Math.sin(mid)],
-      rot: (rand() * 2 - 1) * ROT_MAX,
-      mag: DISPLACE + (rand() * 2 - 1) * DISPLACE_VAR,
+      rot: (rand() * 2 - 1) * rotMax,
+      mag: displace + (rand() * 2 - 1) * DISPLACE_VAR,
     });
   }
 
-  const out = new Float32Array(POINTS * 3);
+  // Copy the source through first so UNPICKED points pass untouched — the
+  // caller merges several cracked subsets over one base, so a pick must not
+  // zero the rest of the field.
+  const out = source.slice();
 
-  for (let i = 0; i < POINTS; i++) {
+  const n = pick ? pick.length : POINTS;
+
+  for (let k = 0; k < n; k++) {
+    const i = pick ? pick[k] : k;
     const i3 = i * 3;
     const x = source[i3];
     const y = source[i3 + 1];
@@ -86,7 +127,7 @@ export function buildCracks(source, origin) {
     let a = Math.atan2(dy, dx) + wobble;
     a = ((a % TAU) + TAU) % TAU;
 
-    const w = Math.min(WEDGES - 1, Math.floor((a / TAU) * WEDGES));
+    const w = Math.min(wedges - 1, Math.floor((a / TAU) * wedges));
     const s = wedge[w];
 
     // Pivot about the knife's entry point, not the wedge's own centroid.

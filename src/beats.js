@@ -477,9 +477,10 @@ export const beats = [
     caption: null,
     script: `Fix the toxic environments poisoning our youth and hold the line
              for healing —`,
-    cue: `The hands close into fists, thumbs up. The weapons break and
-          scatter, densest at the crush. Fast — do not wait for it. The dash
-          at the end of "healing" is your click.`,
+    cue: `The hands draw back, gripping — pulling each weapon apart — and both
+          weapons shatter into wedges from where the hands held them, the same
+          shatter the Threshold used. Fast — do not wait for it. The dash at
+          the end of "healing" is your click.`,
   },
   {
     id: 'ref-07',
@@ -491,7 +492,7 @@ export const beats = [
     caption: null,
     script: `— because treating children as lost causes surrenders the
              future.`,
-    cue: `The hands become stars. The debris fades to nothing. Hold here as
+    cue: `The hands become stars. The wedge debris fades to nothing. Hold here as
           long as you like — the stars breathe. Clicking on into close-01
           reshuffles them into the completed mask.`,
   },

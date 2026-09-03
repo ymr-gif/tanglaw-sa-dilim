@@ -635,3 +635,18 @@ machine.
 §6 Refusal note, and the "22 beats" counts in `CONTEXT.md`, `README.md` and
 `overlay/tracker.js`'s comment. A canonical spec that still lists `ref-02` is
 worse than no spec.
+
+**The crush became a tear, 2026-09-03.** Task 5 specified the hands closing
+into fists and the weapons compressing into scattered debris. The rendering
+pass agreed with CONTEXT.md §6 (which by then already said *dismantling* over
+pressure): closure reads as a crush, but pulling reads as taking a weapon
+apart. `ref-06` now draws the open hands BACK along their own `facing` while
+each weapon cracks into ~7 wedges out of its grip point — `buildCracks`
+(`src/shapes/cracks.js`), the same shatter `thresh-02` uses on the whole
+picture, but scoped per weapon with a smaller displacement and rotation. The
+old `crushed()`/`debris()` are RETIRED and kept (deck convention). Two small
+generalizations landed with it: `buildCracks` takes a `pick` subset plus
+per-call `wedges`/`displace`/`rot`, and `buildHands` gained a `pull` pose that
+translates the whole hand out along its `facing` while keeping the fingertips
+lit. `buildCracks` now copies unpicked points through untouched, so several
+cracked subsets can be merged over one base.

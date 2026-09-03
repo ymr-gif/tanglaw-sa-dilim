@@ -382,7 +382,7 @@ Jump key `7`.
 
 **On screen** nothing. The voice carries this beat.
 
-**Click cue** The hands close into fists, thumbs up. The weapons break and scatter, densest at the crush. Fast — do not wait for it. The dash at the end of "healing" is your click.
+**Click cue** The hands draw back, gripping — pulling each weapon apart — and both weapons shatter into wedges from where the hands held them, the same shatter the Threshold used. Fast — do not wait for it. The dash at the end of "healing" is your click.
 
 #### <a id="ref-07"></a>25 · `ref-07`
 
@@ -394,7 +394,7 @@ Jump key `7`.
 
 **On screen** nothing. The voice carries this beat.
 
-**Click cue** The hands become stars. The debris fades to nothing. Hold here as long as you like — the stars breathe. Clicking on into close-01 reshuffles them into the completed mask.
+**Click cue** The hands become stars. The wedge debris fades to nothing. Hold here as long as you like — the stars breathe. Clicking on into close-01 reshuffles them into the completed mask.
 
 ### Close
 

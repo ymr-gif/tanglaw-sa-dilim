@@ -1,20 +1,34 @@
 /**
  * refusal.js — beats 19-24. Six sentences, six images.
  *
- * The classroom becomes the cage, the cage becomes two weapons, hands close out
- * of the shadows and crush them, and the hands themselves become stars.
+ * The classroom becomes the cage, the cage becomes two weapons, hands reach out
+ * of the shadows and tear the weapons apart, and the hands themselves become
+ * stars.
  *
  *   hold     the whole mask, exactly as Prevention left it.
  *   bars     the mask's own points rise into five white prison bars.
  *   weapons  the bars become a knife (left) and the Effects handgun (right).
  *   hands    many yellow hands fade in out of the dark, surrounding both.
- *   crush    the hands close; the weapons break and scatter, denser at the fist.
- *   stars    the hands become stars; the debris fades to nothing.
+ *   crush    the hands PULL BACK, and each weapon shatters into wedges from its
+ *            grip — the thresh-02 shatter (buildCracks), applied per weapon.
+ *   stars    the hands become stars; the wedge debris fades to nothing.
  *
  * THE THROUGH-LINE TO PROTECT: every shape here is made of the same points as
  * the mask. Nothing arrives from outside the piece. That is what stops the
  * section reading as a slideshow of unrelated objects, and it is the same rule
  * that makes the Effects gun defensible.
+ *
+ * THE CRUSH IS A TEAR, NOT A PUNCH. Until the 2026-09-03 rewrite (*) `ref-06`
+ * closed the hands into fists and compressed each weapon into a blurry disc of
+ * debris — a crush. The directive 2026-09-03 replaced it with the same shatter
+ * the Threshold uses on the whole picture: the hands simply draw back, and the
+ * weapon comes apart in wedges radiating from the grip. Closure reads as
+ * pressure; pulling apart reads as dismantling — the section's own word for
+ * what it is asking the audience to do with a weapon. `crushed()` and
+ * `debris()` are RETIRED (the old crush), kept on the deck's usual terms but
+ * no longer wired into any beat.
+ *
+ * (*) documented in CONTEXT.md §6 and generated in docs/RUNSHEET.md.
  *
  * Beat `ref-01` holds Prevention's end state and must never drift from it,
  * which is why this file imports Prevention's own geometry and colour rather
@@ -37,6 +51,7 @@ import { COLOR, POINTS } from '../theme.js';
 import { seededRandom } from '../noise.js';
 import { createSequence } from '../sequence.js';
 import { buildBars } from '../shapes/bars.js';
+import { buildCracks } from '../shapes/cracks.js';
 import { buildGun } from '../shapes/gun.js';
 import { buildHands } from '../shapes/hands.js';
 import { buildKnife } from '../shapes/knife.js';
@@ -52,7 +67,7 @@ import { clearDelays, reshuffle, rgbOf, solid } from './_base.js';
  * Hands take the smaller share deliberately. Ten hands is far more shape than
  * two weapons, but most of a hand is never lit — the palms fade into the dark
  * by design — so the hands need fewer points than their area suggests, and the
- * weapons need to stay bright while they are being crushed.
+ * weapons need to stay bright while they are being torn apart.
  *
  * The weapons therefore thin when the hands arrive: at `weapons` all 17000
  * points are in the two shapes, at `hands` only 55% of them still are. That is
@@ -127,6 +142,37 @@ function centreOn(buf, idx, cx, cy) {
 }
 
 /**
+ * A subset's centre and half-extents, for handing to shapes/hands.js.
+ *
+ * MEASURED, not written down. The hands cup whatever the weapons actually are,
+ * so re-tilting or rescaling a weapon moves its hand with it and nothing in
+ * either file needs editing. Hands pinned to hardcoded numbers silently stop
+ * fitting the moment the staging changes, which is exactly what happened when
+ * the knife was re-tilted.
+ */
+function boxOf(buf, idx) {
+  let minX = Infinity;
+  let maxX = -Infinity;
+  let minY = Infinity;
+  let maxY = -Infinity;
+
+  for (let k = 0; k < idx.length; k++) {
+    const i3 = idx[k] * 3;
+    if (buf[i3] < minX) minX = buf[i3];
+    if (buf[i3] > maxX) maxX = buf[i3];
+    if (buf[i3 + 1] < minY) minY = buf[i3 + 1];
+    if (buf[i3 + 1] > maxY) maxY = buf[i3 + 1];
+  }
+
+  return {
+    cx: (minX + maxX) / 2,
+    cy: (minY + maxY) / 2,
+    halfW: (maxX - minX) / 2,
+    halfH: (maxY - minY) / 2,
+  };
+}
+
+/**
  * Both weapons, horizontal and in profile, at matched visual weight.
  *
  * The scales are chosen so the two come out at the same length AND the same
@@ -160,9 +206,12 @@ function weapons() {
   //   gun scale               sqrt(knife area at that scale / 0.7132)
   //
   // The KNIFE is the one that gets capped, and the gun comes down to meet its
-  // area, because `crushed()` and `debris()` below tell the two weapons apart
-  // BY THE SIGN OF X. A knife long enough to reach across the origin would send
-  // its own butt flying to the wrong fist.
+  // area. The original reason — `crushed()`/`debris()` told the two weapons
+  // apart BY THE SIGN OF X, so a knife reaching across the origin sent its own
+  // butt to the wrong fist — is retired with the crush; the tear separates the
+  // two by explicit point subset instead. The scales are kept as they are all
+  // the same, because they were also tuned to the device matrix below and the
+  // visual balance holds.
   //
   // The pair is also sized to survive the device matrix. A wider, more
   // present staging looked better at 16:9 and put both weapons half off the
@@ -176,6 +225,10 @@ function weapons() {
   centreOn(buf, split.allKnife, KNIFE_AT[0], KNIFE_AT[1]);
   centreOn(buf, split.allGun, GUN_AT[0], GUN_AT[1]);
 
+  // Measured off the weapons as actually built, so the hands fit whatever the
+  // staging above produced. Left weapon first, matching HANDS in hands.js.
+  geo.fit = [boxOf(buf, split.allKnife), boxOf(buf, split.allGun)];
+
   geo.weapons = buf;
   return buf;
 }
@@ -186,66 +239,35 @@ function handsOpen() {
 
   const buf = weapons().slice();
   const tip = new Float32Array(POINTS);
-  buildHands(buf, tip, { pick: split.hand });
+  buildHands(buf, tip, { pick: split.hand, fit: geo.fit });
 
   geo.handsOpen = buf;
   geo.tipOpen = tip;
   return buf;
 }
 
-/** Radius of the compacted weapon at the moment the fist closes on it. */
+/* ── RETIRED CRCUSH (the old ref-06) ─────────────────────────────────────── */
+
+/**
+ * The pre-2026-09-03 `ref-06` compressed each weapon into a disc of debris and
+ * scattered it. Superseded by the tear below — the hands now pull the weapons
+ * apart into wedges instead of crushing them — but kept whole on the deck's
+ * usual terms (see effects.js's retired states) so the old behaviour can be
+ * restored with a beat-state change and without archaeology.
+ */
+
 const CRUSH_R = 0.23;
-
-/**
- * How far the crush smears each point around the fist, in radians.
- *
- * This has to be wide — near enough a hundred degrees either way. The gun's
- * material occupies two opposite arcs (barrel up-left, grip down-right) and
- * leaves two voids of well over a hundred degrees between them, so a modest
- * jitter leaves the voids intact and the "crushed" weapon comes out as the
- * same diagonal it went in as, with an arch-shaped hole in the debris. At this
- * width each void is covered from both sides and the mass fills, while the
- * bias toward each point's original direction keeps the collapse reading as a
- * collapse rather than as a teleport.
- */
 const ANGLE_SMEAR = 3.4;
-
-/**
- * How much of each point's original distance from the fist survives the crush.
- *
- * Low, and for the same reason the angle is smeared so hard: a map that
- * preserves radius can only put a point at the centre if something was already
- * there, and the gun's own centre is the hole inside its trigger guard — so the
- * "crushed" weapon came out as a ring with a clean circle punched through it.
- */
 const RADIUS_MEMORY = 0.35;
+const MAX_THROW = 1.05;
 
-/**
- * Fists closed, weapons compressed. The instant before they give.
- *
- * The weapon is remapped into a small disc rather than scaled down inside it.
- * Scaling was the first attempt and it keeps every feature: the gun's trigger
- * guard survived the compression and left a rectangular black hole sitting in
- * the middle of the debris, which reads as a mistake rather than as a crush.
- * A crush destroys the shape.
- *
- * Both halves of that matter. The radial exponent is under 1, so the outside
- * comes in further than the middle and the disc fills solid. The angle needs
- * jitter for the same reason: a purely radial remap preserves which DIRECTIONS
- * had material, and the gun has none at all below its own centre — that empty
- * wedge came straight through the compression as an arch-shaped hole in the
- * debris. Smearing the angle closes it.
- */
 function crushed() {
   if (geo.crushed) return geo.crushed;
-
   const rand = seededRandom(0xc2f1);
   handsOpen();
   const buf = weapons().slice();
   const tip = new Float32Array(POINTS);
-  buildHands(buf, tip, { pick: split.hand, closed: true });
-
-  // How far each weapon reaches, so the remap is in its own terms.
+  buildHands(buf, tip, { pick: split.hand, closed: true, fit: geo.fit });
   const maxR = [1e-4, 1e-4];
   for (let k = 0; k < split.weapon.length; k++) {
     const i3 = split.weapon[k] * 3;
@@ -254,87 +276,138 @@ function crushed() {
     const r = Math.hypot(buf[i3] - fist[0], buf[i3 + 1] - fist[1]);
     if (r > maxR[w]) maxR[w] = r;
   }
-
   for (let k = 0; k < split.weapon.length; k++) {
     const i3 = split.weapon[k] * 3;
     const w = buf[i3] < 0 ? 0 : 1;
     const fist = w === 0 ? KNIFE_AT : GUN_AT;
-
     const px = buf[i3] - fist[0];
     const py = buf[i3 + 1] - fist[1];
     const r = Math.hypot(px, py) || 1e-4;
-
-    // sqrt of a uniform draw fills a disc evenly; mixing in the point's own
-    // radius keeps some memory of what was on the outside.
     const u = RADIUS_MEMORY * (r / maxR[w]) + (1 - RADIUS_MEMORY) * rand();
     const rr = CRUSH_R * Math.sqrt(u);
     const a = Math.atan2(py, px) + (rand() - 0.5) * ANGLE_SMEAR;
-
     buf[i3] = fist[0] + Math.cos(a) * rr;
     buf[i3 + 1] = fist[1] + Math.sin(a) * rr;
   }
-
   geo.crushed = buf;
   geo.tipClosed = tip;
   return buf;
 }
 
-/** How far the furthest fragment can travel. */
-const MAX_THROW = 1.05;
-
-/**
- * The scatter, in two reaches.
- *
- * "Scatter denser" at the crush, which the storyboard calls out twice.
- *
- * The plan proposed displacing each point by an amount proportional to its
- * distance from the fist. That was tried and it does not do what it says: a
- * displacement proportional to radius is a uniform dilation, and dilating a
- * uniform cloud leaves it uniform — what actually appeared on screen was a
- * bright rim with a hollow middle, the exact opposite of the note.
- *
- * What produces the note's image is a displacement drawn from a distribution
- * that is heavily weighted toward zero: nearly every fragment stays close to
- * where the weapon broke and a few fly, so the debris piles up at the fist and
- * thins toward the edges. `pow(rand(), 2.6)` is that distribution.
- *
- * The direction has to be RANDOM, not outward. Pushing every fragment away
- * from the fist evacuates the middle — the mean throw is larger than the
- * crushed weapon's own radius, so an outward kick turns the mass into a ring
- * with a clean hole punched through it. A random direction is a blur instead:
- * the centre stays where the weapon broke and the edges thin, which is the
- * note. Whatever flies far also rises, and that is the difference from the
- * Effects shatter, which throws everything equally in a straight line and
- * reads as violence; this one has to read as release.
- */
 function debris(reach) {
   const key = `debris${reach}`;
   if (geo[key]) return geo[key];
-
   const rand = seededRandom(0xd3b8);
   const buf = crushed().slice();
-
   for (let k = 0; k < split.weapon.length; k++) {
     const i3 = split.weapon[k] * 3;
     const fist = buf[i3] < 0 ? KNIFE_AT : GUN_AT;
-
     const throwOut = Math.pow(rand(), 2.6) * MAX_THROW * reach;
     const a = rand() * Math.PI * 2;
-
     buf[i3] += Math.cos(a) * throwOut;
     buf[i3 + 1] += Math.sin(a) * throwOut + throwOut * 0.55;
     buf[i3 + 2] += (rand() - 0.5) * 0.12 * reach;
   }
-
   geo[key] = buf;
   return buf;
 }
 
-/** The hands become stars. The debris does not transform; it stays and goes. */
+/* ── The tear: the hands pull the weapons apart ──────────────────────────── */
+
+/**
+ * How far, and how hard, each weapon cracks at its grip.
+ *
+ * The weapons sit about 1.4 apart, so these are deliberately LOCAL values —
+ * a weapon breaking in a hand is not the whole frame shattering (that is
+ * thresh-02's buildCracks default). `TEAR_DISPLACE` is the unit displacement
+ * at reach 1; the reach multiplier below (0 -> full crack -> outward drift)
+ * scales it stage by stage. `TEAR_ROT` keeps each wedge barely turning, so the
+ * break reads as pieces forced apart along the pull, not as an explosion.
+ *
+ * TUNE THESE AGAINST THE RENDERED SLIDE, not the numbers: wedge displacement
+ * reads differently at different viewport sizes, exactly like every other
+ * displacement in this deck.
+ */
+const TEAR_DISPLACE = 0.16;
+const TEAR_ROT = 0.06;
+/** The reach that lands before ref-07 hands over — the debris' resting place. */
+const TEAR_FINAL = 1.7;
+
+/**
+ * Both weapons, cracked into wedges about their own grip points.
+ *
+ * The grip point is the weapon's measured box centre (`geo.fit`) — the exact
+ * spot the hands have cupped since `ref-05`, so the crack radiates from where
+ * the tear is happening. Each weapon splits through `buildCracks` (the same
+ * shatter thresh-02 uses on the whole picture) over ITS OWN point subset with
+ * its own origin, then the two are re-merged. Unpicked points (the other
+ * weapon, and any hands already placed) pass through untouched.
+ *
+ * `reach` is a staged magnitude: 0.5 is the crack beginning as the hands draw
+ * back, 1 is the break landing, TEAR_FINAL is the wedges drifting out and
+ * dimming on the way to ref-07.
+ */
+function pulledApart(reach = 1) {
+  const key = `pulled${reach}`;
+  if (geo[key]) return geo[key];
+
+  const base = weapons();
+  const disp = TEAR_DISPLACE * reach;
+  const knifeCrack = buildCracks(base, [geo.fit[0].cx, geo.fit[0].cy], {
+    pick: split.allKnife,
+    displace: disp,
+    rot: TEAR_ROT * Math.min(1, reach),
+  });
+  const gunCrack = buildCracks(base, [geo.fit[1].cx, geo.fit[1].cy], {
+    pick: split.allGun,
+    displace: disp,
+    rot: TEAR_ROT * Math.min(1, reach),
+  });
+
+  const out = base.slice();
+  for (let k = 0; k < split.allKnife.length; k++) {
+    const i3 = split.allKnife[k] * 3;
+    out[i3] = knifeCrack[i3];
+    out[i3 + 1] = knifeCrack[i3 + 1];
+    out[i3 + 2] = knifeCrack[i3 + 2];
+  }
+  for (let k = 0; k < split.allGun.length; k++) {
+    const i3 = split.allGun[k] * 3;
+    out[i3] = gunCrack[i3];
+    out[i3 + 1] = gunCrack[i3 + 1];
+    out[i3 + 2] = gunCrack[i3 + 2];
+  }
+
+  geo[key] = out;
+  return out;
+}
+
+/**
+ * The composed ref-06 state: weapons cracked into wedges AND the hands pulled
+ * back, in one buffer — the hands and the weapons are disjoint point subsets,
+ * so the two poses write to different indices and never collide.
+ */
+function tear(reach) {
+  const key = `tear${reach}`;
+  if (geo[key]) return geo[key];
+  const buf = pulledApart(reach).slice();
+  const tip = new Float32Array(POINTS);
+  buildHands(buf, tip, { pick: split.hand, pull: true, fit: geo.fit });
+  geo[key] = buf;
+  // Same pose for every reach (only the weapon wedge magnitude changes), so the
+  // pulled-back tipness is identical whichever stage built it first.
+  geo.tipTear = tip;
+  return buf;
+}
+
+/** The hands become stars. The wedge debris does not transform; it stays and
+ *  goes — it starts from where the tear left it (pulledApart at TEAR_FINAL),
+ *  so the fragments ref-07 carries are the ones the audience just watched fly. */
 function stars() {
   if (geo.stars) return geo.stars;
 
-  const buf = debris(1).slice();
+  pulledApart(TEAR_FINAL);
+  const buf = pulledApart(TEAR_FINAL).slice();
   const phase = new Float32Array(POINTS);
   const built = buildStars(buf, phase, { pick: split.hand });
 
@@ -502,30 +575,33 @@ function paint(field, dt, time) {
   }
 }
 
-/* ── The crush ──────────────────────────────────────────────────────────── */
+/* ── The tear (render-wise still the "crush" beat) ───────────────────────── */
 
 /**
  * Three stages, through `createSequence` rather than nested `onComplete`, so
- * apply() is one line and a click landing mid-crush cannot leave a half-run
+ * apply() is one line and a click landing mid-tear cannot leave a half-run
  * cascade behind.
+ *
+ * The shape of the beat changed 2026-09-03: instead of closing into fists and
+ * compressing the weapons, the hands draw back and each weapon cracks into
+ * wedges from its grip (tear → pulledApart). The stage rhythm survives — fast
+ * break, shake, then a longer outward drift and dim toward ref-07.
  */
 const crush = createSequence([
   {
-    // Fast. A slow crush reads as a hug.
-    //
-    // The one place in this section that does NOT reshuffle: this is a hand
-    // closing, so deformation is the correct read, and at 420ms a 0.55 stagger
-    // would still have points in flight when the next stage fires.
+    // Fast. The hands begin to draw back and the weapon cracks open at the
+    // grip, in the one motion. This stage could reshuffle, but a 0.55 stagger
+    // at 420ms would still have points in flight when the next stage fires.
     ms: 420,
     play: (ctx) => {
       clearDelays(ctx.field);
-      bright.tip = geo.tipClosed;
+      bright.tip = geo.tipTear;
       bright.ms = 420;
-      ctx.field.morph(crushed(), { duration: 420, ease: 'inQuad' });
+      ctx.field.morph(tear(0.55), { duration: 420, ease: 'inQuad' });
     },
     done: (ctx) => {
-      bright.tip = geo.tipClosed;
-      ctx.field.snap(crushed(), MIXED_COL);
+      bright.tip = geo.tipTear;
+      ctx.field.snap(tear(0.55), MIXED_COL);
     },
   },
   {
@@ -533,13 +609,13 @@ const crush = createSequence([
     play: (ctx) => {
       // Optional on purpose. The camera rig is the Effects plan's Task 1 and is
       // not in the tree right now; Refusal must not be blocked on it, and the
-      // impact reads without a shake. The moment the rig lands, this lights up
+      // break reads without a shake. The moment the rig lands, this lights up
       // with no further change here.
       ctx.rig?.shake(0.035, 380);
       reshuffle(ctx.field, 0.2); // grain in the break, not a redistribution
-      ctx.field.morph(debris(0.28), { duration: 180, ease: 'outExpo' });
+      ctx.field.morph(tear(1), { duration: 180, ease: 'outExpo' });
     },
-    done: (ctx) => ctx.field.snap(debris(0.28), MIXED_COL),
+    done: (ctx) => ctx.field.snap(tear(1), MIXED_COL),
   },
   {
     ms: 1400,
@@ -547,12 +623,12 @@ const crush = createSequence([
       reshuffle(ctx.field, 0.3);
       bright.ms = 1400;
       bright.debrisTo = 0.62; // begins to dim; ref-07 finishes it
-      ctx.field.morph(debris(1), { duration: 1400, ease: 'outExpo' });
+      ctx.field.morph(tear(TEAR_FINAL), { duration: 1400, ease: 'outExpo' });
     },
     done: (ctx) => {
       bright.debris = 0.62;
       bright.debrisTo = 0.62;
-      ctx.field.snap(debris(1), MIXED_COL);
+      ctx.field.snap(tear(TEAR_FINAL), MIXED_COL);
     },
   },
 ]);
@@ -630,8 +706,11 @@ export default {
       }
 
       case 'crush': {
-        crushed();
-        bright.tip = geo.tipOpen;
+        // The hands draw back and the weapons crack open from the grips. The
+        // initial pose (stage 1) is the hands just beginning to draw back, so
+        // build tear() ahead so geo.tipTear exists before crush.start() plays.
+        tear(0.55);
+        bright.tip = geo.tipTear;
         bright.lift = 0;
         bright.liftTo = 0;
         bright.debris = 1;
@@ -643,10 +722,11 @@ export default {
       }
 
       case 'stars': {
-        // The hands are what become the stars. The debris does not transform;
-        // it stays where it landed and goes. Drifting it as well reads as busy.
+        // The hands are what become the stars. The wedge debris does not
+        // transform; it stays where the tear threw it and goes. Drifting it as
+        // well reads as busy.
         stars();
-        bright.tip = geo.tipClosed;
+        bright.tip = geo.tipTear;
         bright.ms = 1200;
         bright.lift = 0;
         bright.liftTo = 1; // the tipness gradient resolves into flat starlight
@@ -700,9 +780,10 @@ export default {
 
       case 'crush':
         // The whole three-stage end state, with nothing played. A jump lands
-        // after the crush — no shake, no half-run stage.
-        crushed();
-        bright.tip = geo.tipClosed;
+        // after the tear — no shake, no half-run stage. `crush.settle()` runs
+        // every stage's `done`, which builds tear(TEAR_FINAL) and tips it.
+        tear(TEAR_FINAL);
+        bright.tip = geo.tipTear;
         bright.lift = 0;
         bright.liftTo = 0;
         bright.breathe = false;
@@ -712,7 +793,7 @@ export default {
 
       case 'stars':
         stars();
-        bright.tip = geo.tipClosed;
+        bright.tip = geo.tipTear;
         bright.lift = 1;
         bright.liftTo = 1;
         bright.debris = 0;

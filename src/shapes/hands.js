@@ -1,7 +1,20 @@
 /**
- * hands.js — many hands, emerging from the shadows.
+ * hands.js — TWO hands, ten fingers, emerging from the shadows.
  *
- * The storyboard's reference image is what makes this shape tractable:
+ * THE COUNT IS THE WHOLE POINT, and an earlier version of this file got it
+ * wrong. The storyboard's reference image is one figure held between TWO hands
+ * — five fingers reaching in from the left, five from the right. It is not ten
+ * hands. A previous pass read it as five small hands per weapon, which is
+ * twenty-five digits a side, and the result was a thicket rather than a grip.
+ *
+ * So, exactly:
+ *
+ *   the LEFT hand's five fingers close on the LEFT weapon  (the knife)
+ *   the RIGHT hand's five fingers close on the RIGHT weapon (the gun)
+ *
+ * Ten fingers in the frame. Never more.
+ *
+ * The storyboard's written spec, which the geometry below answers line by line:
  *
  *   "the hands fade in emerging from the shadows, fingertips vividly visible
  *    fading into the palms, thumbs facing up"
@@ -12,151 +25,304 @@
  * palm to get wrong — the brightness gradient along each finger does the work a
  * silhouette would otherwise have to do.
  *
- * `tipness` is the whole trick: 1 at the fingertip, 0 at the base. The scene
- * multiplies brightness by it.
+ * `tipness` is that gradient: 1 at the fingertip, 0 at the knuckle. The scene
+ * multiplies brightness by it, so the far end of every finger goes to black
+ * before it reaches the edge of the frame. That IS "emerging from the shadows"
+ * — nothing fades the hands in but their own geometry.
  *
- * TWO THINGS THE FIRST VERSION GOT WRONG, both worth keeping written down:
+ * THERE IS NO PALM. The old version drew a dim one so the fingers would read as
+ * attached to something; with five fingers per hand fanned on a knuckle arc
+ * they already do, and the reference shows pure black where a palm would be.
+ * Drawing one only put points where the image wants none.
  *
- *   Fingers radiated from a single point. Five fingers meeting at one place is
- *   five times the point density there, and under additive blending density
- *   beats brightness — so the palms came out as the BRIGHTEST part of the hand
- *   and the whole gradient read backwards. Fingers now start along a knuckle
- *   line, which is both anatomically right and flat in density.
+ * WHAT THE REFERENCE ACTUALLY SHOWS, and what each part of it costs here:
  *
- *   Points were spread evenly along each finger. Even spacing plus a squared
- *   brightness curve still leaves the dim half of every finger carrying half
- *   the points. Sampling is now weighted toward the tip, so brightness and
- *   density agree instead of fighting.
+ *   - The fingers are HUGE. Each one is about a third of the frame long and
+ *     roughly 3.5 times longer than it is wide. The old fingers were 17:1 and
+ *     read as wires. Only the last two joints of each finger are in frame; the
+ *     rest is off in the dark, which is why they look stubby and why that is
+ *     correct rather than a mistake.
+ *   - They fan around the subject rather than lying parallel — an arc of about
+ *     145 degrees a side, from above it, around, to below it.
+ *   - Fingertips point INWARD, at the thing being held.
+ *   - The nails are visible, and they are most of what says "finger" rather
+ *     than "tube". They are drawn here as a bright plate with a dim outline,
+ *     which is the only way a nail can exist in a field that has no lines.
  *
- * It is MANY hands, not two. Five ring each weapon, reaching inward from every
- * side, as the storyboard draws.
+ * TWO THINGS THE FIRST VERSION GOT RIGHT, worth keeping written down:
+ *
+ *   Fingers must not radiate from a single point. Five fingers meeting in one
+ *   place is five times the point density there, and under additive blending
+ *   density beats brightness — so the palms came out as the BRIGHTEST part of
+ *   the hand and the gradient read backwards. Fingers start along a knuckle
+ *   ARC here, so their bases are spread and their tips land spread too.
+ *
+ *   Points are weighted toward the tip. Even spacing plus a squared brightness
+ *   curve still leaves the dim half of every finger carrying half the points,
+ *   so brightness and density fight. Weighted, they agree.
  */
 
 import { POINTS } from '../theme.js';
 import { seededRandom } from '../noise.js';
 
-/** Hands per weapon. The storyboard shows roughly this many around each. */
-const PER_WEAPON = 5;
+/**
+ * The two hands. Index 0 takes the left weapon, index 1 the right.
+ *
+ * `facing` points from the weapon OUT toward the palm, so the left hand faces
+ * left and reaches right. `spin` is which way round the arc the digits are
+ * ordered, and it differs between a left and a right hand for the same reason
+ * it does on a body: both thumbs have to end up at the TOP of their own arc,
+ * which is the storyboard's "thumbs facing up".
+ *
+ * Where each hand actually sits is not written here — it comes from the `fit`
+ * the caller measures off the weapons themselves.
+ */
+const HANDS = [
+  { facing: Math.PI, spin: -1 },
+  { facing: 0, spin: 1 },
+];
 
-/** Where the two weapons sit. The hands ring these. */
-const WEAPON_X = [-0.71, 0.71];
+/** How far round the weapon the five knuckles are spread. About 135 degrees:
+ *  the reference reaches in from above the subject, round it, and below. */
+const ARC_SPAN = 2.35;
 
 /**
- * The ring is an ellipse, taller than it is wide. A circular ring puts a hand
- * from each side into the same patch of frame between the two weapons;
- * squeezing it horizontally keeps that crowd readable without losing the
- * "surrounded from every direction" read the storyboard is after.
+ * The hands FIT THE WEAPONS AT RUNTIME rather than assuming their shape.
+ *
+ * The caller passes each weapon's actual half-extents (see `fit` below) and the
+ * two ellipses are built out from those: the fingertips stop `GRIP_GAP` clear
+ * of the weapon's own box, and the knuckles sit `REACH` further out again.
+ *
+ * That indirection is load-bearing. Lengths derived this way give an even gap
+ * all the way round something that is NOT round — on a pair of circles the
+ * fingers coming from straight above would bury themselves in a long flat
+ * weapon while the ones from the side were still half a frame short. It also
+ * means the grip follows the weapons wherever the staging puts them: refusal.js
+ * has already re-tilted the knife once since this file was written, and hands
+ * pinned to a hardcoded horizontal ellipse would have quietly stopped cupping
+ * it. Nothing here needs touching when a weapon is rescaled or rotated.
+ *
+ * The knuckle ellipse can and does run past the edge of the frame. That is
+ * fine: a knuckle is at `tipness` 0, which the scene renders at PALM_FLOOR —
+ * near black. The hand runs out of light before it runs out of frame, and that
+ * is the whole of "emerging from the shadows".
  */
-const OPEN_RX = 0.7;
-const OPEN_RY = 0.88;
+const GRIP_GAP = 0.09;
+const REACH = 0.6;
 
 /**
- * Closing pulls the hands IN, and that convergence is the crush — but only so
- * far. Pulled all the way to the weapon, five fists per side overlap into one
- * yellow knot and none of them reads as a hand any more. This radius is the
- * point where they close on the weapon and still stand apart from each other.
+ * Closing pulls the fingertips in to about the radius the crushed weapon
+ * occupies (CRUSH_R in refusal.js) and shortens the reach behind them. The same
+ * five digits, moved — NOT a different shape. An earlier version swapped in a
+ * drawn fist here, which meant the crush was one hand disappearing and another
+ * appearing in its place.
  */
-const CLOSED_RX = 0.42;
-const CLOSED_RY = 0.48;
+const CLOSED_GRIP = 0.26;
+const CLOSED_REACH = 0.46;
 
-/** Offset so no hand sits dead above or dead below a weapon. */
-const RING_PHASE = 0.55;
+/**
+ * How far a hand retracts when PULLING the weapon apart (ref-06).
+ *
+ * The pull pose is the open hand translated out along its own `facing` — the
+ * direction that points away from the weapon. The fingers stay splayed and
+ * reaching, so the read is a hand gripping and then drawing back, which is what
+ * tears the weapon into wedges (see refusal.js's `pulledApart`). It deliberately
+ * does NOT curl into a fist: closing is the old crush, and the pull is meant to
+ * read as the opposite of a crush.
+ */
+const PULL_BACK = 0.55;
 
-/** Four fingers, index to pinky. The middle is longest; the pinky is short. */
-const FINGER_LEN = [0.3, 0.36, 0.34, 0.25];
+/**
+ * Used when the caller passes no `fit`. Only a fallback — refusal.js measures
+ * the weapons it actually built and passes those, so these numbers are not the
+ * ones on screen.
+ */
+const DEFAULT_FIT = [
+  { cx: -0.71, cy: 0, halfW: 0.67, halfH: 0.14 },
+  { cx: 0.71, cy: 0, halfW: 0.5, halfH: 0.33 },
+];
 
-/** How far apart the knuckles sit across the hand. */
-const KNUCKLE_STEP = 0.075;
+/** Radius of an ellipse at a given angle. */
+function ellipseR(rx, ry, a) {
+  const c = Math.cos(a) / rx;
+  const s = Math.sin(a) / ry;
+  return 1 / Math.sqrt(c * c + s * s);
+}
 
-/** Fingers sit near-parallel. Any more splay and a hand reads as a starburst. */
-const FINGER_SPLAY = 0.055;
+/**
+ * How far each digit hooks off dead-radial as the hand closes, in radians, all
+ * the same way round. Fingers that close straight in are a press; fingers that
+ * close with a hook are a grip.
+ */
+const CLOSED_CURL = 0.5;
 
-/** Capsule half-width for every digit's shaft — real width, not a flat jitter. */
-const FINGER_HALF_W = 0.018;
+/**
+ * The five digits, thumb first, in order around the arc from the top.
+ *
+ * `reach` scales the derived length so the middle finger is longest and the
+ * thumb and pinky fall short of it, as they do on a hand. `halfW` is in world
+ * units and is the measured proportion of the reference: the visible part of
+ * each finger runs about three times longer than it is wide, and it is THICK —
+ * an earlier pass had these at 17:1 and they read as wires. Only the last two
+ * joints are in frame; the rest is off in the dark, which is why they look
+ * stubby and why that is correct rather than a mistake.
+ */
+const DIGITS = [
+  { reach: 0.88, halfW: 0.125 }, // thumb
+  { reach: 1.0, halfW: 0.108 }, // index
+  { reach: 1.05, halfW: 0.112 }, // middle
+  { reach: 1.0, halfW: 0.104 }, // ring
+  { reach: 0.88, halfW: 0.088 }, // pinky
+];
+
+/**
+ * Per-digit angular offset from dead-radial, in radians.
+ *
+ * Fixed, and deliberately not monotonic. Five digits all aimed exactly at the
+ * weapon's centre is a starburst; a wider even fan is a bigger starburst. The
+ * irregularity is what makes it read as a hand reaching rather than as a
+ * diagram of a hand reaching.
+ */
+const DIGIT_SKEW = [0.14, -0.06, 0.03, -0.09, 0.13];
+
+/**
+ * Per-digit nudge round the arc, on top of the even fifths.
+ *
+ * Evenly spaced digits read as a diagram — five spokes at exactly the same
+ * pitch. Real fingers cluster: index and middle sit close, the pinky drifts
+ * off. This is small enough not to cross any two of them over.
+ */
+const DIGIT_ARC_JITTER = [0.1, -0.05, 0.02, 0.06, -0.09];
+
+/** Fingers narrow slightly toward the tip. Flat sides read as dowels. */
+const TAPER = 0.18;
 
 /**
  * Share of a digit's points spent on its rounded tip cap rather than the
- * straight shaft. Deliberately far above the cap's true share of a capsule's
- * area — at this point density a true area share is a handful of points and
+ * straight shaft. Deliberately above the cap's true share of a capsule's area —
+ * at this point density a true area share is a handful of points and
  * disappears, the same "fine detail vanishes" lesson knife.js states for slim
- * blades. Over-weighting the cap agrees with the existing tip-brightness bias
- * rather than fighting it: the tip is already meant to be the brightest part.
+ * blades. Over-weighting the cap agrees with the tip-brightness bias rather
+ * than fighting it: the tip is already meant to be the brightest part.
  */
-const CAP_SHARE = 0.12;
+const CAP_SHARE = 0.1;
+
+/* ── The nail ───────────────────────────────────────────────────────────── */
 
 /**
- * Fixed, IRREGULAR offsets added to each of the four fingers' own direction
- * (index, middle, ring, pinky), on top of the small structural FINGER_SPLAY
- * fan. Not monotonic on purpose — a uniformly wider FINGER_SPLAY was tried
- * and rejected as a starburst (see that constant's comment), so "reaching at
- * odd angles" lives here instead of in a bigger splay. One fixed table,
- * reused by all ten hands — each hand still reads differently on screen
- * because each has its own `aim`.
- */
-const FINGER_ANGLE_JITTER = [-0.34, 0.12, -0.2, 0.3]; // radians, index..pinky
-
-const THUMB_LEN = 0.24;
-const THUMB_OUT = 0.16;
-const THUMB_ANGLE = 0.78;
-
-/** Share of a hand's points that go to the palm rather than to a finger. */
-const PALM_SHARE = 0.16;
-const PALM_SIZE = 0.17;
-
-/**
- * A CLOSED hand is drawn differently from an open one, and it has to be.
+ * A nail cannot be drawn as an outline in a field with no lines, so it is drawn
+ * as a brightness step: the plate reads at full `tipness`, the shaft around it
+ * a little under, and a thin band between them well under. That band is the
+ * outline, and it is the reason the plate reads as sitting ON the finger rather
+ * than as a hot spot in it.
  *
- * Curling the same five fingers inward was tried first and it comes out as five
- * spirals with a spike beside them — a claw, not a fist. A fist has no fingers
- * to read; it is a mass with knuckle banding across it and a thumb on top,
- * which is exactly how the storyboard draws both of them.
- *
- * So: a filled block, three bright bands across its front, and a thumb stub
- * pointing straight up in WORLD space, which is what the storyboard labels.
+ * This is also why the shaft peaks at NAIL_PAD rather than at 1. If the whole
+ * fingertip were already as bright as it can get, a nail would have nowhere
+ * brighter to go.
  */
-const FIST_DEPTH = 0.26;
-const FIST_WIDTH = 0.24;
-const FIST_BANDS = 3;
-const FIST_BAND_STEP = 0.062;
-const FIST_BAND_HALF = 0.014;
-const FIST_MASS_TIP = 0.5;
-const THUMB_UP_LEN = 0.2;
+const NAIL_FROM = 0.68; // fraction along the digit where the plate starts
+const NAIL_TO = 0.96; // and where it stops, short of the very tip
+const NAIL_HALF = 0.62; // share of the local half-width the plate spans
+const NAIL_EDGE = 0.22; // outline thickness, as a share of the plate's radius
+const NAIL_PLATE = 1;
+const NAIL_OUTLINE = 0.34;
+const NAIL_PAD = 0.84; // the brightest the shaft itself gets
+
+/** Falloff of the shaft's own gradient, base to tip. Squared-ish, so the fade
+ *  into the dark end is steep and most of the finger is genuinely dim. */
+const TIP_POW = 1.8;
+
+/** Per-digit share of the points, by area, so a thick digit gets more points
+ *  than a thin one instead of an equal fifth. */
+const DIGIT_CDF = (() => {
+  const cdf = new Float32Array(DIGITS.length);
+  let total = 0;
+  for (let d = 0; d < DIGITS.length; d++) {
+    total += DIGITS[d].reach * DIGITS[d].halfW * 2;
+    cdf[d] = total;
+  }
+  for (let d = 0; d < cdf.length; d++) cdf[d] /= total;
+  return cdf;
+})();
 
 /**
  * @param {Float32Array|null} target   positions; allocated if null
- * @param {Float32Array|null} tipness  per-point 0..1, tip to base; allocated if null
+ * @param {Float32Array|null} tipness  per-point 0..1, base to tip; allocated if null
  * @param {object} opts
  * @param {ArrayLike<number>} [opts.pick] point indices to place; default all
- * @param {boolean} [opts.closed] fists rather than open hands
+ * @param {boolean} [opts.closed] the hands closed on the weapons
+ * @param {boolean} [opts.pull] the hands retracting outward, pulling the weapons
+ *        apart — the open hand translated along its own `facing`. Mutually
+ *        exclusive with `closed` (pulling wins if both are set, by design: the
+ *        two are never both wanted).
+ * @param {Array<{cx:number,cy:number,halfW:number,halfH:number}>} [opts.fit]
+ *        each weapon's measured centre and half-extents, left first. The hands
+ *        are built around these, so a rescaled or re-tilted weapon is still
+ *        cupped without touching this file.
  */
-export function buildHands(target, tipness, { pick = null, closed = false } = {}) {
-  // Same seed for open and closed, so the crush morphs THIS hand rather than
-  // swapping in a different one. Reseeding would make every point jump.
+export function buildHands(
+  target,
+  tipness,
+  { pick = null, closed = false, pull = false, fit = DEFAULT_FIT } = {}
+) {
+  // Same seed open and closed, so the crush morphs THIS hand rather than
+  // swapping in a different one. Both cases run the SAME sampling code below
+  // and differ only in constants, so they consume the random stream at the same
+  // rate by construction — the old version had to hand-count its draws per
+  // branch to keep that true, and a branch that drew one number fewer turned
+  // the crush into a full reshuffle.
   const rand = seededRandom(0x4a5d);
   const positions = target ?? new Float32Array(POINTS * 3);
   const tips = tipness ?? new Float32Array(POINTS);
 
-  const rx = closed ? CLOSED_RX : OPEN_RX;
-  const ry = closed ? CLOSED_RY : OPEN_RY;
-  const hands = [];
+  const curl = closed && !pull ? CLOSED_CURL : 0;
 
-  for (const cx of WEAPON_X) {
-    for (let h = 0; h < PER_WEAPON; h++) {
-      // A full ring, all reaching inward. The hands come out of the dark at
-      // every edge and surround both weapons; a half-arc reads as a canopy.
-      const a = RING_PHASE + (Math.PI * 2 * h) / PER_WEAPON;
-      const aim = a + Math.PI; // fingers point back toward the weapon
+  // Every digit of both hands, resolved once: where it is rooted, which way it
+  // reaches, and how long it is. Ten of these, and there are never more.
+  const digits = [];
+  for (let h = 0; h < HANDS.length; h++) {
+    const hand = HANDS[h];
+    const box = fit[h] ?? DEFAULT_FIT[h];
 
-      hands.push({
-        ox: cx + Math.cos(a) * rx,
-        oy: Math.sin(a) * ry - 0.1,
-        aim,
-        // Perpendicular to the aim — the knuckle line runs along this.
-        px: Math.cos(aim + Math.PI / 2),
-        py: Math.sin(aim + Math.PI / 2),
-        // Storyboard: thumbs facing up. Splay the thumb to whichever side of
-        // this hand's aim actually points higher, rather than to a fixed side.
-        thumbSign: Math.sin(aim + THUMB_ANGLE) >= Math.sin(aim - THUMB_ANGLE) ? 1 : -1,
+    // The two ellipses for THIS weapon. Closed, the grip collapses to a small
+    // circle at the weapon's centre whatever shape the weapon was, because by
+    // then the weapon is a disc of debris and no longer has a shape.
+    const gripRx = closed ? CLOSED_GRIP : box.halfW + GRIP_GAP;
+    const gripRy = closed ? CLOSED_GRIP : box.halfH + GRIP_GAP;
+    const reach = closed ? CLOSED_REACH : REACH;
+    const knuckleRx = gripRx + reach;
+    const knuckleRy = gripRy + reach;
+
+    for (let d = 0; d < DIGITS.length; d++) {
+      // Round the arc from the thumb. `spin` puts the thumb at the top of the
+      // arc for both hands, which is the storyboard's "thumbs facing up".
+      const a =
+        hand.facing +
+        hand.spin *
+          (ARC_SPAN / 2 -
+            (d * ARC_SPAN) / (DIGITS.length - 1) +
+            DIGIT_ARC_JITTER[d]);
+
+      const kx = box.cx + Math.cos(a) * ellipseR(knuckleRx, knuckleRy, a);
+      const ky = box.cy + Math.sin(a) * ellipseR(knuckleRx, knuckleRy, a);
+
+      // Reach back at the weapon, off dead-radial by this digit's own skew,
+      // and hooked further round when the hand is closing.
+      const dir = a + Math.PI + DIGIT_SKEW[d] * hand.spin + curl * hand.spin;
+
+      // Length is the gap between the two ellipses at this digit's own angle,
+      // trimmed by its own reach — so the tips stop an even distance off the
+      // weapon whichever side they come in from.
+      const span =
+        ellipseR(knuckleRx, knuckleRy, a) - ellipseR(gripRx, gripRy, a);
+
+      digits.push({
+        kx,
+        ky,
+        fx: Math.cos(dir),
+        fy: Math.sin(dir),
+        len: span * DIGITS[d].reach,
+        halfW: DIGITS[d].halfW,
       });
     }
   }
@@ -167,140 +333,86 @@ export function buildHands(target, tipness, { pick = null, closed = false } = {}
     const i = pick ? pick[k] : k;
     const i3 = i * 3;
 
-    // SEVEN DRAWS PER POINT, ALWAYS, whichever branch is taken.
-    //
-    // The open and closed hands share one seed so that closing is THIS hand
-    // closing rather than a different hand appearing. That only holds while
-    // both consume the stream at the same rate: a branch that drew fewer
-    // numbers would shift every later point onto a different hand, and the
-    // crush would come out as a full reshuffle instead of a grip.
     const r0 = rand();
     const r1 = rand();
     const r2 = rand();
     const r3 = rand();
     const r4 = rand();
-    const r5 = rand();
-    const r6 = rand();
 
-    const hand = hands[(r0 * hands.length) | 0];
-    // Along the aim, and across it. Every shape below is built in these two.
-    const ax = Math.cos(hand.aim);
-    const ay = Math.sin(hand.aim);
+    // Which hand, then which digit of it by area.
+    const handIdx = r0 < 0.5 ? 0 : 1;
+    let d = DIGITS.length - 1;
+    for (let q = 0; q < DIGIT_CDF.length; q++) {
+      if (r1 <= DIGIT_CDF[q]) {
+        d = q;
+        break;
+      }
+    }
+    const digit = digits[handIdx * DIGITS.length + d];
 
-    let along = 0;
-    let across = 0;
+    // Perpendicular to this digit's own direction — every digit has its own,
+    // so "width" has to follow it rather than the hand's.
+    const px = -digit.fy;
+    const py = digit.fx;
+
+    // Weighted toward the tip, so density and brightness agree.
+    const t = Math.sqrt(r2);
+    const halfW = digit.halfW * (1 - TAPER * t);
+
     let x;
     let y;
     let tip;
 
-    if (closed) {
-      if (r1 < 0.52) {
-        // The mass of the fist.
-        along = (r2 - 0.5) * FIST_DEPTH;
-        across = (r3 - 0.5) * FIST_WIDTH;
-        tip = FIST_MASS_TIP;
-      } else if (r1 < 0.84) {
-        // Knuckle banding across the front face. These are the bright part.
-        const band = (r2 * FIST_BANDS) | 0;
-        along = FIST_DEPTH * 0.5 - band * FIST_BAND_STEP + (r3 - 0.5) * FIST_BAND_HALF * 2;
-        across = (r4 - 0.5) * FIST_WIDTH * 0.94;
-        tip = 1;
-      } else {
-        // The thumb, straight up. Not along the aim — the storyboard labels
-        // "thumb" on both fists and both point up the frame.
-        const up = r2 * THUMB_UP_LEN;
-        x = hand.ox + hand.px * THUMB_OUT * 0.6 * hand.thumbSign + (r3 - 0.5) * 0.04;
-        y = hand.oy + FIST_DEPTH * 0.4 + up;
-        tip = 0.7 + r2 * 0.3;
-
-        positions[i3] = x;
-        positions[i3 + 1] = y + (r4 - 0.5) * 0.02;
-        positions[i3 + 2] = (r6 - 0.5) * 0.06;
-        tips[i] = tip;
-        continue;
-      }
-
-      x = hand.ox + ax * along + hand.px * across + (r5 - 0.5) * 0.014;
-      y = hand.oy + ay * along + hand.py * across + (r6 - 0.5) * 0.014;
-
-      positions[i3] = x;
-      positions[i3 + 1] = y;
-      positions[i3 + 2] = (r4 - 0.5) * 0.06;
-      tips[i] = tip;
-      continue;
-    }
-
-    if (r1 < PALM_SHARE) {
-      // The palm. Almost never lit — it is here so the fingers read as attached
-      // to something, not as floating claws.
-      const back = -PALM_SIZE * (0.2 + r2 * 0.9);
-      across = (r3 - 0.5) * PALM_SIZE * 2;
-      x = hand.ox + ax * back + hand.px * across;
-      y = hand.oy + ay * back + hand.py * across;
-      tip = 0;
+    if (r3 < CAP_SHARE) {
+      // Rounded tip cap: a half-disc centred on the very tip, bulging only
+      // forward (theta confined to +/-90 degrees off the digit's axis) so it
+      // can never fatten the shaft it caps.
+      const capR = digit.halfW * (1 - TAPER) * Math.sqrt(r4);
+      const theta = (r2 - 0.5) * Math.PI;
+      const ca = Math.cos(theta);
+      const sa = Math.sin(theta);
+      const tipX = digit.kx + digit.fx * digit.len;
+      const tipY = digit.ky + digit.fy * digit.len;
+      x = tipX + (digit.fx * ca + px * sa) * capR;
+      y = tipY + (digit.fy * ca + py * sa) * capR;
+      tip = NAIL_PAD;
     } else {
-      // 0 is the thumb; 1-4 are the fingers, in order across the knuckles.
-      const finger = (r2 * 5) | 0;
-      const isThumb = finger === 0;
+      const off = (r4 - 0.5) * 2 * halfW;
+      const r = t * digit.len;
+      x = digit.kx + digit.fx * r + px * off;
+      y = digit.ky + digit.fy * r + py * off;
 
-      let base;
-      let dir;
-      let len;
+      tip = NAIL_PAD * Math.pow(t, TIP_POW);
 
-      if (isThumb) {
-        base = THUMB_OUT * hand.thumbSign;
-        len = THUMB_LEN;
-        dir = hand.aim + THUMB_ANGLE * hand.thumbSign;
-      } else {
-        const f = finger - 1;
-        base = (f - 1.5) * KNUCKLE_STEP;
-        len = FINGER_LEN[f];
-        // Near-parallel structural fan, plus a fixed irregular offset per
-        // finger — the knuckle origin (`base`) is untouched, so the flat-
-        // density fix from the first version stands; only the AIM diverges.
-        dir = hand.aim + (f - 1.5) * FINGER_SPLAY + FINGER_ANGLE_JITTER[f];
-      }
-
-      const kx = hand.ox + hand.px * base;
-      const ky = hand.oy + hand.py * base;
-      const fx = Math.cos(dir);
-      const fy = Math.sin(dir);
-      // Perpendicular to THIS digit's own direction, not the hand's — every
-      // digit now has its own dir, so "width" has to follow it.
-      const px2 = -fy;
-      const py2 = fx;
-
-      if (r4 < CAP_SHARE) {
-        // Rounded tip cap: a half-disc of radius FINGER_HALF_W centred on
-        // the very tip, bulging only forward (theta confined to ±90° off
-        // the digit's axis) so it can never fatten the shaft it caps.
-        const capR = FINGER_HALF_W * Math.sqrt(r3);
-        const theta = (r5 - 0.5) * Math.PI;
-        const ca = Math.cos(theta);
-        const sa = Math.sin(theta);
-        const tipX = kx + fx * len;
-        const tipY = ky + fy * len;
-        x = tipX + (fx * ca + px2 * sa) * capR;
-        y = tipY + (fy * ca + py2 * sa) * capR;
-        tip = 1;
-      } else {
-        // The shaft: a straight capsule body, half-width FINGER_HALF_W.
-        // Weighted toward the tip exactly as before (t = sqrt(r3)), so
-        // brightness and density still agree; `off` is a true perpendicular
-        // offset within the capsule's width, replacing the old flat jitter.
-        const t = Math.sqrt(r3);
-        const off = (r5 - 0.5) * 2 * FINGER_HALF_W;
-        const r = t * len;
-        x = kx + fx * r + px2 * off;
-        y = ky + fy * r + py2 * off;
-        tip = t * t; // squared, so the falloff into the palm is steep
+      // The nail plate, and the dim band that outlines it. An OVAL, not a
+      // rectangle: a rectangular plate came out as a bright bar down the
+      // finger and read as a highlight rather than as a nail.
+      if (t >= NAIL_FROM && t <= NAIL_TO) {
+        const du = ((t - NAIL_FROM) / (NAIL_TO - NAIL_FROM)) * 2 - 1;
+        const dv = off / (halfW * NAIL_HALF);
+        const q = du * du + dv * dv;
+        if (q <= 1) {
+          // Distance in from the oval's own border.
+          const edge = 1 - Math.sqrt(q);
+          tip = edge < NAIL_EDGE ? NAIL_OUTLINE : NAIL_PLATE;
+        }
       }
     }
 
     positions[i3] = x;
     positions[i3 + 1] = y;
-    positions[i3 + 2] = (r6 - 0.5) * 0.06;
+    positions[i3 + 2] = (r3 - 0.5) * 0.06;
     tips[i] = tip;
+
+    // The pull: translate this point out along its hand's `facing` — the
+    // direction away from the weapon. Applied per point inside the loop so it
+    // follows the same hand index the digit came from; the whole hand moves as
+    // one rigid body and the weapon is left behind to shatter.
+    if (pull) {
+      const h = HANDS[handIdx];
+      positions[i3] += Math.cos(h.facing) * PULL_BACK;
+      positions[i3 + 1] += Math.sin(h.facing) * PULL_BACK;
+    }
   }
 
   return { positions, tipness: tips };

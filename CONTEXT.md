@@ -399,8 +399,13 @@ Festival color enters the deck here for the first time.
 **Refusal.** Six beats, one per sentence. The mask holds whole, exactly as
 Prevention left it, then its own points rise into prison bars; the bars
 become a knife and the Effects handgun; many hands fade in out of the
-shadows around them; the hands close and the weapons break and scatter; the
-hands become stars. Every shape is made of the same points as the mask —
+shadows around them; the hands draw back and pull the weapons apart — each
+weapon shatters into wedges from its grip, the same right-width shatter the
+Threshold uses on the whole picture — and the hands become stars. Closing
+into fists and crushing the weapons was the plan until 2026-09-03 (retired
+as `crushed()`/`debris()`): closure reads as pressure, but pulling apart
+reads as *dismantling*, which is the section's own word for what it asks of
+a weapon. Every shape is made of the same points as the mask —
 nothing arrives from outside the piece. Bars white, weapons bright white,
 hands and stars yellow. Transitions reshuffle rather than lerp. `ref-03` used
 to be the only beat where the audience read a full sentence on screen; its
