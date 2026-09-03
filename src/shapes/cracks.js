@@ -21,16 +21,24 @@ import { seededRandom } from '../noise.js';
 
 const TAU = Math.PI * 2;
 
+/**
+ * The shatter is small by default so the composition stays findable as one
+ * broken picture (see the header note). `thresh-02` asks for MORE violence,
+ * so the displacement and per-wedge wander are pushed up from the stock
+ * values: the wedges still hinge on the knife's entry point and stay legible,
+ * but the break reads as a hard, wide shatter instead of a hairline crack.
+ */
+
 /** ~7 wedges, per the storyboard's shatter — enough to read as broken glass,
  *  few enough that each wedge is still a legible chunk of the picture. */
 const WEDGES = 7;
 
-/** How far a wedge travels outward. Small: see the header comment. */
-const DISPLACE = 0.075;
-const DISPLACE_VAR = 0.03;
+/** How far a wedge travels outward. Bigger = the wider shatter thresh-02 wants. */
+const DISPLACE = 0.135;
+const DISPLACE_VAR = 0.055;
 
-/** Small rotation per wedge — enough to look shattered, not spun. */
-const ROT_MAX = 0.05;
+/** Rotation per wedge — more turn reads as a more violent crumple. */
+const ROT_MAX = 0.095;
 
 /** "crack" — fixed so the same knife strike produces the same break every run. */
 const SEED = 0xc4ac0001;
