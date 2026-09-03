@@ -36,6 +36,8 @@
  *
  *   gun-form  the shards converge into the weapon and hold, unfired
  *   bullet    fires the gun, then locks onto the bullet. Loops indefinitely
+ *             (the one beat in the deck with sound — a procedural gunshot,
+ *             synthesized in sfx.js, no audio file)
  *   splat     the camera advances through nothing, then the blood, then the
  *             camera withdraws off it
  *
@@ -67,6 +69,7 @@ import { buildGun } from '../shapes/gun.js';
 import { BULLET, VAPOUR, buildWind, resetWind, stepWind } from '../shapes/wind.js';
 import { buildSplat } from '../shapes/splat.js';
 import { createSequence } from '../sequence.js';
+import { gunshot } from '../sfx.js';
 import { rgbOf, solid, clearDelays, swirl } from './_base.js';
 
 const GRID_COLS = 6;
@@ -129,6 +132,9 @@ function formGun(ctx) {
  * fires the gun AND carries on into the bullet pan, with no second click
  * in between. It briefly had its own beat (`eff-04`); that added a pause
  * the storyboard never asked for, so it was folded back in here.
+ *
+ * `gunshot()` runs first, ahead of the flash, so the sound and the light land
+ * together. It is the only audio in the deck; see sfx.js.
  */
 function fire(ctx) {
   const { field, mask, rig, flash } = ctx;
@@ -137,6 +143,8 @@ function fire(ctx) {
   // `eff-00` already ran to completion, which is the only way to reach this
   // beat by clicking through — but apply() can also enter it directly.
   field.snap(gun(mask.shardOf), GUN_ASH);
+
+  gunshot();
 
   flash.hidden = false;
   // A frame between unhiding and lighting, or the transition has nothing to
