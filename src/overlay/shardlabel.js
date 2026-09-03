@@ -129,6 +129,10 @@ export function createShardLabel(overlayEl) {
       const padX = Math.max(w * 0.06, 32);
       const padY = Math.max(h * 0.04, 32);
 
+      // First pass: project and clamp each label into the safe area, short of
+      // the bottom band so several words never march down into the caption zone.
+      const boxes = [];
+      const bottomBand = padY + h * 0.06;
       for (const { el, at, push } of live) {
         projected.copy(at);
         if (push) {
@@ -144,8 +148,40 @@ export function createShardLabel(overlayEl) {
         const lh = el.offsetHeight;
 
         x = Math.min(Math.max(x, padX + lw / 2), w - padX - lw / 2);
-        y = Math.min(Math.max(y, padY + lh / 2), h - padY - lh / 2);
+        y = Math.min(Math.max(y, bottomBand + lh / 2), h - padY - lh / 2);
 
+        boxes.push({ el, lw, lh, x, y });
+      }
+
+      // Second pass: keep labels from stacking on each other. When any two
+      // boxes overlap, the upper one is pushed up (it wins the vertical fight)
+      // and the loser sinks to just below it — repeated until nothing touches.
+      let moved = true;
+      while (moved) {
+        moved = false;
+        for (let i = 0; i < boxes.length; i++) {
+          for (let j = i + 1; j < boxes.length; j++) {
+            const a = boxes[i];
+            const b = boxes[j];
+            const overlapX = Math.abs(a.x - b.x) < (a.lw + b.lw) / 2;
+            const overlapY = Math.abs(a.y - b.y) < (a.lh + b.lh) / 2;
+            if (!overlapX || !overlapY) continue;
+
+            const gap = (a.lh + b.lh) / 2 + 10;
+            // The upper label is authoritative; drop the one below it.
+            if (a.y < b.y) {
+              const low = b.y + gap;
+              b.y = Math.min(Math.max(low, bottomBand + b.lh / 2), h - padY - b.lh / 2);
+            } else {
+              const low = a.y + gap;
+              a.y = Math.min(Math.max(low, bottomBand + a.lh / 2), h - padY - a.lh / 2);
+            }
+            moved = true;
+          }
+        }
+      }
+
+      for (const { el, lw, lh, x, y } of boxes) {
         el.style.transform = `translate(${Math.round(x - lw / 2)}px, ${Math.round(y - lh / 2)}px)`;
       }
     },
