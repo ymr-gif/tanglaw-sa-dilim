@@ -137,6 +137,67 @@ export function waterSplat() {
 }
 
 /**
+ * A quick knife slash — the blade cutting through air as it embeds on
+ * `thresh-02`. A short, resonant hiss that sweeps down fast and cuts off
+ * abruptly, with a thock on impact. Drier and sharper than the splash, and
+ * over far faster than the gunshot; it is a single strike, not a report.
+ */
+export function knifeSlash() {
+  arm();
+  if (!audio || audio.state !== 'running') return;
+
+  const ctx = audio;
+  const t = ctx.currentTime;
+
+  const play = (source, out, stopAt) => {
+    source.connect(out).connect(ctx.destination);
+    source.start(t);
+    source.stop(stopAt);
+  };
+
+  // The swoosh — dense noise whose band sweeps down fast, reading as the blade
+  // moving through still air. Stripped of low end so it is a hiss, not a thud.
+  const duration = 0.28;
+  const noise = ctx.createBuffer(1, Math.ceil(ctx.sampleRate * duration), ctx.sampleRate);
+  const data = noise.getChannelData(0);
+  for (let i = 0; i < data.length; i++) data[i] = Math.random() * 2 - 1;
+
+  const src = ctx.createBufferSource();
+  src.buffer = noise;
+  src.playbackRate.setValueAtTime(1.25, t);
+
+  const swooshGain = ctx.createGain();
+  swooshGain.gain.setValueAtTime(0.0001, t);
+  // Sharp attack into a fast decay: the cut happens at once and is gone.
+  swooshGain.gain.exponentialRampToValueAtTime(0.55, t + 0.015);
+  swooshGain.gain.exponentialRampToValueAtTime(0.001, t + duration);
+
+  const swoosh = ctx.createBiquadFilter();
+  swoosh.type = 'bandpass';
+  swoosh.frequency.setValueAtTime(4600, t);
+  swoosh.frequency.exponentialRampToValueAtTime(1500, t + duration);
+  swoosh.Q.value = 1.1;
+
+  swoosh.connect(swooshGain);
+  play(src, swoosh, t + duration);
+
+  // The thock — a short, woody click at the moment of impact. Low-mid energy
+  // gives it weight where the hiss has none, so it lands rather than passes.
+  const thock = ctx.createOscillator();
+  thock.type = 'triangle';
+  thock.frequency.setValueAtTime(220, t);
+  thock.frequency.exponentialRampToValueAtTime(70, t + 0.09);
+
+  const thockGain = ctx.createGain();
+  thockGain.gain.setValueAtTime(0.0, t);
+  thockGain.gain.setValueAtTime(0.5, t + 0.002);
+  thockGain.gain.exponentialRampToValueAtTime(0.001, t + 0.1);
+
+  thock.connect(thockGain);
+  play(thock, thockGain, t + 0.12);
+}
+
+/**
  * A seamless, looping wind — the bullet tearing through the air on `eff-01`'s
  * tracking shot, which holds indefinitely. A broad band-passed noise with no
  * attack or release: it just is, then stops when the beat leaves.

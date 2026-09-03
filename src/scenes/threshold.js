@@ -43,6 +43,7 @@ import { buildStudent } from '../shapes/student.js';
 import { buildShadows, SHADOW_HEADS } from '../shapes/shadow.js';
 import { buildCracks } from '../shapes/cracks.js';
 import { buildKnife } from '../shapes/knife.js';
+import { knifeSlash } from '../sfx.js';
 
 /* ── Who owns which point ───────────────────────────────────────────────── */
 
@@ -449,8 +450,9 @@ const stab = createSequence([
   {
     ms: TIME.crack,
     play: (ctx) => {
-      // The shake fires HERE, not with the fall: this is the frame the tip
-      // reaches the picture, and an impact that lands early reads as a stumble.
+      // The slash fires HERE, not with the fall: this is the frame the tip
+      // reaches the picture, and a sound that lands early reads as a stumble.
+      knifeSlash();
       ctx.rig.shake(0.05, 420);
       ctx.field.morph(SEPARATING, { duration: TIME.crack, ease: 'linear' });
     },
