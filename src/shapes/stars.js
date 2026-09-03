@@ -48,6 +48,11 @@ export function buildStars(target, phase, { pick = null, count = DEFAULT_COUNT }
   const positions = target ?? new Float32Array(POINTS * 3);
   const phases = phase ?? new Float32Array(POINTS);
 
+  // Each point's rest offset from its own star's centre, in the x/y plane.
+  // Scaled per frame, this is how a star breathes in SIZE — multiplying the
+  // spoke offsets about the centre reads as the star swelling and shrinking.
+  const offset = new Float32Array(POINTS * 3);
+
   const rows = Math.max(1, Math.ceil(count / GRID_COLS));
   const stars = [];
 
@@ -90,14 +95,21 @@ export function buildStars(target, phase, { pick = null, count = DEFAULT_COUNT }
     const cos = Math.cos(angle);
     const sin = Math.sin(angle);
 
-    positions[i3] = star.x + along * cos - across * sin;
-    positions[i3 + 1] = star.y + along * sin + across * cos;
+    const ox = along * cos - across * sin;
+    const oy = along * sin + across * cos;
+
+    positions[i3] = star.x + ox;
+    positions[i3 + 1] = star.y + oy;
     positions[i3 + 2] = (rand() - 0.5) * 0.05;
+
+    offset[i3] = ox;
+    offset[i3 + 1] = oy;
+    offset[i3 + 2] = 0;
 
     // Whole stars breathe together and out of phase with each other. Phasing
     // per point would be a shimmer, which is the ember field's idiom.
     phases[i] = star.phase;
   }
 
-  return { positions, phase: phases };
+  return { positions, phase: phases, offset };
 }

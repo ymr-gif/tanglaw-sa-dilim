@@ -336,10 +336,12 @@ function stars() {
 
   const buf = debris(1).slice();
   const phase = new Float32Array(POINTS);
-  buildStars(buf, phase, { pick: split.hand });
+  const built = buildStars(buf, phase, { pick: split.hand });
 
   geo.stars = buf;
   geo.starPhase = phase;
+  // Per-point rest offset from each star's centre, for size breathing.
+  geo.starOffset = built.offset;
   return buf;
 }
 
@@ -388,6 +390,19 @@ const MIXED_COL = (() => {
 /** The palms are NEARLY gone, not absent — hands must read as connected forms. */
 const PALM_FLOOR = 0.06;
 
+/*
+ * Star life (ref-07). Brightness breathes hard enough that a star fades almost
+ * off, then back on; size breathes the spoke offsets about each star's centre
+ * so some swell while others shrink. Both ride the same per-star phase from
+ * stars.js, so each star's pulse and its swelling are one motion, not two.
+ */
+const STAR_TWINKLE_LO = 0.22;
+const STAR_TWINKLE_AMP = 0.78;
+const STAR_TWINKLE_SPEED = 0.55;
+const STAR_SIZE_AMP = 0.16;
+const STAR_SIZE_SPEED = 1.15;
+const STAR_SIZE_SKEW = 0.9;
+
 const bright = {
   /** Per-point hand base: 0 when there are no hands on screen. */
   tip: null,
@@ -427,13 +442,16 @@ function paint(field, dt, time) {
 
   const tip = bright.tip;
   const phase = geo.starPhase;
+  const off = geo.starOffset;
 
   for (let i = 0; i < POINTS; i++) {
     if (!split.wasHand[i]) {
       field.brightness[i] = bright.debris;
+      field.sceneOffset[i * 3 + 2] = 0;
       continue;
     }
 
+    const i3 = i * 3;
     const base = tip ? PALM_FLOOR + tip[i] * (1 - PALM_FLOOR) : 1;
     let v = base + (1 - base) * bright.lift;
 
@@ -441,7 +459,23 @@ function paint(field, dt, time) {
       // Absolute time, so apply() reproduces it exactly. Whole stars breathe
       // together and out of phase with each other; per-point phasing would be
       // a shimmer, which is the Q&A ember field's idiom, not this one.
-      v *= 0.8 + 0.2 * Math.sin(time * 0.9 + phase[i]);
+      //
+      // PULSE: fade far down toward off, then back up — each star at its own
+      // phase, so the field is never all-on or all-off.
+      const tw = 0.5 + 0.5 * Math.sin(time * STAR_TWINKLE_SPEED + phase[i]);
+      v *= STAR_TWINKLE_LO + STAR_TWINKLE_AMP * tw;
+
+      // SIZE: swell and shrink the spoke offsets about the star's centre. The
+      // slight phase skew stops every star from inflating on the same breath.
+      const size = 1 + STAR_SIZE_AMP * Math.sin(time * STAR_SIZE_SPEED + phase[i] * STAR_SIZE_SKEW);
+      const k = size - 1;
+      field.sceneOffset[i3] = off[i3] * k;
+      field.sceneOffset[i3 + 1] = off[i3 + 1] * k;
+      field.sceneOffset[i3 + 2] = 0;
+    } else {
+      field.sceneOffset[i3] = 0;
+      field.sceneOffset[i3 + 1] = 0;
+      field.sceneOffset[i3 + 2] = 0;
     }
 
     field.brightness[i] = v;
