@@ -42,6 +42,9 @@ const GRID_COLS = 5;
  * @param {object} opts
  * @param {ArrayLike<number>} [opts.pick] point indices to place; default all
  * @param {number} [opts.count]
+ * @param {Float32Array|null} [opts.mode] per-point blink mode: 0 slow-fade,
+ *        1 shutter. Allocated if null. Passed out so the caller can drive both
+ *        kinds of blink.
  */
 export function buildStars(target, phase, { pick = null, count = DEFAULT_COUNT } = {}) {
   const rand = seededRandom(0x57a2);
@@ -52,6 +55,7 @@ export function buildStars(target, phase, { pick = null, count = DEFAULT_COUNT }
   // Scaled per frame, this is how a star breathes in SIZE — multiplying the
   // spoke offsets about the centre reads as the star swelling and shrinking.
   const offset = new Float32Array(POINTS * 3);
+  const mode = new Float32Array(POINTS);
 
   const rows = Math.max(1, Math.ceil(count / GRID_COLS));
   const stars = [];
@@ -69,6 +73,10 @@ export function buildStars(target, phase, { pick = null, count = DEFAULT_COUNT }
       spin: rand() * Math.PI * 2,
       size: 0.75 + rand() * 0.5,
       phase: rand() * Math.PI * 2,
+      // Roughly half the field blinks slow (0..100 over a long breath) and
+      // half shutters (fast, sharp on/off). Mixed so the sky never reads as
+      // one uniform pulse. `slow` flags the slow-faders; the rest shutter.
+      slow: rand() < 0.5,
     });
   }
 
@@ -109,7 +117,8 @@ export function buildStars(target, phase, { pick = null, count = DEFAULT_COUNT }
     // Whole stars breathe together and out of phase with each other. Phasing
     // per point would be a shimmer, which is the ember field's idiom.
     phases[i] = star.phase;
+    mode[i] = star.slow ? 0 : 1;
   }
 
-  return { positions, phase: phases, offset };
+  return { positions, phase: phases, offset, mode };
 }

@@ -342,6 +342,8 @@ function stars() {
   geo.starPhase = phase;
   // Per-point rest offset from each star's centre, for size breathing.
   geo.starOffset = built.offset;
+  // Per-point blink mode: 0 slow-fade, 1 shutter.
+  geo.starMode = built.mode;
   return buf;
 }
 
@@ -391,14 +393,20 @@ const MIXED_COL = (() => {
 const PALM_FLOOR = 0.06;
 
 /*
- * Star life (ref-07). Brightness breathes hard enough that a star fades almost
- * off, then back on; size breathes the spoke offsets about each star's centre
- * so some swell while others shrink. Both ride the same per-star phase from
- * stars.js, so each star's pulse and its swelling are one motion, not two.
+ * Star life (ref-07). Stars blink two ways — a slow-fader ramps smoothly from
+ * near-dark to full and back over a long breath; a shutter snaps sharply on
+ * and off, fast. Both are pure functions of the absolute time handed to paint
+ * (never the morph clock), so `apply()` reproduces them exactly and re-entry —
+ * including jumping in mid-line — never restarts or glitches the loop. The
+ * size breath rides the same per-star phase as its blink, so each star's
+ * brightness and its swelling are one motion.
  */
-const STAR_TWINKLE_LO = 0.22;
-const STAR_TWINKLE_AMP = 0.78;
-const STAR_TWINKLE_SPEED = 0.55;
+const STAR_TWINKLE_LO = 0.15;
+const STAR_TWINKLE_AMP = 0.85;
+const SLOW_FADE_SPEED = 0.42; // long, gentle 0..100 breath
+const SHUTTER_SPEED = 4.2; // fast on/off
+const SHUTTER_DUTY = 0.62; // fraction of the cycle spent bright before the snap
+const SHUTTER_DIM = 0.08; // how far a shutter drops when it is "off"
 const STAR_SIZE_AMP = 0.16;
 const STAR_SIZE_SPEED = 1.15;
 const STAR_SIZE_SKEW = 0.9;
@@ -443,6 +451,7 @@ function paint(field, dt, time) {
   const tip = bright.tip;
   const phase = geo.starPhase;
   const off = geo.starOffset;
+  const mode = geo.starMode;
 
   for (let i = 0; i < POINTS; i++) {
     if (!split.wasHand[i]) {
@@ -456,18 +465,29 @@ function paint(field, dt, time) {
     let v = base + (1 - base) * bright.lift;
 
     if (bright.breathe && phase) {
-      // Absolute time, so apply() reproduces it exactly. Whole stars breathe
-      // together and out of phase with each other; per-point phasing would be
-      // a shimmer, which is the Q&A ember field's idiom, not this one.
+      // Pure function of the absolute time, so apply() and re-entry reproduce
+      // it exactly and the loop never restarts or glitches. Whole stars blink
+      // in two idioms, one per star at its own phase:
       //
-      // PULSE: fade far down toward off, then back up — each star at its own
-      // phase, so the field is never all-on or all-off.
-      const tw = 0.5 + 0.5 * Math.sin(time * STAR_TWINKLE_SPEED + phase[i]);
-      v *= STAR_TWINKLE_LO + STAR_TWINKLE_AMP * tw;
+      //   SLOW-FADE  a smooth 0..100 ramp over a long breath — the sky slowly
+      //              brightening and receding.
+      //   SHUTTER    a fast, sharp on/off at a fixed duty — a quick blink that
+      //              spends just over half its time bright, then snaps away.
+      const ph = phase[i];
+      if (mode[i] === 1) {
+        // Shutter: square-ish blink at the fixed duty — bright for duty of the
+        // cycle, then a sharp snap to dim. On the sine this is a level cut.
+        const on = Math.sin(time * SHUTTER_SPEED + ph) > Math.cos((Math.PI / 2) * SHUTTER_DUTY);
+        v *= on ? 1 : SHUTTER_DIM;
+      } else {
+        // Slow-fade: gentle 0..100 across the whole breath.
+        const tw = 0.5 + 0.5 * Math.sin(time * SLOW_FADE_SPEED + ph);
+        v *= STAR_TWINKLE_LO + STAR_TWINKLE_AMP * tw;
+      }
 
-      // SIZE: swell and shrink the spoke offsets about the star's centre. The
-      // slight phase skew stops every star from inflating on the same breath.
-      const size = 1 + STAR_SIZE_AMP * Math.sin(time * STAR_SIZE_SPEED + phase[i] * STAR_SIZE_SKEW);
+      // SIZE: swell and shrink the spoke offsets about the star's centre on a
+      // cycle of its own, so even bright stars are never frozen frames.
+      const size = 1 + STAR_SIZE_AMP * Math.sin(time * STAR_SIZE_SPEED + ph * STAR_SIZE_SKEW);
       const k = size - 1;
       field.sceneOffset[i3] = off[i3] * k;
       field.sceneOffset[i3 + 1] = off[i3 + 1] * k;
